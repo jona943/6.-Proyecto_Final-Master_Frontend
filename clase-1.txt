@@ -1,0 +1,58 @@
+## Ejercicio: tu primer backlog
+Formen subequipos y construyan el plan del módulo.
+
+## Formen equipos de 3-4 personas.
+Asignen roles: PO, Scrum Master y Developers.
+Elijan una app que todos usarían (o el Proyecto Sensei).
+Escriban 5-8 historias de usuario.
+Priorícenlas en un tablero.
+Simulen un daily de 15 minutos.
+
+## Equipo 1 - Jonathan, Rosa y Naomi
+
+## Idea para proyecto ----	
+'Chat como una demo, sera un chat interno y personal'
+
+## Crea 2 historias de usuarios
+ ### Historias de Usuario para el Chat Interno y Personal
+
+ #### 📌 Historia de Usuario 1: Envío y recepción de notas rápidas
+
+  • Historia:
+  Como usuario del chat personal,
+  quiero enviar mensajes de texto a mi propio espacio de chat,
+  para guardar notas, recordatorios o ideas de manera rápida sin
+  salir de la plataforma.
+  • Criterios de Aceptación:
+      1. Debe existir un chat individual o sala personal accesible
+      desde la lista de conversaciones.
+      2. El usuario puede escribir un texto y enviarlo con un botón o
+      presionando Enter.
+      3. El mensaje guardado debe mostrarse inmediatamente en la
+      ventana de chat con la hora actual.
+
+ #### 📌 Historia de Usuario 2: Búsqueda en el historial del chat
+
+  • Historia:
+  Como usuario del chat,
+  quiero buscar palabras clave dentro de mi historial de mensajes,
+  para encontrar rápidamente información o enlaces que guardé
+  anteriormente.
+  • Criterios de Aceptación:
+      1. Debe haber una barra de búsqueda en la interfaz del chat.
+      2. Al escribir un término de búsqueda, se deben filtrar o
+      resaltar los mensajes coincidentes.
+      3. Al hacer clic en un resultado, el chat debe desplazarse
+      automáticamente al mensaje correspondiente.
+
+
+
+## Proyecto: Demo Chat Interno y Personal
+             ##3wre Participantes:
+      • 🎨 (Diseñadora UI/UX)
+      • ⚙️  (Desarrollador Backend)
+      • 💻 (Desarrolladora Frontend)
+      • 📋 (Scrum Master / Facilitador)
+
+
+

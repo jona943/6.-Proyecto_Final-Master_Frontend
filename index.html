@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PastelChat - Aplicación de Chat Moderno</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-background">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- PANTALLA DE LOGIN -->
+    <main id="loginScreen" class="screen active">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="app-logo">
+                    <i data-lucide="message-square-heart" class="logo-icon"></i>
+                </div>
+                <h2>¡Bienvenido de nuevo!</h2>
+                <p>Ingresa tus credenciales para acceder al chat demo.</p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+                <div class="alert-box danger" id="loginError" style="display: none;">
+                    <i data-lucide="alert-circle"></i>
+                    <span>Usuario o contraseña incorrectos</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="username">Usuario</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user" class="input-icon"></i>
+                        <input type="text" id="username" placeholder="Ingresa 'admin'" autocomplete="username" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="lock" class="input-icon"></i>
+                        <input type="password" id="password" placeholder="Ingresa 'admin'" autocomplete="current-password" required>
+                        <button type="button" id="togglePasswordBtn" class="btn-icon-subtle" title="Mostrar u ocultar contraseña">
+                            <i data-lucide="eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="rememberMe" checked>
+                        <span class="checkmark"></span>
+                        Recordar sesión
+                    </label>
+                    <a href="#" class="forgot-link" id="hintBtn">¿Necesitas ayuda?</a>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block">
+                    <span>Iniciar Sesión</span>
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p class="demo-badge">
+                    <i data-lucide="info"></i> Credenciales Demo: <b>User: admin</b> | <b>Pass: admin</b>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- PANTALLA PRINCIPAL DE CHAT -->
+    <main id="chatScreen" class="screen">
+        <div class="chat-app-container">
+
+            <!-- BARRA LATERAL (CONTACTOS & CONVERSACIONES) -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="user-profile-summary">
+                        <div class="avatar-container">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Avatar Admin" class="avatar">
+                            <span class="status-indicator online"></span>
+                        </div>
+                        <div class="user-info">
+                            <h3 class="user-name">Admin User</h3>
+                            <span class="user-role">En línea</span>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-icon" id="logoutBtn" title="Cerrar sesión">
+                            <i data-lucide="log-out"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-search">
+                    <div class="search-input-wrapper">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="contactSearchInput" placeholder="Buscar chats o mensajes...">
+                    </div>
+                </div>
+
+                <div class="sidebar-categories">
+                    <button class="category-tab active" data-filter="all">Todos</button>
+                    <button class="category-tab" data-filter="unread">No leídos</button>
+                    <button class="category-tab" data-filter="groups">Grupos</button>
+                </div>
+
+                <div class="chats-list" id="chatsList">
+                    <!-- Los chats se cargan dinámicamente con JS -->
+                </div>
+            </aside>
+
+            <!-- SECCIÓN PRINCIPAL DEL CHAT -->
+            <section class="chat-viewport">
+                <!-- Encabezado del Chat Activo -->
+                <header class="chat-header">
+                    <button class="btn-icon mobile-back-btn" id="mobileBackBtn" title="Volver a lista">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+                    
+                    <div class="active-contact-info" id="activeContactHeader">
+                        <div class="avatar-container">
+                            <img id="activeContactAvatar" src="" alt="" class="avatar">
+                            <span id="activeContactStatusDot" class="status-indicator"></span>
+                        </div>
+                        <div class="contact-details">
+                            <h3 id="activeContactName">...</h3>
+                            <span id="activeContactStatusText" class="status-text">...</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-header-actions">
+                        <button class="btn-icon" title="Llamada de voz" id="callAudioBtn">
+                            <i data-lucide="phone"></i>
+                        </button>
+                        <button class="btn-icon" title="Videollamada" id="callVideoBtn">
+                            <i data-lucide="video"></i>
+                        </button>
+                        <button class="btn-icon" title="Ver detalles" id="toggleDetailsBtn">
+                            <i data-lucide="more-vertical"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Mensajes -->
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Mensajes dinámicos aquí -->
+                </div>
+
+                <!-- Indicador de "Escribiendo..." -->
+                <div class="typing-indicator-bar" id="typingIndicator" style="display: none;">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span id="typingUserName">Alguien está escribiendo...</span>
+                </div>
+
+                <!-- Barra de entrada de mensajes -->
+                <footer class="chat-input-area">
+                    <div class="emoji-picker-popover" id="emojiPicker" style="display: none;">
+                        <span class="emoji-item">😊</span>
+                        <span class="emoji-item">😂</span>
+                        <span class="emoji-item">❤️</span>
+                        <span class="emoji-item">👍</span>
+                        <span class="emoji-item">🎉</span>
+                        <span class="emoji-item">✨</span>
+                        <span class="emoji-item">🔥</span>
+                        <span class="emoji-item">🙌</span>
+                        <span class="emoji-item">😍</span>
+                        <span class="emoji-item">😎</span>
+                        <span class="emoji-item">🤔</span>
+                        <span class="emoji-item">👋</span>
+                    </div>
+
+                    <div class="input-actions-left">
+                        <button class="btn-icon" id="emojiBtn" title="Añadir emojis">
+                            <i data-lucide="smile"></i>
+                        </button>
+                        <button class="btn-icon" id="attachBtn" title="Adjuntar archivo">
+                            <i data-lucide="paperclip"></i>
+                        </button>
+                    </div>
+
+                    <div class="message-input-wrapper">
+                        <textarea id="messageInput" placeholder="Escribe un mensaje..." rows="1"></textarea>
+                    </div>
+
+                    <div class="input-actions-right">
+                        <button class="btn-primary btn-send" id="sendMessageBtn" title="Enviar mensaje">
+                            <i data-lucide="send"></i>
+                        </button>
+                    </div>
+                </footer>
+            </section>
+
+            <!-- PANEL DE INFORMACIÓN ADICIONAL DEL CONTACTO (OPCIONAL/DESPLEGABLE) -->
+            <aside class="details-panel" id="detailsPanel">
+                <div class="details-header">
+                    <h3>Detalles del Chat</h3>
+                    <button class="btn-icon" id="closeDetailsBtn">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <div class="details-content">
+                    <div class="details-avatar-wrapper">
+                        <img id="detailAvatar" src="" alt="" class="details-avatar">
+                        <h4 id="detailName">...</h4>
+                        <p id="detailRole">...</p>
+                    </div>
+                    <div class="details-section">
+                        <h5>Media & Documentos</h5>
+                        <div class="shared-media-grid">
+                            <div class="media-thumb">📷</div>
+                            <div class="media-thumb">🎨</div>
+                            <div class="media-thumb">📄</div>
+                        </div>
+                    </div>
+                    <div class="details-section">
+                        <button class="btn-danger-outline btn-block" id="clearChatBtn">
+                            <i data-lucide="trash-2"></i> Borrar historial
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- NOTIFICACIONES TOAST -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
