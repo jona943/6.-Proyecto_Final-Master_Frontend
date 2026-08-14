@@ -1,10 +1,10 @@
-# 🤝 Guía de Colaboración y Flujo de Git — Proyecto Nexu
+# Guía de Colaboración y Flujo de Git — Proyecto Nexu
 
 Esta guía contiene los comandos básicos y las buenas prácticas que utilizaremos el equipo (**Jonathan**, **Rosy** y **EmaRama**) para trabajar de forma ordenada, evitar pisarnos el código y resolver integraciones sin problemas.
 
 ---
 
-## 👥 1. Equipo y Asignación de Ramas
+## 1. Equipo y Asignación de Ramas
 
 Cada integrante cuenta con su propia rama de trabajo dedicada a su módulo:
 
@@ -14,11 +14,11 @@ Cada integrante cuenta con su propia rama de trabajo dedicada a su módulo:
 | **Rosy** | `feature/rosy` | Login & Autenticación | `src/views/frontend/login-auth/` |
 | **EmaRama** | `feature/EmaRama` | Chat & Mensajería | `src/views/frontend/chat/` |
 
-> 📌 **Regla de Oro:** La rama `main` es la rama central y compartida. Todo el desarrollo diario se realiza dentro de tu rama `feature/...`.
+> **Regla de Oro:** La rama `main` es la rama central y compartida. Todo el desarrollo diario se realiza dentro de tu rama `feature/...`.
 
 ---
 
-## 🚀 2. Flujo de Trabajo Diario (Paso a Paso)
+## 2. Flujo de Trabajo Diario (Paso a Paso)
 
 Sigue estos pasos **cada vez que vayas a comenzar a trabajar**:
 
@@ -58,7 +58,7 @@ npm run dev
 
 ---
 
-## 💾 3. Cómo Guardar y Subir tus Cambios a GitHub
+## 3. Cómo Guardar y Subir tus Cambios a GitHub
 
 Cuando hayas terminado una función, pantalla o avance en tu módulo:
 
@@ -77,7 +77,7 @@ git add .
 ```bash
 git commit -m "feat(landing): agrega seccion hero y llamados a la accion"
 ```
-*💡 Usa mensajes descriptivos como:*
+*Usa mensajes descriptivos como:*
 - `feat(...)`: para nuevas funcionalidades o vistas.
 - `fix(...)`: para corrección de errores.
 - `style(...)`: para ajustes de CSS o diseño visual.
@@ -96,7 +96,7 @@ git push origin feature/EmaRama
 
 ---
 
-## 🔀 4. Cómo Integrar tus Avances a `main` (Merge)
+## 4. Cómo Integrar tus Avances a `main` (Merge)
 
 Cuando un módulo esté listo y probado, se integra a `main`:
 
@@ -119,29 +119,7 @@ git switch feature/tu-nombre
 
 ---
 
-## ⚠️ 5. ¿Qué hacer si aparece un Conflicto de Merge?
-
-Un conflicto ocurre cuando dos personas editaron la misma línea del mismo archivo.
-
-1. **Git te indicará los archivos en conflicto en la terminal.**
-2. **Abre el archivo en tu editor.** Verás marcas como estas:
-   ```txt
-   <<<<<<< HEAD (lo que está en la rama actual)
-   Código actual
-   =======
-   Código que viene de la otra rama
-   >>>>>>> feature/...
-   ```
-3. **Edita el archivo manualmente:** Deja el código correcto y borra las líneas `<<<<<<<`, `=======` y `>>>>>>>`.
-4. **Guarda el archivo y confirma la solución:**
-   ```bash
-   git add .
-   git commit -m "merge: resuelve conflictos de integracion"
-   ```
-
----
-
-## 📋 6. Resumen Rápido de Comandos Útiles
+## 5. Resumen Rápido de Comandos Útiles
 
 | Qué quiero hacer | Comando |
 | :--- | :--- |
@@ -156,4 +134,4 @@ Un conflicto ocurre cuando dos personas editaron la misma línea del mismo archi
 
 ---
 
-¡Mucho éxito en el desarrollo de **Nexu**! 🚀
+**Nexu**
