@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root {
+  /* Paleta Vanguardista: Obsidian Carbon & Acid Lime */
+  --bg-canvas: #08090b;
+  --bg-surface: #101216;
+  --bg-surface-elevated: #16191f;
+  --bg-surface-hover: #1e222a;
+
+  --text-primary: #f4f5f7;
+  --text-secondary: #7e8796;
+  --text-muted: #484f5c;
+
+  --accent-acid: #d4ff00;          /* Acid Chartreuse / Alta energía */
+  --accent-acid-hover: #e0ff38;
+  --accent-acid-contrast: #08090b;
+
+  --border-subtle: #1c2028;
+  --border-active: #2a303d;
+
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header de Alta Definición */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 2.5rem;
+  background-color: rgba(16, 18, 22, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-badge {
+  width: 28px;
+  height: 28px;
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.app-logo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.4rem;
+  background-color: var(--bg-canvas);
+  padding: 0.3rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.nav-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  padding: 0.45rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.nav-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+}
+
+.nav-btn.active {
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  font-weight: 700;
+}
+
+/* Área de Contenido Principal */
+.app-content {
+  flex: 1;
+  padding: 3rem 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Tarjeta de Visualización de Vista */
+.view-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.view-card:hover {
+  border-color: var(--border-active);
+}
+
+.view-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.08);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 255, 0, 0.2);
+}
+
+.view-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.view-card p {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
