@@ -3,11 +3,21 @@ import './style.css'
 import Landing from '../frontend/landing/Landing.jsx'
 import Login from '../frontend/login-auth/Login.jsx'
 import ChatHome from '../frontend/chat/ChatHome.jsx'
+import { MODULES_DATA, checkBranchStatus } from './moduleValidator.js'
 
 function Demo() {
   const [activeView, setActiveView] = useState(() => {
     const params = new URLSearchParams(window.location.search)
     return params.get('view') || null
+  })
+
+  // Estado con las validaciones de estatus por módulo
+  const [modulesStatus, setModulesStatus] = useState(() => {
+    const initial = {}
+    MODULES_DATA.forEach((mod) => {
+      initial[mod.id] = mod.initialStatus
+    })
+    return initial
   })
 
   // Sincronizar estado si el usuario usa las flechas atrás/adelante del navegador
@@ -18,6 +28,29 @@ function Demo() {
     }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  // Validar dinámicamente el estatus de las ramas contra GitHub / main
+  useEffect(() => {
+    let isMounted = true
+
+    async function validateAllModules() {
+      for (const mod of MODULES_DATA) {
+        const result = await checkBranchStatus(mod.branch)
+        if (isMounted) {
+          setModulesStatus((prev) => ({
+            ...prev,
+            [mod.id]: result
+          }))
+        }
+      }
+    }
+
+    validateAllModules()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const openStandaloneView = (viewName) => {
@@ -84,77 +117,35 @@ function Demo() {
         </div>
 
         <div className="modules-grid">
-          {/* MÓDULO 1: JONATHAN */}
-          <article className="module-card featured">
-            <div className="card-top">
-              <span className="module-badge">Módulo 01 · Presentación</span>
-              <span className="branch-tag">feature/jonathan</span>
-            </div>
-            <h3>Landing Page</h3>
-            <p className="card-desc">
-              Página de aterrizaje, Hero Section con llamado a la acción (CTA), demostración interactiva de chat, características clave y pie de página.
-            </p>
-            <div className="card-meta">
-              <span className="meta-author">Responsable: <strong>Jonathan</strong></span>
-              <span className="meta-status ready">● Maqueta Lista</span>
-            </div>
-            <div className="card-actions">
-              <button
-                className="btn-launch-tab"
-                onClick={() => openStandaloneView('landing')}
-              >
-                Abrir en nueva pestaña ↗
-              </button>
-            </div>
-          </article>
-
-          {/* MÓDULO 2: ROSA */}
-          <article className="module-card">
-            <div className="card-top">
-              <span className="module-badge">Módulo 02 · Autenticación</span>
-              <span className="branch-tag">feature/rosy</span>
-            </div>
-            <h3>Login & Autenticación</h3>
-            <p className="card-desc">
-              Pantallas de inicio de sesión, registro de nuevos usuarios, recuperación de contraseña y validación visual de formularios.
-            </p>
-            <div className="card-meta">
-              <span className="meta-author">Responsable: <strong>Rosy</strong></span>
-              <span className="meta-status in-progress">● En Desarrollo</span>
-            </div>
-            <div className="card-actions">
-              <button
-                className="btn-launch-tab"
-                onClick={() => openStandaloneView('login')}
-              >
-                Abrir en nueva pestaña ↗
-              </button>
-            </div>
-          </article>
-
-          {/* MÓDULO 3: EMARAMA */}
-          <article className="module-card">
-            <div className="card-top">
-              <span className="module-badge">Módulo 03 · Mensajería</span>
-              <span className="branch-tag">feature/EmaRama</span>
-            </div>
-            <h3>Chat & Comunicación</h3>
-            <p className="card-desc">
-              Sidebar de contactos, canales activos, burbujas de mensajes enviadas/recibidas, barra de input y eventos en tiempo real.
-            </p>
-            <div className="card-meta">
-              <span className="meta-author">Responsable: <strong>EmaRama</strong></span>
-              <span className="meta-status in-progress">● En Desarrollo</span>
-            </div>
-            <div className="card-actions">
-              <button
-                className="btn-launch-tab"
-                onClick={() => openStandaloneView('chat')}
-              >
-                Abrir en nueva pestaña ↗
-              </button>
-            </div>
-          </article>
+          {MODULES_DATA.map((mod) => {
+            const status = modulesStatus[mod.id] || mod.initialStatus
+            return (
+              <article key={mod.id} className="module-card">
+                <div className="card-top">
+                  <span className="module-badge">{mod.badge}</span>
+                  <span className="branch-tag">{mod.branch}</span>
+                </div>
+                <h3>{mod.title}</h3>
+                <p className="card-desc">{mod.desc}</p>
+                <div className="card-meta">
+                  <span className="meta-author">
+                    Responsable: <strong>{mod.author}</strong>
+                  </span>
+                  <span className={`meta-status ${status.type}`}>
+                    {status.label}
+                  </span>
+                </div>
+                <div className="card-actions">
+                  <button
+                    className="btn-launch-tab"
+                    onClick={() => openStandaloneView(mod.id)}
+                  >
+                    Abrir en nueva pestaña ↗
+                  </button>
+                </div>
+              </article>
+            )
+          })}
         </div>
       </main>
 
