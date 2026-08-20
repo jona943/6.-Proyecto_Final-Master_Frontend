@@ -51,6 +51,19 @@ export const MODULES_DATA = [
       type: 'in-progress',
       detail: 'Rama feature/EmaRama'
     }
+  },
+  {
+    id: 'profile',
+    badge: 'Módulo 04 · Perfil y Ajustes',
+    title: 'Perfil & Configuración',
+    author: 'Victor',
+    branch: 'feature/victor',
+    desc: 'Edición de perfil de usuario, avatares, estados de presencia, panel de ajustes, selector de tema claro/oscuro e información de contactos.',
+    initialStatus: {
+      label: '● En Desarrollo',
+      type: 'in-progress',
+      detail: 'Rama feature/victor'
+    }
   }
 ]
 

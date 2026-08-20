@@ -3,6 +3,7 @@ import './style.css'
 import Landing from '../frontend/landing/Landing.jsx'
 import Login from '../frontend/login-auth/Login.jsx'
 import ChatHome from '../frontend/chat/ChatHome.jsx'
+import ProfileSettings from '../frontend/profile-settings/ProfileSettings.jsx'
 import { MODULES_DATA, checkBranchStatus } from './moduleValidator.js'
 
 function Demo() {
@@ -65,13 +66,14 @@ function Demo() {
   // =========================================================================
   // 1. MODO AISLADO (RENDERIZACIÓN PURA DE CADA INTEGRANTE)
   // =========================================================================
-  if (activeView === 'landing' || activeView === 'login' || activeView === 'chat') {
+  if (activeView === 'landing' || activeView === 'login' || activeView === 'chat' || activeView === 'profile') {
     return (
       <div className="standalone-canvas">
         {/* Componente puro sin contenedor restrictivo */}
         {activeView === 'landing' && <Landing />}
         {activeView === 'login' && <Login />}
         {activeView === 'chat' && <ChatHome />}
+        {activeView === 'profile' && <ProfileSettings />}
 
         {/* Botón flotante no intrusivo para volver al Hub */}
         <button
