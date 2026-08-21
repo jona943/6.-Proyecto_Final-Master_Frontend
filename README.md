@@ -9,6 +9,7 @@ Proyecto Final del Master Frontend (DEV.F). Nexu una idea de aplicacion de mensa
 - **Jonathan** | Landing Page y Presentacion | `feature/jonathan`
 - **Rosy** | Login y Autenticacion | `feature/rosy`
 - **EmaRama** | Chat y Mensajeria | `feature/EmaRama`
+- **Victor** | Perfil de Usuario y Ajustes | `feature/victor`
 
 ---
 

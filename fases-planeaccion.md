@@ -30,6 +30,17 @@ Para
     - Selector de Emojis.
     - Botón para adjuntar archivos o imágenes.
     - Botón de enviar (o acción con tecla *Enter*).
+- **Perfil de Usuario & Configuración (Ajustes):**
+  - **Modal / Vista de Perfil:**
+    - Visualización y edición de avatar (selector de avatares / carga simulada).
+    - Edición de alias, nombre visible y biografía / estado personalizado.
+    - Selector de estado de presencia (*En línea*, *Ausente*, *No molestar*, *Desconectado*).
+  - **Panel de Ajustes & Preferencias:**
+    - Selector de tema visual: **Modo Oscuro / Modo Claro** (Toggle).
+    - Preferencias de notificaciones y alertas sonoras.
+    - Ajustes de privacidad y seguridad (gestión de usuarios bloqueados, cambio de contraseña).
+  - **Drawer de Información del Contacto:**
+    - Panel lateral para consultar detalles del usuario o contacto con el que se está conversando.
 
 ### 1.2 Datos Simulados (Mock Data)
 - Archivos de datos locales (`mockUsers.js`, `mockChats.js`, `mockMessages.js`) para simular:
