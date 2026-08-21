@@ -1,6 +1,6 @@
 # Guía de Colaboración y Flujo de Git — Proyecto Nexu
 
-Esta guía contiene los comandos básicos y las buenas prácticas que utilizaremos el equipo (**Jonathan**, **Rosy** y **EmaRama**) para trabajar de forma ordenada, evitar pisarnos el código y resolver integraciones sin problemas.
+Esta guía contiene los comandos básicos y las buenas prácticas que utilizaremos el equipo (**Jonathan**, **Rosy**, **EmaRama** y **Victor**) para trabajar de forma ordenada, evitar pisarnos el código y resolver integraciones sin problemas.
 
 ---
 
@@ -13,6 +13,7 @@ Cada integrante cuenta con su propia rama de trabajo dedicada a su módulo:
 | **Jonathan** | `feature/jonathan` | Landing Page & Presentación | `src/views/frontend/landing/` |
 | **Rosy** | `feature/rosy` | Login & Autenticación | `src/views/frontend/login-auth/` |
 | **EmaRama** | `feature/EmaRama` | Chat & Mensajería | `src/views/frontend/chat/` |
+| **Victor** | `feature/victor` | Perfil de Usuario & Configuración | `src/views/frontend/profile-settings/` |
 
 > **Regla de Oro:** La rama `main` es la rama central y compartida. Todo el desarrollo diario se realiza dentro de tu rama `feature/...`.
 
@@ -42,6 +43,9 @@ git switch feature/rosy
 
 # Para EmaRama:
 git switch feature/EmaRama
+
+# Para Victor:
+git switch feature/victor
 ```
 
 ### Paso 3: Sincronizar tu rama con los cambios nuevos de `main`
@@ -92,6 +96,9 @@ git push origin feature/rosy
 
 # EmaRama:
 git push origin feature/EmaRama
+
+# Victor:
+git push origin feature/victor
 ```
 
 ---
