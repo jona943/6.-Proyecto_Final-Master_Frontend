@@ -1,0 +1,1208 @@
+/* ==========================================================================
+   NEXU — MÓDULO DE PERFIL & AJUSTES (CSS ESTILOS COMPLETOS)
+   Paleta: Obsidian Carbon (#08090b) & Acid Lime (#d4ff00)
+   ========================================================================== */
+
+.profile-settings-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  padding: 2.5rem 1.5rem 4rem 1.5rem;
+  box-sizing: border-box;
+  animation: profileFadeIn 0.35s ease-out;
+  position: relative;
+}
+
+/* Soporte para Modo Claro Scoped */
+.profile-settings-wrapper.theme-light {
+  --bg-canvas: #f4f5f8;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f0f2f6;
+  --bg-surface-hover: #e4e7ee;
+  --text-primary: #0e1117;
+  --text-secondary: #5b6577;
+  --text-muted: #8c96a7;
+  --border-subtle: #e2e5eb;
+  --border-active: #c7cdd9;
+  --accent-acid: #82a800;
+  --accent-acid-hover: #93bd00;
+  --accent-acid-contrast: #ffffff;
+}
+
+@keyframes profileFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   1. CONTENEDOR PRINCIPAL & HEADER
+   ========================================================================== */
+.profile-settings-container {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Encabezado del Módulo */
+.profile-header-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-acid), transparent 75%);
+}
+
+.header-meta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.module-badge-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.08);
+  border: 1px solid rgba(212, 255, 0, 0.22);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  letter-spacing: 0.05em;
+}
+
+.profile-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.profile-subtitle {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+/* Resumen del usuario en Header */
+.header-user-quick {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 0.6rem 1.1rem 0.6rem 0.75rem;
+  border-radius: 999px;
+}
+
+.quick-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-active);
+}
+
+.quick-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+
+.quick-name {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.quick-status-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ==========================================================================
+   2. BARRA DE PESTAÑAS (NAVIGATION TABS)
+   ========================================================================== */
+.profile-nav-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: 0.4rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.profile-nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-tab-btn {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-tab-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-surface-hover);
+}
+
+.nav-tab-btn.active {
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(212, 255, 0, 0.22);
+}
+
+.nav-tab-btn.active svg {
+  stroke: var(--accent-acid-contrast);
+}
+
+/* ==========================================================================
+   3. CONTENIDO DE LAS PESTAÑAS
+   ========================================================================== */
+.tab-content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Tarjetas de Sección */
+.settings-section-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.3);
+}
+
+.section-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 1rem;
+}
+
+.section-title-group h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.section-title-group p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+/* ==========================================================================
+   4. TAB 1: MI PERFIL (HERO CARD, AVATAR, ESTADOS)
+   ========================================================================== */
+.profile-hero-row {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0;
+}
+
+.avatar-edit-container {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+}
+
+.main-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-active);
+  background-color: var(--bg-surface-elevated);
+}
+
+.avatar-change-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  border: 2px solid var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.avatar-change-badge:hover {
+  transform: scale(1.1);
+}
+
+.profile-hero-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.hero-display-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.hero-username-handle {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--accent-acid);
+  font-weight: 600;
+}
+
+.hero-join-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Selector de Estados de Presencia */
+.presence-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.85rem;
+}
+
+.presence-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.presence-option-btn:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-active);
+}
+
+.presence-option-btn.active {
+  border-color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.05);
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.online {
+  background-color: #27c93f;
+  box-shadow: 0 0 10px rgba(39, 201, 63, 0.6);
+}
+
+.status-dot.away {
+  background-color: #ffbd2e;
+  box-shadow: 0 0 10px rgba(255, 189, 46, 0.6);
+}
+
+.status-dot.dnd {
+  background-color: #ff5f56;
+  box-shadow: 0 0 10px rgba(255, 95, 86, 0.6);
+}
+
+.status-dot.offline {
+  background-color: #7e8796;
+}
+
+.presence-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.presence-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.presence-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Formularios y Campos */
+.form-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-label-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.form-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input-prefix {
+  position: absolute;
+  left: 1rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-acid);
+  pointer-events: none;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+}
+
+.form-input.has-prefix {
+  padding-left: 2.2rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-acid);
+  box-shadow: 0 0 0 2px rgba(212, 255, 0, 0.15);
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--accent-acid);
+  box-shadow: 0 0 0 2px rgba(212, 255, 0, 0.15);
+}
+
+/* ==========================================================================
+   5. BOTONES Y ACCIONES
+   ========================================================================== */
+.form-actions-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.btn-primary {
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 0.8rem 1.6rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 18px rgba(212, 255, 0, 0.25);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-acid-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(212, 255, 0, 0.35);
+}
+
+.btn-secondary {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.8rem 1.4rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-active);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--text-secondary);
+}
+
+.btn-danger-outline {
+  background: transparent;
+  color: #ff5f56;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 95, 86, 0.35);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-danger-outline:hover {
+  background-color: rgba(255, 95, 86, 0.12);
+  border-color: #ff5f56;
+}
+
+/* ==========================================================================
+   6. TAB 2: AJUSTES & PREFERENCIAS (TOGGLES, THEME CARDS)
+   ========================================================================== */
+.theme-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.theme-card-option {
+  background-color: var(--bg-surface-elevated);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-card-option:hover {
+  border-color: var(--border-active);
+  background-color: var(--bg-surface-hover);
+}
+
+.theme-card-option.active {
+  border-color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.04);
+}
+
+.theme-preview-box {
+  width: 100%;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.theme-preview-box.dark {
+  background-color: #08090b;
+}
+
+.theme-preview-box.dark .preview-side {
+  width: 30%;
+  background-color: #101216;
+  border-right: 1px solid #1c2028;
+}
+
+.theme-preview-box.dark .preview-body {
+  flex: 1;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.theme-preview-box.dark .preview-line {
+  height: 6px;
+  background-color: #1e222a;
+  border-radius: 2px;
+}
+
+.theme-preview-box.dark .preview-line.accent {
+  background-color: #d4ff00;
+  width: 50%;
+}
+
+.theme-preview-box.light {
+  background-color: #f4f5f8;
+}
+
+.theme-preview-box.light .preview-side {
+  width: 30%;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e5eb;
+}
+
+.theme-preview-box.light .preview-body {
+  flex: 1;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.theme-preview-box.light .preview-line {
+  height: 6px;
+  background-color: #dbe0ea;
+  border-radius: 2px;
+}
+
+.theme-preview-box.light .preview-line.accent {
+  background-color: #82a800;
+  width: 50%;
+}
+
+.theme-label-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Lista de Switches / Toggles */
+.settings-toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.toggle-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  gap: 1rem;
+}
+
+.toggle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.toggle-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.toggle-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Interruptor Toggle Switch CSS */
+.switch-control {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch-control input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-round {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-active);
+  transition: 0.25s ease;
+  border-radius: 34px;
+}
+
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-secondary);
+  transition: 0.25s ease;
+  border-radius: 50%;
+}
+
+input:checked + .slider-round {
+  background-color: var(--accent-acid);
+  border-color: var(--accent-acid);
+}
+
+input:checked + .slider-round:before {
+  transform: translateX(22px);
+  background-color: var(--accent-acid-contrast);
+}
+
+/* ==========================================================================
+   7. TAB 3: SEGURIDAD & PRIVACIDAD
+   ========================================================================== */
+.security-session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.session-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  gap: 1rem;
+}
+
+.session-device-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.device-icon-box {
+  width: 42px;
+  height: 42px;
+  background-color: var(--bg-surface-hover);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-acid);
+}
+
+.device-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.device-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-current-session {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #27c93f;
+  background-color: rgba(39, 201, 63, 0.1);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(39, 201, 63, 0.3);
+}
+
+.device-location {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   8. TAB 4: USUARIOS BLOQUEADOS
+   ========================================================================== */
+.blocked-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.blocked-user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  gap: 1rem;
+}
+
+.blocked-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.blocked-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border-active);
+}
+
+.blocked-names {
+  display: flex;
+  flex-direction: column;
+}
+
+.blocked-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.blocked-handle {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.empty-blocked-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* ==========================================================================
+   9. MODAL DE SELECTOR DE AVATARES
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1.5rem;
+}
+
+.modal-dialog-box {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  max-width: 520px;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  animation: modalScaleUp 0.25s ease-out;
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header-row h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  color: var(--text-primary);
+}
+
+.avatar-grid-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.avatar-pick-option {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  padding: 2px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.avatar-pick-option img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-pick-option:hover {
+  transform: scale(1.08);
+}
+
+.avatar-pick-option.selected {
+  border-color: var(--accent-acid);
+  box-shadow: 0 0 16px rgba(212, 255, 0, 0.4);
+}
+
+/* ==========================================================================
+   10. DRAWER DE INFORMACIÓN DE CONTACTO
+   ========================================================================== */
+.contact-drawer-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 9990;
+}
+
+.contact-drawer-panel {
+  width: 100%;
+  max-width: 440px;
+  height: 100%;
+  background-color: var(--bg-surface);
+  border-left: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: -15px 0 40px rgba(0, 0, 0, 0.7);
+  animation: drawerSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes drawerSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.drawer-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.drawer-body-content {
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.drawer-contact-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.drawer-contact-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-active);
+  position: relative;
+}
+
+.drawer-contact-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.drawer-contact-handle {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: var(--accent-acid);
+}
+
+.drawer-contact-bio {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.drawer-action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.drawer-action-buttons button {
+  flex: 1;
+}
+
+.drawer-details-card {
+  width: 100%;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.drawer-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.detail-key {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.detail-val {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   11. TOAST NOTIFICATION (FEEDBACK VISUAL)
+   ========================================================================== */
+.profile-toast-alert {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(16, 18, 22, 0.95);
+  border: 1px solid var(--accent-acid);
+  color: var(--text-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 255, 0, 0.2);
+  z-index: 10001;
+  animation: toastPop 0.3s ease-out;
+}
+
+@keyframes toastPop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 15px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent-acid);
+  box-shadow: 0 0 8px var(--accent-acid);
+}
+
+/* ==========================================================================
+   12. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+@media (max-width: 768px) {
+  .profile-settings-wrapper {
+    padding: 1.5rem 1rem 3rem 1rem;
+  }
+
+  .profile-header-card {
+    padding: 1.25rem 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-user-quick {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nav-tab-btn {
+    min-width: auto;
+    font-size: 0.82rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .settings-section-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .profile-hero-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .form-grid-2col {
+    grid-template-columns: 1fr;
+  }
+
+  .avatar-grid-picker {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
