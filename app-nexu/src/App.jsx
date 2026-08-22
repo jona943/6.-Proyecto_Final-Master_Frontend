@@ -1,9 +1,9 @@
-import Demo from './views/demo/Demo.jsx'
+import Landing from './views/frontend/landing/Landing.jsx'
 
 function App() {
   return (
     <>
-    <Demo />
+    <Landing />
     </>
   )
 }
