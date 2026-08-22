@@ -94,7 +94,7 @@ const ADVANTAGES = [
 // ============================================================================
 // COMPONENTE PRINCIPAL LANDING
 // ============================================================================
-function Landing() {
+function Landing({ onNavigate }) {
   const [currentSlide, setCurrentSlide] = useState(0)
 
   // Auto-avance del carrusel cada 5 segundos
@@ -145,11 +145,19 @@ function Landing() {
           </p>
 
           <div className="hero-actions">
-            <button className="btn-action-primary" type="button">
+            <button
+              className="btn-action-primary"
+              type="button"
+              onClick={() => onNavigate && onNavigate('register')}
+            >
               <IconUserPlus />
               <span>Crear usuario</span>
             </button>
-            <button className="btn-action-secondary" type="button">
+            <button
+              className="btn-action-secondary"
+              type="button"
+              onClick={() => onNavigate && onNavigate('login')}
+            >
               <span>Iniciar sesión</span>
             </button>
           </div>

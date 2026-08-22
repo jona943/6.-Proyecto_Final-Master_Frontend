@@ -74,9 +74,9 @@ const IconKey = () => (
 // ============================================================================
 // COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN
 // ============================================================================
-function Login() {
+function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   // Pestaña activa: 'login' | 'register' | 'forgot'
-  const [activeTab, setActiveTab] = useState('login')
+  const [activeTab, setActiveTab] = useState(initialTab)
 
   // Estados del Formulario de Inicio de Sesión
   const [loginUsername, setLoginUsername] = useState('')
@@ -133,8 +133,12 @@ function Login() {
   // 1. Manejar Inicio de Sesión
   const handleLoginSubmit = (e) => {
     e.preventDefault()
-    const errors = {}
+    if (onLoginSuccess) {
+      onLoginSuccess()
+      return
+    }
 
+    const errors = {}
     const cleanUsername = loginUsername.trim().replace(/^@/, '')
     if (!cleanUsername) {
       errors.loginUsername = 'Ingresa tu nombre de usuario.'
@@ -174,8 +178,12 @@ function Login() {
   // 2. Manejar Registro de Usuario
   const handleRegisterSubmit = (e) => {
     e.preventDefault()
-    const errors = {}
+    if (onLoginSuccess) {
+      onLoginSuccess()
+      return
+    }
 
+    const errors = {}
     const cleanUsername = regUsername.trim().toLowerCase().replace(/^@/, '')
     if (!cleanUsername) {
       errors.regUsername = 'El nombre de usuario es obligatorio.'
@@ -264,7 +272,12 @@ function Login() {
     <div className="auth-view-container">
       {/* 1. CABECERA: IDENTIDAD DE MARCA */}
       <header className="auth-header">
-        <div className="auth-brand-mark">
+        <div
+          className="auth-brand-mark"
+          onClick={onNavigateToLanding}
+          style={{ cursor: onNavigateToLanding ? 'pointer' : 'default' }}
+          title={onNavigateToLanding ? 'Volver a la página principal' : undefined}
+        >
           <div className="auth-logo-box">N</div>
           <span className="auth-brand-name">Nexu</span>
           <span className="auth-badge-pill">Módulo 02 · Auth</span>

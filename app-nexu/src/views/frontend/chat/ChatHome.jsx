@@ -115,10 +115,18 @@ const IconMessageSquare = () => (
   </svg>
 )
 
+const IconMenu = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12"></line>
+    <line x1="3" y1="6" x2="21" y2="6"></line>
+    <line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+)
+
 // ============================================================================
 // COMPONENTE PRINCIPAL: CHAT HOME
 // ============================================================================
-function ChatHome() {
+function ChatHome({ onOpenSettings }) {
   const [chats, setChats] = useState(INITIAL_CHATS)
   const [selectedChatId, setSelectedChatId] = useState('chat_bot')
   const [inputText, setInputText] = useState('')
@@ -294,7 +302,12 @@ function ChatHome() {
       <aside className={`chat-sidebar ${mobileView === 'chat' ? 'hidden-mobile' : ''}`}>
         {/* 1.1 Encabezado del Usuario Activo */}
         <header className="chat-user-header">
-          <div className="user-profile-summary">
+          <div
+            className="user-profile-summary"
+            onClick={onOpenSettings}
+            style={{ cursor: onOpenSettings ? 'pointer' : 'default' }}
+            title={onOpenSettings ? 'Ir a Perfil y Configuración' : undefined}
+          >
             <div className="avatar-wrapper">
               <div className="avatar-badge">{CURRENT_USER.avatar}</div>
               <span className={`user-status-dot ${CURRENT_USER.status}`}></span>
@@ -308,13 +321,24 @@ function ChatHome() {
             </div>
           </div>
 
-          <button
-            className="btn-icon-subtle"
-            title="Detalles de usuario"
-            onClick={() => setShowDetailsPanel(!showDetailsPanel)}
-          >
-            <IconInfo />
-          </button>
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+            <button
+              className="btn-icon-subtle"
+              title="Ajustes del chat (3 rayitas)"
+              onClick={onOpenSettings}
+              type="button"
+            >
+              <IconMenu />
+            </button>
+            <button
+              className="btn-icon-subtle"
+              title="Detalles de usuario"
+              onClick={() => setShowDetailsPanel(!showDetailsPanel)}
+              type="button"
+            >
+              <IconInfo />
+            </button>
+          </div>
         </header>
 
         {/* 1.2 Buscador y Filtros */}

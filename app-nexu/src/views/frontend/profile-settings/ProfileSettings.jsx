@@ -89,6 +89,21 @@ const IconX = () => (
   </svg>
 )
 
+const IconArrowLeft = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+)
+
+const IconLogOut = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+    <polyline points="16 17 21 12 16 7"></polyline>
+    <line x1="21" y1="12" x2="9" y2="12"></line>
+  </svg>
+)
+
 // ============================================================================
 // AVATARES PREESTABLECIDOS PARA SELECCIÓN
 // ============================================================================
@@ -106,7 +121,7 @@ const AVATAR_OPTIONS = [
 // ============================================================================
 // COMPONENTE PRINCIPAL: ProfileSettings
 // ============================================================================
-function ProfileSettings() {
+function ProfileSettings({ onBackToChat, onLogout }) {
   // Pestaña Activa
   const [activeTab, setActiveTab] = useState('profile') // 'profile' | 'settings' | 'privacy' | 'blocked'
 
@@ -239,17 +254,46 @@ function ProfileSettings() {
             </p>
           </div>
 
-          <div className="header-user-quick">
-            <img src={profile.avatar} alt="Avatar" className="quick-avatar" />
-            <div className="quick-info">
-              <span className="quick-name">{profile.displayName}</span>
-              <span className="quick-status-label">
-                <span className={`status-dot ${profile.presence}`}></span>
-                {profile.presence === 'online' && 'En línea'}
-                {profile.presence === 'away' && 'Ausente'}
-                {profile.presence === 'dnd' && 'No molestar'}
-                {profile.presence === 'offline' && 'Desconectado'}
-              </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="header-user-quick">
+              <img src={profile.avatar} alt="Avatar" className="quick-avatar" />
+              <div className="quick-info">
+                <span className="quick-name">{profile.displayName}</span>
+                <span className="quick-status-label">
+                  <span className={`status-dot ${profile.presence}`}></span>
+                  {profile.presence === 'online' && 'En línea'}
+                  {profile.presence === 'away' && 'Ausente'}
+                  {profile.presence === 'dnd' && 'No molestar'}
+                  {profile.presence === 'offline' && 'Desconectado'}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.6rem' }}>
+              {onBackToChat && (
+                <button
+                  className="btn-secondary"
+                  onClick={onBackToChat}
+                  type="button"
+                  title="Regresar a los chats"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.6rem 1rem', fontSize: '0.85rem' }}
+                >
+                  <IconArrowLeft />
+                  <span>Volver al chat</span>
+                </button>
+              )}
+              {onLogout && (
+                <button
+                  className="btn-danger-outline"
+                  onClick={onLogout}
+                  type="button"
+                  title="Cerrar sesión y volver al inicio"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.6rem 1rem', fontSize: '0.85rem' }}
+                >
+                  <IconLogOut />
+                  <span>Cerrar sesión</span>
+                </button>
+              )}
             </div>
           </div>
         </header>
