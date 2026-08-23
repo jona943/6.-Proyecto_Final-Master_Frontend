@@ -1,176 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import './Chat.css'
-import { CURRENT_USER, INITIAL_CHATS, BOT_RESPONSES, getUserProfile, logDeviceSession, MOCK_USERS } from './mockData.js'
+import { INITIAL_CHATS, BOT_RESPONSES, getUserProfile, logDeviceSession, MOCK_USERS } from './mockData.js'
+
+import ChatSidebar from './components/ChatSidebar'
+import ActiveChatPanel from './components/ActiveChatPanel'
+import ContactDetailsPanel from './components/ContactDetailsPanel'
+import ConnectUserModal from './components/ConnectUserModal'
+import ChatEmptyState from './components/ChatEmptyState'
 
 // ============================================================================
-// ICONOS SVG VECTORIALES NATIVOS (Zero-Bloat · 100% SVG · Cero Emojis)
-// ============================================================================
-const IconSearch = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
-)
-
-const IconSend = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="22" y1="2" x2="11" y2="13"></line>
-    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-  </svg>
-)
-
-const IconPaperclip = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-  </svg>
-)
-
-const IconArrowLeft = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="19" y1="12" x2="5" y2="12"></line>
-    <polyline points="12 19 5 12 12 5"></polyline>
-  </svg>
-)
-
-const IconCheck = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12"></polyline>
-  </svg>
-)
-
-const IconCheckCheck = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 6 7 17l-5-5"></path>
-    <path d="m22 10-7.5 7.5L13 16"></path>
-  </svg>
-)
-
-const IconInfo = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="16" x2="12" y2="12"></line>
-    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-  </svg>
-)
-
-const IconCopy = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-  </svg>
-)
-
-const IconCode = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="16 18 22 12 16 6"></polyline>
-    <polyline points="8 6 2 12 8 18"></polyline>
-  </svg>
-)
-
-const IconImage = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-    <polyline points="21 15 16 10 5 21"></polyline>
-  </svg>
-)
-
-const IconX = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-)
-
-const IconShield = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-  </svg>
-)
-
-const IconLock = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-)
-
-const IconLink = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-  </svg>
-)
-
-const IconUserPlus = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-    <circle cx="8.5" cy="7" r="4"></circle>
-    <line x1="20" y1="8" x2="20" y2="14"></line>
-    <line x1="23" y1="11" x2="17" y2="11"></line>
-  </svg>
-)
-
-const AvatarNeutral = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="4"></circle>
-    <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
-  </svg>
-)
-
-const AvatarFemale = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 14c-3.3 0-6 2.7-6 6v1h12v-1c0-3.3-2.7-6-6-6z"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-    <path d="M8 8c0 3 1.8 5 4 5s4-2 4-5"></path>
-  </svg>
-)
-
-const AvatarMale = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 14c-3.3 0-6 2.7-6 6v1h12v-1c0-3.3-2.7-6-6-6z"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-    <path d="M9 4.5l3-2 3 2"></path>
-  </svg>
-)
-
-const IconUser = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-)
-
-const IconMail = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-    <polyline points="22,6 12,13 2,6"></polyline>
-  </svg>
-)
-
-const IconTrash = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6"></polyline>
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-  </svg>
-)
-
-const IconMessageSquare = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-  </svg>
-)
-
-const IconMenu = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="3" y1="12" x2="21" y2="12"></line>
-    <line x1="3" y1="6" x2="21" y2="6"></line>
-    <line x1="3" y1="18" x2="21" y2="18"></line>
-  </svg>
-)
-
-// ============================================================================
-// COMPONENTE PRINCIPAL: CHAT HOME
+// COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR)
 // ============================================================================
 function ChatHome({ onOpenSettings, currentUserHandle }) {
   const currentUser = getUserProfile(currentUserHandle)
@@ -181,7 +20,7 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
   const [activeFilter, setActiveFilter] = useState('all') // 'all' | 'unread' | 'online'
   const [isTyping, setIsTyping] = useState(false)
   const [showDetailsPanel, setShowDetailsPanel] = useState(false)
-  const [mobileView, setMobileView] = useState('chat') // 'list' | 'chat'
+  const [mobileView, setMobileView] = useState('list') // 'list' | 'chat'
   const [toastMessage, setToastMessage] = useState('')
   const [presenceStatus, setPresenceStatus] = useState('online') // 'online' | 'away' | 'offline'
 
@@ -194,7 +33,6 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
 
   // Solicitudes entrantes simuladas para testing
   const [incomingRequests, setIncomingRequests] = useState(() => {
-    // Si eres rosi_master, te aparece 1 solicitud entrante de adminUser para probar el flujo de inmediato
     if (currentUser.username === 'rosi_master') {
       return [
         {
@@ -212,7 +50,6 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
 
   // Monitoreo de Conexión y Presencia Real del Usuario
   useEffect(() => {
-    // Registrar o actualizar sesión del dispositivo al montar
     logDeviceSession(currentUser.username)
 
     const handleOnline = () => setPresenceStatus('online')
@@ -311,8 +148,6 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     )
 
     setInputText('')
-
-    // Simular respuesta
     simulateAutoReply(activeChat.id, trimmed)
   }
 
@@ -361,7 +196,7 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     }, 1200)
   }
 
-  // Copiar enlace directo de invitación al portapapeles
+  // Copiar enlace directo de invitación
   const handleCopyInviteLink = () => {
     const rawHandle = currentUser.handle || '@adminUser'
     const inviteUrl = `https://nexu.app/c/${rawHandle}`
@@ -369,12 +204,8 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     if (navigator.clipboard?.writeText) {
       navigator.clipboard
         .writeText(inviteUrl)
-        .then(() => {
-          triggerToast(`Enlace copiado: ${inviteUrl}`)
-        })
-        .catch(() => {
-          triggerToast(`Enlace listo: ${inviteUrl}`)
-        })
+        .then(() => triggerToast(`Enlace copiado: ${inviteUrl}`))
+        .catch(() => triggerToast(`Enlace listo: ${inviteUrl}`))
     } else {
       triggerToast(`Enlace listo: ${inviteUrl}`)
     }
@@ -420,7 +251,7 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     setSearchedUser(null)
   }
 
-  // Aceptar solicitud de conexión -> crea el chat 1 a 1 y lo abre
+  // Aceptar solicitud de conexión
   const handleAcceptRequest = (req) => {
     const partner = req.fromUser
     const newChatId = `chat_${partner.username}`
@@ -461,7 +292,7 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     triggerToast('Solicitud descartada')
   }
 
-  // Eliminar conversación y contacto
+  // Eliminar conversación
   const handleDeleteConversation = (chatId) => {
     setChats((prev) => prev.filter((c) => c.id !== chatId))
     if (selectedChatId === chatId) {
@@ -471,13 +302,13 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     triggerToast('Conversación eliminada')
   }
 
-  // Copiar contenido del mensaje al portapapeles
+  // Copiar contenido del mensaje
   const handleCopyMessage = (text) => {
     navigator.clipboard?.writeText(text)
     triggerToast('Texto copiado al portapapeles')
   }
 
-  // Insertar snippet de código rápido
+  // Insertar snippet de código
   const handleInsertCodeSnippet = () => {
     setInputText((prev) => prev + 'const nexu = true;')
   }
@@ -491,602 +322,84 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     triggerToast('Historial de mensajes reiniciado')
   }
 
-  // Renderizar icono de estado del mensaje
-  const renderStatusIcon = (status) => {
-    if (status === 'read') {
-      return <span className="msg-status-icon read" title="Leído"><IconCheckCheck /></span>
-    }
-    if (status === 'delivered') {
-      return <span className="msg-status-icon delivered" title="Entregado"><IconCheckCheck /></span>
-    }
-    return <span className="msg-status-icon sent" title="Enviado"><IconCheck /></span>
-  }
-
   return (
     <div className="chat-app-layout">
-      {/* Toast no intrusivo */}
+      {/* Toast de retroalimentación rápida */}
       {toastMessage && <div className="toast-feedback">{toastMessage}</div>}
 
-      {/* =====================================================================
-          1. SIDEBAR DE CONVERSACIONES
-          ===================================================================== */}
-      <aside className={`chat-sidebar ${mobileView === 'chat' ? 'hidden-mobile' : ''}`}>
-        {/* 1.1 Encabezado del Usuario Activo */}
-        <header className="chat-user-header">
-          <div
-            className="user-profile-summary"
-            onClick={onOpenSettings}
-            style={{ cursor: onOpenSettings ? 'pointer' : 'default' }}
-            title={onOpenSettings ? 'Ir a Perfil y Configuración' : undefined}
-          >
-            <div
-              className="avatar-wrapper"
-              title={`Estado: ${presenceStatus === 'online' ? 'En línea (activo)' : presenceStatus === 'away' ? 'Ausente (en segundo plano)' : 'Sin conexión'}`}
-            >
-              {currentUser.avatarType === 'female' ? (
-                <div className="avatar-badge" style={{ borderColor: '#ff70a6', color: '#ff70a6' }}>
-                  <AvatarFemale size={18} />
-                </div>
-              ) : currentUser.avatarType === 'male' ? (
-                <div className="avatar-badge" style={{ borderColor: '#70d6ff', color: '#70d6ff' }}>
-                  <AvatarMale size={18} />
-                </div>
-              ) : currentUser.avatarType === 'neutral' ? (
-                <div className="avatar-badge" style={{ borderColor: 'var(--accent-acid)', color: 'var(--accent-acid)' }}>
-                  <AvatarNeutral size={18} />
-                </div>
-              ) : currentUser.avatarType === 'shield' ? (
-                <div className="avatar-badge" style={{ borderColor: '#ffd670', color: '#ffd670' }}>
-                  <IconShield />
-                </div>
-              ) : (
-                <div className="avatar-badge">{currentUser.avatar}</div>
-              )}
-              <span className={`user-status-dot ${presenceStatus}`}></span>
-            </div>
-            <div className="user-info-meta">
-              <div className="user-name-row">
-                <span className="user-display-name">{currentUser.name}</span>
-                <span className="tag-active-pill">TÚ</span>
-              </div>
-              <span className="user-handle-sub">
-                {currentUser.handle} · {presenceStatus === 'online' ? 'En línea' : presenceStatus === 'away' ? 'Ausente' : 'Desconectado'}
-              </span>
-            </div>
-          </div>
+      {/* 1. Sidebar de Conversaciones */}
+      <ChatSidebar
+        mobileView={mobileView}
+        currentUser={currentUser}
+        presenceStatus={presenceStatus}
+        onOpenSettings={onOpenSettings}
+        onOpenConnectModal={() => setShowConnectModal(true)}
+        onToggleDetailsPanel={() => setShowDetailsPanel(!showDetailsPanel)}
+        showDetailsPanel={showDetailsPanel}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        chatsCount={chats.length}
+        incomingRequests={incomingRequests}
+        onAcceptRequest={handleAcceptRequest}
+        onRejectRequest={handleRejectRequest}
+        filteredChats={filteredChats}
+        activeChatId={activeChat?.id}
+        onSelectChat={handleSelectChat}
+        onCopyInviteLink={handleCopyInviteLink}
+      />
 
-          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-            <button
-              className="btn-icon-subtle btn-new-chat"
-              title="Conectar con nuevo usuario (+)"
-              onClick={() => setShowConnectModal(true)}
-              type="button"
-            >
-              <IconUserPlus />
-            </button>
-            <button
-              className="btn-icon-subtle"
-              title="Ajustes del chat (3 rayitas)"
-              onClick={onOpenSettings}
-              type="button"
-            >
-              <IconMenu />
-            </button>
-            <button
-              className="btn-icon-subtle"
-              title="Detalles de usuario"
-              onClick={() => setShowDetailsPanel(!showDetailsPanel)}
-              type="button"
-            >
-              <IconInfo />
-            </button>
-          </div>
-        </header>
-
-        {/* 1.2 Buscador y Filtros */}
-        <div className="chat-search-bar-box">
-          <div className="search-input-wrapper">
-            <IconSearch />
-            <input
-              type="text"
-              placeholder="Buscar contactos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          {chats.length > 0 && (
-            <div className="filter-pills">
-              <button
-                className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setActiveFilter('all')}
-              >
-                Todos ({chats.length})
-              </button>
-              <button
-                className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}
-                onClick={() => setActiveFilter('unread')}
-              >
-                No leídos
-              </button>
-              <button
-                className={`filter-pill-btn ${activeFilter === 'online' ? 'active' : ''}`}
-                onClick={() => setActiveFilter('online')}
-              >
-                En línea
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 1.3 Lista de Conversaciones o Estado Vacío */}
-        <div className="conversations-feed">
-          {/* Solicitudes de Conexión Entrantes */}
-          {incomingRequests.length > 0 && (
-            <div className="sidebar-pending-requests">
-              <span className="input-hint" style={{ textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700 }}>
-                Solicitudes de Conexión ({incomingRequests.length})
-              </span>
-              {incomingRequests.map((req) => (
-                <div key={req.id} className="pending-request-card">
-                  <div className="pending-request-header">
-                    <div className="avatar-badge">{req.fromUser.avatar}</div>
-                    <div>
-                      <div className="user-found-name">{req.fromUser.name}</div>
-                      <div className="user-found-handle">{req.fromUser.handle}</div>
-                    </div>
-                  </div>
-                  <div className="pending-request-actions">
-                    <button
-                      type="button"
-                      className="btn-accept-req"
-                      onClick={() => handleAcceptRequest(req)}
-                    >
-                      Aceptar
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-reject-req"
-                      onClick={() => handleRejectRequest(req.id)}
-                    >
-                      Rechazar
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {chats.length === 0 ? (
-            <div className="sidebar-empty-state">
-              <div className="sidebar-empty-icon">
-                <IconShield />
-              </div>
-              <div>
-                <h4 className="sidebar-empty-title">Bandeja Privada</h4>
-                <p className="sidebar-empty-desc">
-                  No tienes conversaciones activas aún. Conecta mediante un alias o comparte tu enlace directo.
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
-                <button
-                  type="button"
-                  className="btn-connect-primary"
-                  onClick={() => setShowConnectModal(true)}
-                  title="Conectar mediante alias de usuario"
-                >
-                  <IconUserPlus />
-                  <span>Conectar con un usuario</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-invite-link"
-                  onClick={handleCopyInviteLink}
-                  title="Copiar enlace de conexión directa"
-                >
-                  <IconLink />
-                  <span>Copiar mi enlace directo</span>
-                </button>
-              </div>
-
-              <div className="sidebar-privacy-box">
-                <span className="sidebar-privacy-tag">
-                  <IconLock /> Cero Spam · Punto a Punto
-                </span>
-                <p className="sidebar-privacy-text">
-                  Solo los usuarios con solicitudes aceptadas pueden enviarte mensajes.
-                </p>
-              </div>
-            </div>
-          ) : filteredChats.length === 0 ? (
-            <div className="empty-search-msg">
-              <p>No se encontraron resultados</p>
-            </div>
-          ) : (
-            filteredChats.map((chat) => {
-              const lastMsg = chat.messages[chat.messages.length - 1]
-              const isSelected = chat.id === activeChat?.id
-
-              return (
-                <button
-                  key={chat.id}
-                  className={`conversation-item ${isSelected ? 'selected' : ''}`}
-                  onClick={() => handleSelectChat(chat.id)}
-                >
-                  <div className="avatar-wrapper">
-                    <div className={`avatar-badge ${chat.isBot ? 'system-avatar' : ''}`}>
-                      {chat.avatar}
-                    </div>
-                    <span className={`user-status-dot ${chat.status}`}></span>
-                  </div>
-
-                  <div className="conv-details">
-                    <div className="conv-top-row">
-                      <span className="conv-name">{chat.name}</span>
-                      <span className="conv-time">{lastMsg ? lastMsg.time : ''}</span>
-                    </div>
-
-                    <div className="conv-bottom-row">
-                      <span className="conv-preview">
-                        {lastMsg ? (
-                          <>
-                            {lastMsg.sender === 'me' && <span>Tú: </span>}
-                            {lastMsg.text}
-                          </>
-                        ) : (
-                          <em>Sin mensajes</em>
-                        )}
-                      </span>
-
-                      {chat.unreadCount > 0 && (
-                        <span className="unread-badge">{chat.unreadCount}</span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              )
-            })
-          )}
-        </div>
-      </aside>
-
-      {/* =====================================================================
-          2. VENTANA PRINCIPAL DE CHAT ACTIVO
-          ===================================================================== */}
+      {/* 2. Ventana de Chat Activo o Estado Vacío */}
       {activeChat ? (
-        <main className={`chat-main-panel ${mobileView === 'list' ? 'hidden-mobile' : ''}`}>
-          {/* 2.1 Cabecera del Chat Activo */}
-          <header className="active-chat-header">
-            <div className="chat-header-user">
-              <button
-                className="btn-mobile-back"
-                onClick={() => setMobileView('list')}
-                title="Volver a lista"
-              >
-                <IconArrowLeft />
-              </button>
-
-              <div className="avatar-wrapper">
-                <div className={`avatar-badge ${activeChat.isBot ? 'system-avatar' : ''}`}>
-                  {activeChat.avatar}
-                </div>
-                <span className={`user-status-dot ${activeChat.status}`}></span>
-              </div>
-
-              <div className="chat-header-title-box">
-                <h3 className="chat-header-title">{activeChat.name}</h3>
-                <div className={`chat-header-status ${isTyping ? 'typing' : ''}`}>
-                  {isTyping ? (
-                    <span>Generando respuesta en tiempo real...</span>
-                  ) : (
-                    <>
-                      <span className={`status-dot-sm ${activeChat.status}`}></span>
-                      <span>{activeChat.statusText}</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="chat-header-actions">
-              <button
-                className={`btn-chat-action ${showDetailsPanel ? 'active' : ''}`}
-                onClick={() => setShowDetailsPanel(!showDetailsPanel)}
-                title="Ver detalles del contacto"
-              >
-                <IconInfo />
-                <span>Detalles</span>
-              </button>
-            </div>
-          </header>
-
-          {/* 2.2 Feed de Mensajes */}
-          <div className="messages-container">
-            <div className="date-divider">
-              <span>Mensajería Directa 1 a 1</span>
-            </div>
-
-            {activeChat.messages.length === 0 ? (
-              <div className="empty-search-msg">
-                <p>No hay mensajes en esta conversación. Envía el primer mensaje.</p>
-              </div>
-            ) : (
-              activeChat.messages.map((msg) => {
-                const isMe = msg.sender === 'me'
-                return (
-                  <div key={msg.id} className={`message-row ${isMe ? 'me' : 'them'}`}>
-                    {!isMe && (
-                      <div className="msg-avatar-tiny">
-                        {activeChat.avatar}
-                      </div>
-                    )}
-
-                    <div className="message-bubble-wrapper">
-                      {/* Acciones flotantes al pasar el cursor */}
-                      <div className="message-actions-overlay">
-                        <button
-                          className="btn-msg-hover"
-                          title="Copiar texto"
-                          onClick={() => handleCopyMessage(msg.text)}
-                        >
-                          <IconCopy />
-                        </button>
-                      </div>
-
-                      <div className="message-bubble">
-                        <p className="message-text">{msg.text}</p>
-                        <div className="message-meta">
-                          <span className="message-time">{msg.time}</span>
-                          {isMe && renderStatusIcon(msg.status)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })
-            )}
-
-            {/* Animación de "Escribiendo..." */}
-            {isTyping && (
-              <div className="typing-indicator-row">
-                <div className="typing-bubble">
-                  <span className="typing-dot"></span>
-                  <span className="typing-dot"></span>
-                  <span className="typing-dot"></span>
-                </div>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* 2.3 Barra de Entrada (Input Footer) */}
-          <footer className="chat-input-footer">
-            {/* Barra de herramientas vectoriales */}
-            <div className="chat-toolbar">
-              <div className="toolbar-group">
-                <button
-                  type="button"
-                  className="btn-tool-icon"
-                  title="Adjuntar imagen"
-                  onClick={() => triggerToast('Simulación: Adjuntar imagen disponible')}
-                >
-                  <IconImage />
-                </button>
-                <button
-                  type="button"
-                  className="btn-tool-icon"
-                  title="Adjuntar archivo"
-                  onClick={() => triggerToast('Simulación: Adjuntar documento disponible')}
-                >
-                  <IconPaperclip />
-                </button>
-                <button
-                  type="button"
-                  className="btn-tool-icon"
-                  title="Insertar código"
-                  onClick={handleInsertCodeSnippet}
-                >
-                  <IconCode />
-                </button>
-              </div>
-
-              <span className="toolbar-hint">Presiona Enter para enviar</span>
-            </div>
-
-            <form className="input-controls-row" onSubmit={handleSendMessage}>
-              <input
-                type="text"
-                className="message-text-input"
-                placeholder={`Escribe un mensaje para ${activeChat.name}...`}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-              />
-
-              <button
-                type="submit"
-                className="btn-send-message"
-                disabled={!inputText.trim()}
-                title="Enviar mensaje"
-              >
-                <IconSend />
-              </button>
-            </form>
-          </footer>
-        </main>
+        <ActiveChatPanel
+          activeChat={activeChat}
+          mobileView={mobileView}
+          isTyping={isTyping}
+          showDetailsPanel={showDetailsPanel}
+          inputText={inputText}
+          onInputTextChange={setInputText}
+          onSendMessage={handleSendMessage}
+          onBackToList={() => setMobileView('list')}
+          onToggleDetails={() => setShowDetailsPanel(!showDetailsPanel)}
+          onCopyMessage={handleCopyMessage}
+          onInsertCodeSnippet={handleInsertCodeSnippet}
+          onTriggerToast={triggerToast}
+          messagesEndRef={messagesEndRef}
+        />
       ) : (
-        /* 3. Estado Vacío Central */
-        <div className={`chat-empty-state ${mobileView === 'list' ? 'hidden-mobile' : ''}`}>
-          <div className="empty-state-badge">
-            <IconShield />
-          </div>
-          <h3>Nexu · Mensajería Privada</h3>
-          <p>Tus conversaciones son punto a punto y anónimas hasta que ambas partes deciden conectar.</p>
-          <button
-            type="button"
-            className="btn-empty-back-mobile"
-            onClick={() => setMobileView('list')}
-          >
-            <IconArrowLeft />
-            <span>Volver a conversaciones</span>
-          </button>
-        </div>
+        <ChatEmptyState
+          mobileView={mobileView}
+          onBackToList={() => setMobileView('list')}
+        />
       )}
 
-      {/* =====================================================================
-          3. PANEL LATERAL DERECHO (DETALLES DEL CONTACTO)
-          ===================================================================== */}
+      {/* 3. Panel Lateral Derecho de Información de Contacto */}
       {showDetailsPanel && activeChat && (
-        <aside className="chat-details-panel">
-          <header className="details-header">
-            <h4>Información de Contacto</h4>
-            <button
-              className="btn-icon-subtle"
-              onClick={() => setShowDetailsPanel(false)}
-              title="Cerrar panel"
-            >
-              <IconX />
-            </button>
-          </header>
-
-          <div className="details-profile-card">
-            <div className={`details-avatar-lg ${activeChat.isBot ? 'system-avatar' : ''}`}>
-              {activeChat.avatar}
-            </div>
-            <h3 className="details-name">{activeChat.name}</h3>
-            <span className="details-handle">{activeChat.handle}</span>
-            <span className="details-role-pill">{activeChat.role}</span>
-          </div>
-
-          <div className="details-section">
-            <span className="details-section-title">Detalles de Cuenta</span>
-            <div className="details-info-row">
-              <IconUser />
-              <div className="details-info-text">
-                <strong>Nombre</strong>
-                <span>{activeChat.name}</span>
-              </div>
-            </div>
-            <div className="details-info-row">
-              <IconMail />
-              <div className="details-info-text">
-                <strong>Correo</strong>
-                <span>{activeChat.email}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="details-section">
-            <span className="details-section-title">Descripción / Bio</span>
-            <p className="conv-preview" style={{ whiteSpace: 'normal', lineHeight: '1.4' }}>
-              {activeChat.bio || 'Usuario miembro del equipo de desarrollo de Nexu.'}
-            </p>
-          </div>
-
-          <div className="details-section">
-            <span className="details-section-title">Seguridad y Cifrado</span>
-            <div className="security-box">
-              <IconShield />
-              <p>Conexión directa 1 a 1 cliente-servidor con confirmaciones de entrega verificadas.</p>
-            </div>
-          </div>
-
-          <div className="details-section" style={{ marginTop: 'auto', borderBottom: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <button
-              className="btn-icon-subtle"
-              style={{ width: '100%', justifyContent: 'center', color: 'var(--text-secondary)' }}
-              onClick={handleClearCurrentChat}
-              title="Limpiar mensajes"
-            >
-              <span>Vaciar Mensajes</span>
-            </button>
-
-            <button
-              className="btn-danger-action"
-              onClick={() => handleDeleteConversation(activeChat.id)}
-              title="Eliminar contacto y conversación"
-            >
-              <IconTrash />
-              <span>Eliminar Contacto</span>
-            </button>
-          </div>
-        </aside>
+        <ContactDetailsPanel
+          activeChat={activeChat}
+          onClose={() => setShowDetailsPanel(false)}
+          onClearChat={handleClearCurrentChat}
+          onDeleteConversation={handleDeleteConversation}
+        />
       )}
 
-      {/* Modal: Conectar con nuevo usuario */}
-      {showConnectModal && (
-        <div className="connect-modal-backdrop" onClick={() => setShowConnectModal(false)}>
-          <div className="connect-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="connect-modal-header">
-              <div className="connect-modal-title">
-                <IconUserPlus /> Conectar con un usuario
-              </div>
-              <button
-                type="button"
-                className="btn-icon-subtle"
-                onClick={() => {
-                  setShowConnectModal(false)
-                  setSearchAlias('')
-                  setSearchedUser(null)
-                  setSearchError('')
-                }}
-                title="Cerrar modal"
-              >
-                <IconX />
-              </button>
-            </div>
-
-            <p className="connect-modal-desc">
-              Ingresa el alias exacto de 3 a 10 caracteres alfanuméricos para enviar una solicitud de conexión privada.
-            </p>
-
-            <div className="connect-input-box">
-              <span className="input-prefix-at">@</span>
-              <input
-                type="text"
-                className="connect-input-field"
-                placeholder="ej. rosi_master"
-                value={searchAlias}
-                onChange={(e) => handleSearchUser(e.target.value)}
-                maxLength={10}
-                autoFocus
-              />
-              <span className={`connect-char-count ${searchAlias.length === 10 ? 'limit' : ''}`}>
-                {searchAlias.length}/10
-              </span>
-            </div>
-
-            {searchError && (
-              <div className="connect-error-msg">
-                <span>{searchError}</span>
-              </div>
-            )}
-
-            {searchedUser && (
-              <div className="user-found-card">
-                <div className="user-found-meta">
-                  <div className="avatar-badge">{searchedUser.avatar}</div>
-                  <div>
-                    <div className="user-found-name">{searchedUser.name}</div>
-                    <div className="user-found-handle">{searchedUser.handle}</div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="btn-accept-req"
-                  style={{ flex: 'none', padding: '0.55rem 1rem' }}
-                  onClick={() => handleSendConnectionRequest(searchedUser)}
-                >
-                  {sentRequests.includes(searchedUser.username) ? 'Enviada' : 'Enviar Solicitud'}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* 4. Modal para Conectar con Nuevo Usuario */}
+      <ConnectUserModal
+        isOpen={showConnectModal}
+        onClose={() => {
+          setShowConnectModal(false)
+          setSearchAlias('')
+          setSearchedUser(null)
+          setSearchError('')
+        }}
+        searchAlias={searchAlias}
+        onSearchChange={handleSearchUser}
+        searchError={searchError}
+        searchedUser={searchedUser}
+        sentRequests={sentRequests}
+        onSendRequest={handleSendConnectionRequest}
+      />
     </div>
   )
 }
