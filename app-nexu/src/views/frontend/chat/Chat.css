@@ -1343,6 +1343,10 @@
   line-height: 1.5;
 }
 
+.btn-empty-back-mobile {
+  display: none;
+}
+
 /* Notificación tipo Toast al copiar */
 .toast-feedback {
   position: fixed;
@@ -1386,14 +1390,49 @@
 @media (max-width: 768px) {
   .chat-sidebar {
     width: 100%;
+    min-width: 100%;
+    flex: 1;
   }
 
   .chat-sidebar.hidden-mobile {
-    display: none;
+    display: none !important;
   }
 
   .chat-main-panel.hidden-mobile {
-    display: none;
+    display: none !important;
+  }
+
+  .chat-empty-state.hidden-mobile {
+    display: none !important;
+  }
+
+  .chat-empty-state {
+    width: 100%;
+    min-width: 100%;
+    flex: 1;
+    padding: 2rem 1.5rem;
+  }
+
+  .btn-empty-back-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--bg-surface-elevated, #16191f);
+    border: 1px solid var(--border-active, #2a303d);
+    color: var(--accent-acid, #d4ff00);
+    font-family: var(--font-sans, sans-serif);
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.65rem 1.2rem;
+    border-radius: var(--radius-sm, 8px);
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-empty-back-mobile:hover {
+    background-color: var(--accent-acid, #d4ff00);
+    color: var(--accent-acid-contrast, #08090b);
   }
 
   .btn-mobile-back {

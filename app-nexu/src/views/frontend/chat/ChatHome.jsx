@@ -918,12 +918,20 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
         </main>
       ) : (
         /* 3. Estado Vacío Central */
-        <div className="chat-empty-state">
+        <div className={`chat-empty-state ${mobileView === 'list' ? 'hidden-mobile' : ''}`}>
           <div className="empty-state-badge">
             <IconShield />
           </div>
           <h3>Nexu · Mensajería Privada</h3>
           <p>Tus conversaciones son punto a punto y anónimas hasta que ambas partes deciden conectar.</p>
+          <button
+            type="button"
+            className="btn-empty-back-mobile"
+            onClick={() => setMobileView('list')}
+          >
+            <IconArrowLeft />
+            <span>Volver a conversaciones</span>
+          </button>
         </div>
       )}
 
