@@ -1,14 +1,15 @@
 import { useState } from 'react'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { ChatProvider } from './context/ChatContext'
 import Landing from './views/frontend/landing/Landing.jsx'
 import Login from './views/frontend/login-auth/Login.jsx'
 import ChatHome from './views/frontend/chat/ChatHome.jsx'
 import ProfileSettings from './views/frontend/profile-settings/ProfileSettings.jsx'
 
-function App() {
+function AppContent() {
   // Estado de la pantalla activa: 'landing' | 'login' | 'register' | 'chat' | 'settings'
   const [currentView, setCurrentView] = useState('landing')
-  // Usuario con sesión activa (por defecto adminUser)
-  const [activeUser, setActiveUser] = useState('adminUser')
+  const { logout } = useAuth()
 
   return (
     <>
@@ -21,33 +22,38 @@ function App() {
       {(currentView === 'login' || currentView === 'register') && (
         <Login
           initialTab={currentView === 'register' ? 'register' : 'login'}
-          onLoginSuccess={(user) => {
-            setActiveUser(user || 'adminUser')
-            setCurrentView('chat')
-          }}
+          onLoginSuccess={() => setCurrentView('chat')}
           onNavigateToLanding={() => setCurrentView('landing')}
         />
       )}
 
       {currentView === 'chat' && (
         <ChatHome
-          currentUserHandle={activeUser}
           onOpenSettings={() => setCurrentView('settings')}
         />
       )}
 
       {currentView === 'settings' && (
         <ProfileSettings
-          currentUserHandle={activeUser}
-          onUpdateUser={(newHandle) => setActiveUser(newHandle)}
           onBackToChat={() => setCurrentView('chat')}
-          onLogout={() => setCurrentView('landing')}
+          onLogout={async () => {
+            await logout()
+            setCurrentView('landing')
+          }}
         />
       )}
     </>
   )
 }
 
+function App() {
+  return (
+    <AuthProvider>
+      <ChatProvider>
+        <AppContent />
+      </ChatProvider>
+    </AuthProvider>
+  )
+}
+
 export default App
-
-

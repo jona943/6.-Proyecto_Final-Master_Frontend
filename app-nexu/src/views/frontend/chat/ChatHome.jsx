@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import './Chat.css'
-import { INITIAL_CHATS, BOT_RESPONSES, getUserProfile, logDeviceSession, MOCK_USERS } from './mockData.js'
+import { useAuth } from '../../../context/AuthContext'
+import { useChat } from '../../../context/ChatContext'
+import { chatService } from '../../../services/chatService'
 
 import ChatSidebar from './components/ChatSidebar'
 import ActiveChatPanel from './components/ActiveChatPanel'
@@ -9,20 +11,30 @@ import ConnectUserModal from './components/ConnectUserModal'
 import ChatEmptyState from './components/ChatEmptyState'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR)
+// COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR + CONTEXT)
 // ============================================================================
-function ChatHome({ onOpenSettings, currentUserHandle }) {
-  const currentUser = getUserProfile(currentUserHandle)
-  const [chats, setChats] = useState(INITIAL_CHATS)
-  const [selectedChatId, setSelectedChatId] = useState(null)
+function ChatHome({ onOpenSettings }) {
+  const { user } = useAuth()
+  const {
+    chats,
+    activeChat,
+    selectChat,
+    sendMessage,
+    isTyping,
+    presenceStatus,
+    incomingRequests,
+    acceptRequest,
+    rejectRequest,
+    deleteConversation,
+    clearCurrentChat
+  } = useChat()
+
   const [inputText, setInputText] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('all') // 'all' | 'unread' | 'online'
-  const [isTyping, setIsTyping] = useState(false)
   const [showDetailsPanel, setShowDetailsPanel] = useState(false)
   const [mobileView, setMobileView] = useState('list') // 'list' | 'chat'
   const [toastMessage, setToastMessage] = useState('')
-  const [presenceStatus, setPresenceStatus] = useState('online') // 'online' | 'away' | 'offline'
 
   // Estado para el modal de conectar con nuevo usuario
   const [showConnectModal, setShowConnectModal] = useState(false)
@@ -31,66 +43,17 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
   const [searchedUser, setSearchedUser] = useState(null)
   const [sentRequests, setSentRequests] = useState([])
 
-  // Solicitudes entrantes simuladas para testing
-  const [incomingRequests, setIncomingRequests] = useState(() => {
-    if (currentUser.username === 'rosi_master') {
-      return [
-        {
-          id: 'req_admin',
-          fromUser: MOCK_USERS[0], // adminUser
-          time: 'Reciente',
-          status: 'pending'
-        }
-      ]
-    }
-    return []
-  })
-
   const messagesEndRef = useRef(null)
-
-  // Monitoreo de Conexión y Presencia Real del Usuario
-  useEffect(() => {
-    logDeviceSession(currentUser.username)
-
-    const handleOnline = () => setPresenceStatus('online')
-    const handleOffline = () => setPresenceStatus('offline')
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setPresenceStatus('away')
-      } else {
-        setPresenceStatus('online')
-      }
-    }
-
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      setPresenceStatus('offline')
-    }
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [currentUser.username])
-
-  // Obtener conversación activa
-  const activeChat = chats.find((c) => c.id === selectedChatId) || null
 
   // Auto-scroll al final del contenedor de mensajes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [activeChat?.messages, isTyping])
 
-  // Mostrar mensaje tipo toast temporal
+  // Toast temporal
   const triggerToast = (text) => {
     setToastMessage(text)
-    setTimeout(() => {
-      setToastMessage('')
-    }, 2000)
+    setTimeout(() => setToastMessage(''), 2200)
   }
 
   // Filtrado de contactos
@@ -100,110 +63,32 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
       chat.handle.toLowerCase().includes(searchQuery.toLowerCase())
 
     if (!matchesSearch) return false
-
     if (activeFilter === 'unread') return chat.unreadCount > 0
     if (activeFilter === 'online') return chat.status === 'online'
     return true
   })
 
-  // Seleccionar conversación
+  // Seleccionar chat
   const handleSelectChat = (chatId) => {
-    setSelectedChatId(chatId)
+    selectChat(chatId)
     setMobileView('chat')
-
-    setChats((prev) =>
-      prev.map((c) =>
-        c.id === chatId ? { ...c, unreadCount: 0 } : c
-      )
-    )
   }
 
   // Enviar mensaje
   const handleSendMessage = (e) => {
     if (e) e.preventDefault()
-    const trimmed = inputText.trim()
-    if (!trimmed || !activeChat) return
+    if (!inputText.trim() || !activeChat) return
 
-    const now = new Date()
-    const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-
-    const newMessage = {
-      id: `msg_${Date.now()}`,
-      sender: 'me',
-      text: trimmed,
-      time: timeFormatted,
-      status: 'delivered'
-    }
-
-    setChats((prev) =>
-      prev.map((c) => {
-        if (c.id === activeChat.id) {
-          return {
-            ...c,
-            messages: [...c.messages, newMessage]
-          }
-        }
-        return c
-      })
-    )
-
+    sendMessage(inputText)
     setInputText('')
-    simulateAutoReply(activeChat.id, trimmed)
   }
 
-  // Simulación de auto-respuesta
-  const simulateAutoReply = (chatId, userMessage) => {
-    setIsTyping(true)
-
-    setTimeout(() => {
-      setIsTyping(false)
-
-      const now = new Date()
-      const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-
-      let replyContent = ''
-      const targetChat = chats.find((c) => c.id === chatId)
-
-      if (targetChat?.isBot) {
-        const randomIndex = Math.floor(Math.random() * BOT_RESPONSES.length)
-        replyContent = BOT_RESPONSES[randomIndex]
-      } else {
-        replyContent = `Recibido: "${userMessage}". Respuesta registrada en el hilo.`
-      }
-
-      const botMessage = {
-        id: `reply_${Date.now()}`,
-        sender: 'them',
-        text: replyContent,
-        time: timeFormatted,
-        status: 'read'
-      }
-
-      setChats((prev) =>
-        prev.map((c) => {
-          if (c.id === chatId) {
-            const updatedHistory = c.messages.map((m) =>
-              m.sender === 'me' ? { ...m, status: 'read' } : m
-            )
-            return {
-              ...c,
-              messages: [...updatedHistory, botMessage]
-            }
-          }
-          return c
-        })
-      )
-    }, 1200)
-  }
-
-  // Copiar enlace directo de invitación
+  // Copiar enlace de invitación
   const handleCopyInviteLink = () => {
-    const rawHandle = currentUser.handle || '@adminUser'
-    const inviteUrl = `https://nexu.app/c/${rawHandle}`
-
+    const handle = user?.username ? `@${user.username}` : '@adminUser'
+    const inviteUrl = `https://nexu.app/c/${handle}`
     if (navigator.clipboard?.writeText) {
-      navigator.clipboard
-        .writeText(inviteUrl)
+      navigator.clipboard.writeText(inviteUrl)
         .then(() => triggerToast(`Enlace copiado: ${inviteUrl}`))
         .catch(() => triggerToast(`Enlace listo: ${inviteUrl}`))
     } else {
@@ -211,29 +96,13 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     }
   }
 
-  // Buscar usuario por alias
-  const handleSearchUser = (value) => {
-    const clean = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
+  // Búsqueda de usuario por alias
+  const handleSearchUser = (val) => {
+    const clean = val.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
     setSearchAlias(clean)
-    setSearchError('')
-    setSearchedUser(null)
-
-    if (!clean) return
-
-    if (clean.toLowerCase() === currentUser.username.toLowerCase()) {
-      setSearchError('No puedes enviarte una solicitud a ti mismo.')
-      return
-    }
-
-    const found = MOCK_USERS.find(
-      (u) => u.username.toLowerCase() === clean.toLowerCase()
-    )
-
-    if (found) {
-      setSearchedUser(found)
-    } else if (clean.length >= 3) {
-      setSearchError('Usuario no encontrado. Prueba con @adminUser o @rosi_master.')
-    }
+    const { user: found, error } = chatService.searchUser(clean, user?.username || 'adminUser')
+    setSearchedUser(found)
+    setSearchError(error)
   }
 
   // Enviar solicitud de conexión
@@ -243,94 +112,52 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
       triggerToast(`Ya enviaste una solicitud a ${target.handle}`)
       return
     }
-
     setSentRequests((prev) => [...prev, target.username])
-    triggerToast(`Solicitud de conexión enviada a ${target.handle}`)
+    triggerToast(`Solicitud enviada a ${target.handle}`)
     setShowConnectModal(false)
     setSearchAlias('')
     setSearchedUser(null)
   }
 
-  // Aceptar solicitud de conexión
+  // Aceptar solicitud
   const handleAcceptRequest = (req) => {
-    const partner = req.fromUser
-    const newChatId = `chat_${partner.username}`
-
-    const newChat = {
-      id: newChatId,
-      name: partner.name,
-      handle: partner.handle,
-      avatar: partner.avatar,
-      isBot: false,
-      status: partner.status || 'online',
-      statusText: partner.statusText || 'En línea',
-      unreadCount: 1,
-      role: partner.role || 'Contacto Nexu',
-      email: `${partner.username.toLowerCase()}@nexu.app`,
-      bio: 'Conversación directa y privada cifrada punto a punto.',
-      messages: [
-        {
-          id: `msg_init_${Date.now()}`,
-          sender: 'them',
-          text: `¡Hola ${currentUser.name}! Gracias por aceptar la solicitud de conexión en Nexu.`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: 'read'
-        }
-      ]
-    }
-
-    setIncomingRequests((prev) => prev.filter((r) => r.id !== req.id))
-    setChats((prev) => [newChat, ...prev.filter((c) => c.id !== newChatId)])
-    setSelectedChatId(newChatId)
+    acceptRequest(req)
     setMobileView('chat')
-    triggerToast(`Conexión establecida con ${partner.handle}`)
+    triggerToast(`Conexión establecida con ${req.fromUser.handle}`)
   }
 
-  // Rechazar solicitud de conexión
+  // Rechazar solicitud
   const handleRejectRequest = (reqId) => {
-    setIncomingRequests((prev) => prev.filter((r) => r.id !== reqId))
+    rejectRequest(reqId)
     triggerToast('Solicitud descartada')
   }
 
   // Eliminar conversación
   const handleDeleteConversation = (chatId) => {
-    setChats((prev) => prev.filter((c) => c.id !== chatId))
-    if (selectedChatId === chatId) {
-      setSelectedChatId(null)
-    }
+    deleteConversation(chatId)
     setShowDetailsPanel(false)
     triggerToast('Conversación eliminada')
   }
 
-  // Copiar contenido del mensaje
+  // Copiar texto
   const handleCopyMessage = (text) => {
     navigator.clipboard?.writeText(text)
     triggerToast('Texto copiado al portapapeles')
   }
 
-  // Insertar snippet de código
-  const handleInsertCodeSnippet = () => {
-    setInputText((prev) => prev + 'const nexu = true;')
-  }
-
-  // Limpiar conversación actual
-  const handleClearCurrentChat = () => {
-    if (!activeChat) return
-    setChats((prev) =>
-      prev.map((c) => (c.id === activeChat.id ? { ...c, messages: [] } : c))
-    )
-    triggerToast('Historial de mensajes reiniciado')
-  }
-
   return (
     <div className="chat-app-layout">
-      {/* Toast de retroalimentación rápida */}
       {toastMessage && <div className="toast-feedback">{toastMessage}</div>}
 
-      {/* 1. Sidebar de Conversaciones */}
+      {/* 1. Sidebar */}
       <ChatSidebar
         mobileView={mobileView}
-        currentUser={currentUser}
+        currentUser={{
+          name: user?.displayName || 'Usuario',
+          handle: user?.username ? `@${user.username}` : '@adminUser',
+          avatar: user?.avatarType ? undefined : 'NX',
+          avatarType: user?.avatarType || 'male'
+        }}
         presenceStatus={presenceStatus}
         onOpenSettings={onOpenSettings}
         onOpenConnectModal={() => setShowConnectModal(true)}
@@ -350,7 +177,7 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
         onCopyInviteLink={handleCopyInviteLink}
       />
 
-      {/* 2. Ventana de Chat Activo o Estado Vacío */}
+      {/* 2. Panel de Chat Activo o Estado Vacío */}
       {activeChat ? (
         <ActiveChatPanel
           activeChat={activeChat}
@@ -363,7 +190,7 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
           onBackToList={() => setMobileView('list')}
           onToggleDetails={() => setShowDetailsPanel(!showDetailsPanel)}
           onCopyMessage={handleCopyMessage}
-          onInsertCodeSnippet={handleInsertCodeSnippet}
+          onInsertCodeSnippet={() => setInputText((prev) => prev + 'const nexu = true;')}
           onTriggerToast={triggerToast}
           messagesEndRef={messagesEndRef}
         />
@@ -374,17 +201,20 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
         />
       )}
 
-      {/* 3. Panel Lateral Derecho de Información de Contacto */}
+      {/* 3. Panel de Detalles */}
       {showDetailsPanel && activeChat && (
         <ContactDetailsPanel
           activeChat={activeChat}
           onClose={() => setShowDetailsPanel(false)}
-          onClearChat={handleClearCurrentChat}
+          onClearChat={() => {
+            clearCurrentChat()
+            triggerToast('Historial reiniciado')
+          }}
           onDeleteConversation={handleDeleteConversation}
         />
       )}
 
-      {/* 4. Modal para Conectar con Nuevo Usuario */}
+      {/* 4. Modal Conectar */}
       <ConnectUserModal
         isOpen={showConnectModal}
         onClose={() => {

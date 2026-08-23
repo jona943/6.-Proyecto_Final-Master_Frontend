@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './ProfileSettings.css'
-import { getUserSessions } from '../chat/mockData.js'
+import { useAuth } from '../../../context/AuthContext'
+import { authService } from '../../../services/authService'
 
 import ProfileHeaderCard from './components/ProfileHeaderCard'
 import SettingsNavTabs from './components/SettingsNavTabs'
@@ -11,31 +12,31 @@ import BlockedUsersTab from './components/BlockedUsersTab'
 import AvatarSelectorModal from './components/AvatarSelectorModal'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: PERFIL Y AJUSTES (COORDINADOR MODULAR)
+// COMPONENTE PRINCIPAL: PERFIL Y AJUSTES (COORDINADOR + CONTEXT)
 // ============================================================================
-function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogout, onUpdateUser }) {
-  const cleanHandle = (currentUserHandle || 'adminUser').replace(/^@/, '').toLowerCase()
+function ProfileSettings({ onBackToChat, onLogout }) {
+  const { user, updateProfile, changePassword } = useAuth()
+  const cleanHandle = (user?.username || 'adminUser').toLowerCase()
   const isRosi = cleanHandle === 'rosi_master'
 
-  // Carga inicial sincronizada con almacenamiento local
-  const [profile, setProfile] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`nexu_profile_${cleanHandle}`)
-      if (saved) return JSON.parse(saved)
-    } catch {}
-    
-    return {
-      displayName: isRosi ? 'Rosa Melano' : 'Administrador Nexu',
-      username: isRosi ? 'rosi_master' : 'adminUser',
-      email: isRosi ? 'rosa@nexu.app' : 'admin@nexu.app',
-      bio: isRosi 
-        ? 'Especialista en interfaces reactivas y arquitectura frontend de Nexu.' 
-        : 'Superadministrador de la plataforma de mensajería privada Nexu.',
-      avatarType: isRosi ? 'female' : 'male',
-      gender: isRosi ? 'female' : 'male',
-      presence: 'online'
-    }
+  // Perfil del usuario
+  const [profile, setProfile] = useState({
+    displayName: user?.displayName || (isRosi ? 'Rosa Melano' : 'Administrador Nexu'),
+    username: user?.username || (isRosi ? 'rosi_master' : 'adminUser'),
+    email: user?.email || (isRosi ? 'rosa@nexu.app' : 'admin@nexu.app'),
+    bio: isRosi
+      ? 'Especialista en interfaces reactivas y arquitectura frontend de Nexu.'
+      : 'Superadministrador de la plataforma de mensajería privada Nexu.',
+    avatarType: user?.avatarType || (isRosi ? 'female' : 'male'),
+    gender: user?.gender || (isRosi ? 'female' : 'male'),
+    presence: 'online'
   })
+
+  useEffect(() => {
+    authService.getProfile(cleanHandle).then((data) => {
+      if (data) setProfile(data)
+    })
+  }, [cleanHandle])
 
   const userInitials = profile.displayName
     ? profile.displayName
@@ -49,7 +50,7 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
   // Pestaña activa ('profile' | 'settings' | 'privacy' | 'blocked')
   const [activeTab, setActiveTab] = useState('profile')
 
-  // Preferencias Generales y Tema
+  // Preferencias y Tema
   const [themeMode, setThemeMode] = useState('dark')
   const [notifications, setNotifications] = useState({
     desktop: true,
@@ -59,7 +60,7 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
     onlineAlerts: false
   })
 
-  // Privacidad y Seguridad
+  // Privacidad
   const [privacy, setPrivacy] = useState({
     readReceipts: true,
     lastSeen: true,
@@ -67,17 +68,15 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
     allowStrangers: false
   })
 
-  // Dispositivos y Sesiones Activas
-  const [sessions, setSessions] = useState(() => getUserSessions(cleanHandle))
+  // Sesiones de Dispositivos
+  const [sessions, setSessions] = useState([])
+  useEffect(() => {
+    authService.getSessions(cleanHandle).then((data) => setSessions(data))
+  }, [cleanHandle])
 
-  const handleCloseSession = (sessionId) => {
-    setSessions((prev) => {
-      const updated = prev.filter((s) => s.id !== sessionId)
-      try {
-        localStorage.setItem(`nexu_sessions_${cleanHandle}`, JSON.stringify(updated))
-      } catch {}
-      return updated
-    })
+  const handleCloseSession = async (sessionId) => {
+    const updated = await authService.closeSession(cleanHandle, sessionId)
+    setSessions(updated)
     showToast('Sesión cerrada en el dispositivo secundario')
   }
 
@@ -97,14 +96,13 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState(null)
 
-  // Estado del formulario de cambio de contraseña
+  // Estado de Contraseñas
   const [passwords, setPasswords] = useState({
     current: '',
     newPass: '',
     confirmPass: ''
   })
 
-  // Notificación Toast temporal
   const showToast = (msg) => {
     setToastMessage(msg)
   }
@@ -116,7 +114,7 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
     }
   }, [toastMessage])
 
-  // Reproductor de sonido sintético ligero (Web Audio API)
+  // Sonido de prueba (Web Audio API)
   const playChimeSound = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext
@@ -140,19 +138,16 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
     }
   }
 
-  // Manejar cambios en campos de perfil
   const handleProfileChange = (e) => {
     const { name, value } = e.target
     setProfile((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Sanitizador de Alias: solo alfanumérico y máximo 10 caracteres
   const handleUsernameChange = (e) => {
     const clean = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
     setProfile((prev) => ({ ...prev, username: clean }))
   }
 
-  // Cambio de sexo/género con asignación de icono representativo
   const handleGenderChange = (newGender) => {
     setProfile((prev) => {
       let suggestedAvatar = prev.avatarType
@@ -160,77 +155,44 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
       else if (newGender === 'male') suggestedAvatar = 'male'
       else if (newGender === 'neutral') suggestedAvatar = 'neutral'
 
-      const updated = {
-        ...prev,
-        gender: newGender,
-        avatarType: suggestedAvatar
-      }
-      try {
-        localStorage.setItem(`nexu_profile_${cleanHandle}`, JSON.stringify(updated))
-      } catch {}
+      const updated = { ...prev, gender: newGender, avatarType: suggestedAvatar }
+      updateProfile(updated)
       return updated
     })
     showToast(`Identidad de género asignada: ${newGender === 'female' ? 'Femenino' : newGender === 'male' ? 'Masculino' : 'Neutral'}`)
   }
 
-  // Guardar perfil y persistir en storage
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault()
-    try {
-      localStorage.setItem(`nexu_profile_${cleanHandle}`, JSON.stringify(profile))
-      if (profile.username && profile.username.toLowerCase() !== cleanHandle) {
-        localStorage.setItem(`nexu_profile_${profile.username.toLowerCase()}`, JSON.stringify(profile))
-      }
-    } catch {}
-    if (onUpdateUser && profile.username) {
-      onUpdateUser(profile.username)
-    }
-    showToast('Perfil guardado y sincronizado con la bandeja de chat')
+    await updateProfile(profile)
+    showToast('Perfil guardado y sincronizado en la sesión')
   }
 
-  // Manejar cambio de contraseña
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault()
-    const expectedPass = localStorage.getItem(`nexu_custom_pass_${cleanHandle}`) || (isRosi ? 'Nexu2026Pass!' : '12345678')
-
-    if (passwords.current !== expectedPass) {
-      showToast('La contraseña actual es incorrecta')
-      return
-    }
-
-    if (passwords.newPass.length < 8) {
-      showToast('La nueva contraseña debe tener al menos 8 caracteres')
-      return
-    }
-
     if (passwords.newPass !== passwords.confirmPass) {
       showToast('Las contraseñas no coinciden')
       return
     }
 
     try {
-      localStorage.setItem(`nexu_custom_pass_${cleanHandle}`, passwords.newPass)
-    } catch {}
-
-    setPasswords({ current: '', newPass: '', confirmPass: '' })
-    showToast('Contraseña actualizada y guardada correctamente')
+      await changePassword(passwords.current, passwords.newPass)
+      setPasswords({ current: '', newPass: '', confirmPass: '' })
+      showToast('Contraseña actualizada correctamente')
+    } catch (err) {
+      showToast(err.message || 'Error al actualizar contraseña')
+    }
   }
 
-  // Desbloquear usuario
   const handleUnblockUser = (id, name) => {
     setBlockedUsers((prev) => prev.filter((u) => u.id !== id))
     showToast(`${name} ha sido desbloqueado`)
   }
 
-  // Selección de Avatar
-  const selectAvatarType = (type) => {
-    setProfile((prev) => {
-      const updated = { ...prev, avatarType: type }
-      try {
-        localStorage.setItem(`nexu_profile_${cleanHandle}`, JSON.stringify(updated))
-      } catch {}
-      return updated
-    })
+  const selectAvatarType = async (type) => {
+    const updated = { ...profile, avatarType: type }
+    setProfile(updated)
+    await updateProfile(updated)
     setIsAvatarModalOpen(false)
     showToast('Icono de avatar actualizado')
   }
@@ -238,8 +200,7 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
   return (
     <div className={`profile-settings-wrapper ${themeMode === 'light' ? 'theme-light' : ''}`}>
       <div className="profile-settings-container">
-        
-        {/* 1. Header Card Principal */}
+        {/* 1. Header Card */}
         <ProfileHeaderCard
           profile={profile}
           userInitials={userInitials}
@@ -247,14 +208,14 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
           onLogout={onLogout}
         />
 
-        {/* 2. Barra de Pestañas Funcionales */}
+        {/* 2. Tabs */}
         <SettingsNavTabs
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           blockedCount={blockedUsers.length}
         />
 
-        {/* 3. Pestaña 1: Mi Perfil */}
+        {/* 3. Pestañas */}
         {activeTab === 'profile' && (
           <GeneralProfileTab
             profile={profile}
@@ -269,7 +230,6 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
           />
         )}
 
-        {/* 4. Pestaña 2: Ajustes & Tema */}
         {activeTab === 'settings' && (
           <PreferencesTab
             themeMode={themeMode}
@@ -283,7 +243,6 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
           />
         )}
 
-        {/* 5. Pestaña 3: Privacidad & Seguridad */}
         {activeTab === 'privacy' && (
           <PrivacySecurityTab
             privacy={privacy}
@@ -296,7 +255,6 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
           />
         )}
 
-        {/* 6. Pestaña 4: Usuarios Bloqueados */}
         {activeTab === 'blocked' && (
           <BlockedUsersTab
             blockedUsers={blockedUsers}
@@ -305,7 +263,7 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
         )}
       </div>
 
-      {/* 7. Modal de Selección de Avatares */}
+      {/* 4. Modal Avatares */}
       <AvatarSelectorModal
         isOpen={isAvatarModalOpen}
         onClose={() => setIsAvatarModalOpen(false)}
@@ -314,7 +272,7 @@ function ProfileSettings({ currentUserHandle = 'adminUser', onBackToChat, onLogo
         onSelectAvatar={selectAvatarType}
       />
 
-      {/* 8. Toast de Notificación */}
+      {/* 5. Toast */}
       {toastMessage && (
         <div className="profile-toast-alert">
           <span className="toast-dot"></span>

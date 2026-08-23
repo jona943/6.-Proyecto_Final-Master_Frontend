@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './Login.css'
+import { useAuth } from '../../../context/AuthContext'
 
 import {
   IconUser,
@@ -13,19 +14,21 @@ import RegisterForm from './components/RegisterForm'
 import ForgotPasswordForm from './components/ForgotPasswordForm'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR MODULAR)
+// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR + CONTEXT)
 // ============================================================================
 function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
+  const { login } = useAuth()
+
   // Pestaña activa: 'login' | 'register' | 'forgot'
   const [activeTab, setActiveTab] = useState(initialTab)
 
-  // Estados del Formulario de Inicio de Sesión
+  // Estados de Login
   const [loginUsername, setLoginUsername] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
   const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
 
-  // Estados del Formulario de Registro
+  // Estados de Registro
   const [regUsername, setRegUsername] = useState(() => {
     try {
       const saved = sessionStorage.getItem('nexu_prefilled_alias')
@@ -33,28 +36,26 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
         sessionStorage.removeItem('nexu_prefilled_alias')
         return saved
       }
-    } catch {
-      // ignore
-    }
+    } catch {}
     return ''
   })
   const [regPassword, setRegPassword] = useState('')
   const [regConfirmPassword, setRegConfirmPassword] = useState('')
   const [showRegPassword, setShowRegPassword] = useState(false)
 
-  // Estados del Formulario de Recuperación
+  // Estados de Recuperación
   const [forgotUsername, setForgotUsername] = useState('')
 
-  // Estados de interacción UI (Carga, Alertas, Errores)
+  // Estados de UI
   const [isLoading, setIsLoading] = useState(false)
   const [alertInfo, setAlertInfo] = useState(null)
   const [formErrors, setFormErrors] = useState({})
 
-  // Cálculo de fortaleza de la contraseña (mínimo 8 caracteres)
+  // Cálculo de fortaleza de contraseña
   const getPasswordStrength = (password) => {
     if (!password) return { level: 0, label: '', class: '' }
     if (password.length < 8) return { level: 1, label: 'Corta (mínimo 8)', class: 'weak' }
-    
+
     let score = 1
     if (/[A-Z]/.test(password) && /[0-9]/.test(password)) score += 1
     if (/[^A-Za-z0-9]/.test(password) || password.length >= 12) score += 1
@@ -66,7 +67,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
 
   const passwordStrength = getPasswordStrength(regPassword)
 
-  // Sanitizador de Alias: Solo alfanumérico (A-Z, a-z, 0-9) y máximo 10 caracteres
+  // Sanitizador de alias
   const handleUsernameInput = (value, setter, errorKey) => {
     const clean = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
     setter(clean)
@@ -75,13 +76,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     }
   }
 
-  // Cuentas oficiales de prueba para la base de datos simulada
-  const VALID_ACCOUNTS = [
-    { username: 'adminUser', password: '12345678' },
-    { username: 'rosi_master', password: 'Nexu2026Pass!' }
-  ]
-
-  // Cargar credenciales simuladas de prueba
+  // Cargar credenciales de prueba
   const loadDemoUser = (accountUsername = 'rosi_master') => {
     setActiveTab('login')
     if (accountUsername === 'adminUser') {
@@ -102,8 +97,8 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     setFormErrors({})
   }
 
-  // 1. Manejar Envío del Login
-  const handleLoginSubmit = (e) => {
+  // 1. Enviar Login usando AuthService via useAuth()
+  const handleLoginSubmit = async (e) => {
     e.preventDefault()
     const errors = {}
 
@@ -125,33 +120,26 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
       return
     }
 
-    // Comprobar credenciales contra cuentas de prueba válidas
-    const matchedAccount = VALID_ACCOUNTS.find(
-      (acc) => acc.username.toLowerCase() === cleanUsername.toLowerCase() && acc.password === loginPassword
-    )
-
-    if (!matchedAccount) {
-      setAlertInfo({
-        type: 'error',
-        text: 'Usuario o contraseña incorrectos. Utiliza @adminUser (clave: 12345678) o @rosi_master (clave: Nexu2026Pass!).'
-      })
-      return
-    }
-
     setFormErrors({})
     setIsLoading(true)
     setAlertInfo(null)
 
-    // Acceso exitoso
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      await login(cleanUsername, loginPassword)
       if (onLoginSuccess) {
-        onLoginSuccess(matchedAccount.username)
+        onLoginSuccess()
       }
-    }, 600)
+    } catch (err) {
+      setAlertInfo({
+        type: 'error',
+        text: err.message || 'Error al iniciar sesión'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  // 2. Manejar Registro de Usuario (Inhabilitado temporalmente)
+  // 2. Manejar Registro
   const handleRegisterSubmit = (e) => {
     e.preventDefault()
     setAlertInfo({
@@ -160,20 +148,12 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     })
   }
 
-  // 3. Manejar Recuperación de Contraseña
+  // 3. Manejar Recuperación
   const handleForgotSubmit = (e) => {
     e.preventDefault()
-    const errors = {}
-
     const cleanUsername = forgotUsername.trim().toLowerCase().replace(/^@/, '')
-    if (!cleanUsername) {
-      errors.forgotUsername = 'Ingresa tu nombre de usuario.'
-    } else if (cleanUsername.length < 3) {
-      errors.forgotUsername = 'Ingresa un usuario válido.'
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors)
+    if (!cleanUsername || cleanUsername.length < 3) {
+      setFormErrors({ forgotUsername: 'Ingresa un usuario válido.' })
       return
     }
 
@@ -187,7 +167,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
         type: 'success',
         text: `Acceso simulado restablecido para el usuario @${cleanUsername}.`
       })
-    }, 900)
+    }, 800)
   }
 
   const switchTab = (tab) => {
@@ -198,7 +178,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
 
   return (
     <div className="auth-view-container">
-      {/* 1. Cabecera: Identidad de Marca */}
+      {/* 1. Header */}
       <header className="auth-header">
         <div
           className="auth-brand-mark"
@@ -212,10 +192,10 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
         </div>
       </header>
 
-      {/* 2. Tarjeta Principal del Módulo */}
+      {/* 2. Tarjeta Principal */}
       <main className="auth-main-wrapper">
         <div className="auth-card">
-          {/* Selector de Pestañas (Iniciar Sesión / Registro) */}
+          {/* Tabs */}
           {activeTab !== 'forgot' && (
             <div className="auth-tabs">
               <button
@@ -238,7 +218,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
             </div>
           )}
 
-          {/* Banner de Estado / Notificación */}
+          {/* Alerta */}
           {alertInfo && (
             <div className={`auth-alert ${alertInfo.type}`}>
               <span className="alert-icon">
@@ -250,7 +230,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
             </div>
           )}
 
-          {/* 2.1 Formulario de Inicio de Sesión */}
+          {/* Form Login */}
           {activeTab === 'login' && (
             <LoginForm
               loginUsername={loginUsername}
@@ -272,7 +252,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
             />
           )}
 
-          {/* 2.2 Formulario de Registro */}
+          {/* Form Registro */}
           {activeTab === 'register' && (
             <RegisterForm
               regUsername={regUsername}
@@ -296,7 +276,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
             />
           )}
 
-          {/* 2.3 Formulario de Recuperación de Acceso */}
+          {/* Form Recuperar */}
           {activeTab === 'forgot' && (
             <ForgotPasswordForm
               forgotUsername={forgotUsername}
@@ -313,7 +293,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
         </div>
       </main>
 
-      {/* 3. Footer del Módulo */}
+      {/* 3. Footer */}
       <footer className="auth-footer">
         <p className="auth-footer-text">
           Nexu · Módulo de Autenticación desarrollado por <span>Rosa</span>
