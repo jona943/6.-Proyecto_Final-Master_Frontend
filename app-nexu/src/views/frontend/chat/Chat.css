@@ -448,6 +448,253 @@
   transform: translateY(0);
 }
 
+/* Botón de Conectar Principal */
+.btn-connect-primary {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--accent-acid, #d4ff00);
+  border: 1px solid var(--accent-acid, #d4ff00);
+  color: var(--accent-acid-contrast, #08090b);
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(212, 255, 0, 0.25);
+}
+
+.btn-connect-primary:hover {
+  background-color: #bce600;
+  border-color: #bce600;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(212, 255, 0, 0.35);
+}
+
+.btn-new-chat {
+  color: var(--accent-acid, #d4ff00) !important;
+  background-color: rgba(212, 255, 0, 0.08) !important;
+  border: 1px solid rgba(212, 255, 0, 0.2) !important;
+}
+
+.btn-new-chat:hover {
+  background-color: rgba(212, 255, 0, 0.18) !important;
+  border-color: var(--accent-acid, #d4ff00) !important;
+}
+
+/* Modal de Conexión de Usuarios */
+.connect-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.connect-modal-box {
+  background-color: var(--bg-surface-elevated, #16191f);
+  border: 1px solid var(--border-subtle, #1c2028);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 440px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(212, 255, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.95) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.connect-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.connect-modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary, #f4f5f7);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.connect-modal-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #7e8796);
+  line-height: 1.45;
+}
+
+.connect-input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.connect-input-box .input-prefix-at {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--accent-acid, #d4ff00);
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.connect-input-field {
+  width: 100%;
+  background-color: var(--bg-canvas, #08090b);
+  border: 1px solid var(--border-subtle, #1c2028);
+  color: var(--text-primary, #f4f5f7);
+  padding: 0.75rem 2.8rem 0.75rem 2.2rem;
+  border-radius: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.88rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.connect-input-field:focus {
+  border-color: var(--accent-acid, #d4ff00);
+  box-shadow: 0 0 0 3px rgba(212, 255, 0, 0.12);
+}
+
+.connect-char-count {
+  position: absolute;
+  right: 0.85rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  color: var(--text-muted, #484f5c);
+}
+
+.connect-char-count.limit {
+  color: var(--accent-acid, #d4ff00);
+  font-weight: 700;
+}
+
+.connect-error-msg {
+  font-size: 0.78rem;
+  color: #ff6b6b;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.user-found-card {
+  background-color: var(--bg-canvas, #08090b);
+  border: 1px solid var(--border-subtle, #1c2028);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.user-found-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-found-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary, #f4f5f7);
+}
+
+.user-found-handle {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--text-secondary, #7e8796);
+}
+
+/* Solicitudes Pendientes en Sidebar */
+.sidebar-pending-requests {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pending-request-card {
+  background-color: var(--bg-surface-elevated, #16191f);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  animation: sidebarFadeIn 0.3s ease;
+}
+
+.pending-request-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pending-request-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-accept-req {
+  flex: 1;
+  background-color: var(--accent-acid, #d4ff00);
+  color: var(--accent-acid-contrast, #08090b);
+  border: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-accept-req:hover {
+  background-color: #bce600;
+}
+
+.btn-reject-req {
+  flex: 1;
+  background-color: transparent;
+  color: var(--text-secondary, #7e8796);
+  border: 1px solid var(--border-subtle, #1c2028);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reject-req:hover {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.3);
+  background-color: rgba(255, 107, 107, 0.08);
+}
+
 /* ============================================================================
    2. VENTANA PRINCIPAL DE CHAT ACTIVO (CENTRO)
    ============================================================================ */

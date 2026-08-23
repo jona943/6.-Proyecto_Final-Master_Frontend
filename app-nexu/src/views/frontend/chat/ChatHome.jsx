@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import './Chat.css'
-import { CURRENT_USER, INITIAL_CHATS, BOT_RESPONSES, getUserProfile, logDeviceSession } from './mockData.js'
+import { CURRENT_USER, INITIAL_CHATS, BOT_RESPONSES, getUserProfile, logDeviceSession, MOCK_USERS } from './mockData.js'
 
 // ============================================================================
 // ICONOS SVG VECTORIALES NATIVOS (Zero-Bloat · 100% SVG · Cero Emojis)
@@ -102,6 +102,15 @@ const IconLink = () => (
   </svg>
 )
 
+const IconUserPlus = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+    <circle cx="8.5" cy="7" r="4"></circle>
+    <line x1="20" y1="8" x2="20" y2="14"></line>
+    <line x1="23" y1="11" x2="17" y2="11"></line>
+  </svg>
+)
+
 const IconUser = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -152,6 +161,29 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
   const [mobileView, setMobileView] = useState('chat') // 'list' | 'chat'
   const [toastMessage, setToastMessage] = useState('')
   const [presenceStatus, setPresenceStatus] = useState('online') // 'online' | 'away' | 'offline'
+
+  // Estado para el modal de conectar con nuevo usuario
+  const [showConnectModal, setShowConnectModal] = useState(false)
+  const [searchAlias, setSearchAlias] = useState('')
+  const [searchError, setSearchError] = useState('')
+  const [searchedUser, setSearchedUser] = useState(null)
+  const [sentRequests, setSentRequests] = useState([])
+
+  // Solicitudes entrantes simuladas para testing
+  const [incomingRequests, setIncomingRequests] = useState(() => {
+    // Si eres rosi_master, te aparece 1 solicitud entrante de adminUser para probar el flujo de inmediato
+    if (currentUser.username === 'rosi_master') {
+      return [
+        {
+          id: 'req_admin',
+          fromUser: MOCK_USERS[0], // adminUser
+          time: 'Reciente',
+          status: 'pending'
+        }
+      ]
+    }
+    return []
+  })
 
   const messagesEndRef = useRef(null)
 
@@ -325,6 +357,97 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     }
   }
 
+  // Buscar usuario por alias
+  const handleSearchUser = (value) => {
+    const clean = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
+    setSearchAlias(clean)
+    setSearchError('')
+    setSearchedUser(null)
+
+    if (!clean) return
+
+    if (clean.toLowerCase() === currentUser.username.toLowerCase()) {
+      setSearchError('No puedes enviarte una solicitud a ti mismo.')
+      return
+    }
+
+    const found = MOCK_USERS.find(
+      (u) => u.username.toLowerCase() === clean.toLowerCase()
+    )
+
+    if (found) {
+      setSearchedUser(found)
+    } else if (clean.length >= 3) {
+      setSearchError('Usuario no encontrado. Prueba con @adminUser o @rosi_master.')
+    }
+  }
+
+  // Enviar solicitud de conexión
+  const handleSendConnectionRequest = (target) => {
+    if (!target) return
+    if (sentRequests.includes(target.username)) {
+      triggerToast(`Ya enviaste una solicitud a ${target.handle}`)
+      return
+    }
+
+    setSentRequests((prev) => [...prev, target.username])
+    triggerToast(`Solicitud de conexión enviada a ${target.handle}`)
+    setShowConnectModal(false)
+    setSearchAlias('')
+    setSearchedUser(null)
+  }
+
+  // Aceptar solicitud de conexión -> crea el chat 1 a 1 y lo abre
+  const handleAcceptRequest = (req) => {
+    const partner = req.fromUser
+    const newChatId = `chat_${partner.username}`
+
+    const newChat = {
+      id: newChatId,
+      name: partner.name,
+      handle: partner.handle,
+      avatar: partner.avatar,
+      isBot: false,
+      status: partner.status || 'online',
+      statusText: partner.statusText || 'En línea',
+      unreadCount: 1,
+      role: partner.role || 'Contacto Nexu',
+      email: `${partner.username.toLowerCase()}@nexu.app`,
+      bio: 'Conversación directa y privada cifrada punto a punto.',
+      messages: [
+        {
+          id: `msg_init_${Date.now()}`,
+          sender: 'them',
+          text: `¡Hola ${currentUser.name}! Gracias por aceptar la solicitud de conexión en Nexu.`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          status: 'read'
+        }
+      ]
+    }
+
+    setIncomingRequests((prev) => prev.filter((r) => r.id !== req.id))
+    setChats((prev) => [newChat, ...prev.filter((c) => c.id !== newChatId)])
+    setSelectedChatId(newChatId)
+    setMobileView('chat')
+    triggerToast(`Conexión establecida con ${partner.handle}`)
+  }
+
+  // Rechazar solicitud de conexión
+  const handleRejectRequest = (reqId) => {
+    setIncomingRequests((prev) => prev.filter((r) => r.id !== reqId))
+    triggerToast('Solicitud descartada')
+  }
+
+  // Eliminar conversación y contacto
+  const handleDeleteConversation = (chatId) => {
+    setChats((prev) => prev.filter((c) => c.id !== chatId))
+    if (selectedChatId === chatId) {
+      setSelectedChatId(null)
+    }
+    setShowDetailsPanel(false)
+    triggerToast('Conversación eliminada')
+  }
+
   // Copiar contenido del mensaje al portapapeles
   const handleCopyMessage = (text) => {
     navigator.clipboard?.writeText(text)
@@ -393,6 +516,14 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
 
           <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
             <button
+              className="btn-icon-subtle btn-new-chat"
+              title="Conectar con nuevo usuario (+)"
+              onClick={() => setShowConnectModal(true)}
+              type="button"
+            >
+              <IconUserPlus />
+            </button>
+            <button
               className="btn-icon-subtle"
               title="Ajustes del chat (3 rayitas)"
               onClick={onOpenSettings}
@@ -449,6 +580,42 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
 
         {/* 1.3 Lista de Conversaciones o Estado Vacío */}
         <div className="conversations-feed">
+          {/* Solicitudes de Conexión Entrantes */}
+          {incomingRequests.length > 0 && (
+            <div className="sidebar-pending-requests">
+              <span className="input-hint" style={{ textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700 }}>
+                Solicitudes de Conexión ({incomingRequests.length})
+              </span>
+              {incomingRequests.map((req) => (
+                <div key={req.id} className="pending-request-card">
+                  <div className="pending-request-header">
+                    <div className="avatar-badge">{req.fromUser.avatar}</div>
+                    <div>
+                      <div className="user-found-name">{req.fromUser.name}</div>
+                      <div className="user-found-handle">{req.fromUser.handle}</div>
+                    </div>
+                  </div>
+                  <div className="pending-request-actions">
+                    <button
+                      type="button"
+                      className="btn-accept-req"
+                      onClick={() => handleAcceptRequest(req)}
+                    >
+                      Aceptar
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-reject-req"
+                      onClick={() => handleRejectRequest(req.id)}
+                    >
+                      Rechazar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {chats.length === 0 ? (
             <div className="sidebar-empty-state">
               <div className="sidebar-empty-icon">
@@ -457,20 +624,31 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
               <div>
                 <h4 className="sidebar-empty-title">Bandeja Privada</h4>
                 <p className="sidebar-empty-desc">
-                  No tienes conversaciones activas aún. Comparte tu enlace directo o conecta mediante un alias.
+                  No tienes conversaciones activas aún. Conecta mediante un alias o comparte tu enlace directo.
                 </p>
               </div>
 
-              {/* Botón de Copiar Enlace Directo */}
-              <button
-                type="button"
-                className="btn-invite-link"
-                onClick={handleCopyInviteLink}
-                title="Copiar enlace de conexión directa"
-              >
-                <IconLink />
-                <span>Copiar mi enlace directo</span>
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+                <button
+                  type="button"
+                  className="btn-connect-primary"
+                  onClick={() => setShowConnectModal(true)}
+                  title="Conectar mediante alias de usuario"
+                >
+                  <IconUserPlus />
+                  <span>Conectar con un usuario</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-invite-link"
+                  onClick={handleCopyInviteLink}
+                  title="Copiar enlace de conexión directa"
+                >
+                  <IconLink />
+                  <span>Copiar mi enlace directo</span>
+                </button>
+              </div>
 
               <div className="sidebar-privacy-box">
                 <span className="sidebar-privacy-tag">
@@ -766,17 +944,99 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
             </div>
           </div>
 
-          <div className="details-section" style={{ marginTop: 'auto', borderBottom: 'none' }}>
+          <div className="details-section" style={{ marginTop: 'auto', borderBottom: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button
-              className="btn-danger-action"
+              className="btn-icon-subtle"
+              style={{ width: '100%', justifyContent: 'center', color: 'var(--text-secondary)' }}
               onClick={handleClearCurrentChat}
               title="Limpiar mensajes"
             >
+              <span>Vaciar Mensajes</span>
+            </button>
+
+            <button
+              className="btn-danger-action"
+              onClick={() => handleDeleteConversation(activeChat.id)}
+              title="Eliminar contacto y conversación"
+            >
               <IconTrash />
-              <span>Limpiar Historial de Chat</span>
+              <span>Eliminar Contacto</span>
             </button>
           </div>
         </aside>
+      )}
+
+      {/* Modal: Conectar con nuevo usuario */}
+      {showConnectModal && (
+        <div className="connect-modal-backdrop" onClick={() => setShowConnectModal(false)}>
+          <div className="connect-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="connect-modal-header">
+              <div className="connect-modal-title">
+                <IconUserPlus /> Conectar con un usuario
+              </div>
+              <button
+                type="button"
+                className="btn-icon-subtle"
+                onClick={() => {
+                  setShowConnectModal(false)
+                  setSearchAlias('')
+                  setSearchedUser(null)
+                  setSearchError('')
+                }}
+                title="Cerrar modal"
+              >
+                <IconX />
+              </button>
+            </div>
+
+            <p className="connect-modal-desc">
+              Ingresa el alias exacto de 3 a 10 caracteres alfanuméricos para enviar una solicitud de conexión privada.
+            </p>
+
+            <div className="connect-input-box">
+              <span className="input-prefix-at">@</span>
+              <input
+                type="text"
+                className="connect-input-field"
+                placeholder="ej. rosi_master"
+                value={searchAlias}
+                onChange={(e) => handleSearchUser(e.target.value)}
+                maxLength={10}
+                autoFocus
+              />
+              <span className={`connect-char-count ${searchAlias.length === 10 ? 'limit' : ''}`}>
+                {searchAlias.length}/10
+              </span>
+            </div>
+
+            {searchError && (
+              <div className="connect-error-msg">
+                <span>{searchError}</span>
+              </div>
+            )}
+
+            {searchedUser && (
+              <div className="user-found-card">
+                <div className="user-found-meta">
+                  <div className="avatar-badge">{searchedUser.avatar}</div>
+                  <div>
+                    <div className="user-found-name">{searchedUser.name}</div>
+                    <div className="user-found-handle">{searchedUser.handle}</div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-accept-req"
+                  style={{ flex: 'none', padding: '0.55rem 1rem' }}
+                  onClick={() => handleSendConnectionRequest(searchedUser)}
+                >
+                  {sentRequests.includes(searchedUser.username) ? 'Enviada' : 'Enviar Solicitud'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )
