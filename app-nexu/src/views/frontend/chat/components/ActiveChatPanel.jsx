@@ -8,7 +8,7 @@ import {
   IconPaperclip,
   IconCode,
   IconSend
-} from './ChatIcons'
+} from '../../../../components/icons/Icons'
 
 function ActiveChatPanel({
   activeChat,

@@ -5,7 +5,7 @@ import {
   AvatarFemale,
   AvatarMale,
   renderAvatarBadge
-} from './SettingsIcons'
+} from '../../../../components/icons/Icons'
 
 function GeneralProfileTab({
   profile,

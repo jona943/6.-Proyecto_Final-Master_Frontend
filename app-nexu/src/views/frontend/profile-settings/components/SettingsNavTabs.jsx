@@ -3,7 +3,7 @@ import {
   IconSliders,
   IconShield,
   IconUserX
-} from './SettingsIcons'
+} from '../../../../components/icons/Icons'
 
 function SettingsNavTabs({ activeTab, onSelectTab, blockedCount }) {
   return (

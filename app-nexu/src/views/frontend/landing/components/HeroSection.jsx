@@ -1,5 +1,5 @@
 import heroMonolithImg from '../assets/hero-monolith.jpg'
-import { IconShield, IconArrowRight, IconChevronDown } from './LandingIcons'
+import { IconShield, IconArrowRight, IconChevronDown } from '../../../../components/icons/Icons'
 
 function HeroSection({
   claimAlias,

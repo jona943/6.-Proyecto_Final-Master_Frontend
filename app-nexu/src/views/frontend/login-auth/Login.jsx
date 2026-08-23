@@ -7,7 +7,7 @@ import {
   IconCheckCircle,
   IconAlertCircle,
   IconKey
-} from './components/LoginIcons'
+} from '../../../components/icons/Icons'
 import LoginForm from './components/LoginForm'
 import RegisterForm from './components/RegisterForm'
 import ForgotPasswordForm from './components/ForgotPasswordForm'

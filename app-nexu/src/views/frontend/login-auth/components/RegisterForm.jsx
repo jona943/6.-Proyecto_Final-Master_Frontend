@@ -4,7 +4,7 @@ import {
   IconEyeOff,
   IconArrowRight,
   IconAlertCircle
-} from './LoginIcons'
+} from '../../../../components/icons/Icons'
 
 function RegisterForm({
   regUsername,

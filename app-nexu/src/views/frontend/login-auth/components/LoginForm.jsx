@@ -5,7 +5,7 @@ import {
   IconArrowRight,
   IconAlertCircle,
   IconKey
-} from './LoginIcons'
+} from '../../../../components/icons/Icons'
 
 function LoginForm({
   loginUsername,

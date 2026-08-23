@@ -1,7 +1,7 @@
 import sovereignIdentityImg from '../assets/sovereign-identity.jpg'
 import invisibleNetworkImg from '../assets/invisible-network.jpg'
 import pureSilenceImg from '../assets/pure-silence.jpg'
-import { IconLock, IconChevronLeft, IconChevronRight } from './LandingIcons'
+import { IconLock, IconChevronLeft, IconChevronRight } from '../../../../components/icons/Icons'
 
 export const MANIFESTO_LAWS = [
   {

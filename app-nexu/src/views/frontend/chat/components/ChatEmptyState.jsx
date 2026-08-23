@@ -1,4 +1,4 @@
-import { IconShield, IconArrowLeft } from './ChatIcons'
+import { IconShield, IconArrowLeft } from '../../../../components/icons/Icons'
 
 function ChatEmptyState({ mobileView, onBackToList }) {
   return (

@@ -4,7 +4,7 @@ import {
   IconMail,
   IconShield,
   IconTrash
-} from './ChatIcons'
+} from '../../../../components/icons/Icons'
 
 function ContactDetailsPanel({
   activeChat,

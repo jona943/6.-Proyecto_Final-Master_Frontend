@@ -1,4 +1,4 @@
-import { IconArrowLeft, IconLogOut, renderAvatarBadge } from './SettingsIcons'
+import { IconArrowLeft, IconLogOut, renderAvatarBadge } from '../../../../components/icons/Icons'
 
 function ProfileHeaderCard({
   profile,

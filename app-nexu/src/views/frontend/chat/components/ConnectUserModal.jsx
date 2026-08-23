@@ -1,4 +1,4 @@
-import { IconUserPlus, IconX } from './ChatIcons'
+import { IconUserPlus, IconX } from '../../../../components/icons/Icons'
 
 function ConnectUserModal({
   isOpen,

@@ -1,4 +1,4 @@
-import { IconShield, renderAvatarBadge } from './SettingsIcons'
+import { IconShield, renderAvatarBadge } from '../../../../components/icons/Icons'
 
 function BlockedUsersTab({ blockedUsers, onUnblockUser }) {
   return (

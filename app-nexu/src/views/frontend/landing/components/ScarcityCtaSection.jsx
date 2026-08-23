@@ -1,4 +1,4 @@
-import { IconUserPlus } from './LandingIcons'
+import { IconUserPlus } from '../../../../components/icons/Icons'
 
 function ScarcityCtaSection({ onNavigate }) {
   return (

@@ -1,7 +1,7 @@
 import {
   IconSmartphone,
   IconLaptop
-} from './SettingsIcons'
+} from '../../../../components/icons/Icons'
 
 function PrivacySecurityTab({
   privacy,

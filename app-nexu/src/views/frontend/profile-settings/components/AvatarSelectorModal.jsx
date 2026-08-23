@@ -2,7 +2,7 @@ import {
   IconX,
   AVATAR_TYPES,
   renderAvatarBadge
-} from './SettingsIcons'
+} from '../../../../components/icons/Icons'
 
 function AvatarSelectorModal({
   isOpen,

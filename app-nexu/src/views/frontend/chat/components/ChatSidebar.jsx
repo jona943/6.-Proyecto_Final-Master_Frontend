@@ -9,7 +9,7 @@ import {
   AvatarFemale,
   AvatarMale,
   AvatarNeutral
-} from './ChatIcons'
+} from '../../../../components/icons/Icons'
 
 function ChatSidebar({
   mobileView,

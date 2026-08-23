@@ -2,7 +2,7 @@ import {
   IconAtSign,
   IconArrowRight,
   IconAlertCircle
-} from './LoginIcons'
+} from '../../../../components/icons/Icons'
 
 function ForgotPasswordForm({
   forgotUsername,
