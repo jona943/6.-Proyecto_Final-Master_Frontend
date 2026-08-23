@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './ProfileSettings.css'
+import { getUserSessions } from '../chat/mockData.js'
 
 // ============================================================================
 // ICONOS SVG VECTORIALES NATIVOS (Nítidos, Ligeros & Minimalistas)
@@ -157,6 +158,21 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
     typingIndicator: true,
     allowStrangers: false
   })
+
+  // Dispositivos y Sesiones Activas Registradas
+  const [sessions, setSessions] = useState(() => getUserSessions(currentUserHandle))
+
+  const handleCloseSession = (sessionId) => {
+    setSessions((prev) => {
+      const updated = prev.filter((s) => s.id !== sessionId)
+      try {
+        const clean = (currentUserHandle || 'adminUser').replace(/^@/, '').toLowerCase()
+        localStorage.setItem(`nexu_sessions_${clean}`, JSON.stringify(updated))
+      } catch {}
+      return updated
+    })
+    showToast('Sesión cerrada en el dispositivo secundario')
+  }
 
   // Lista de Contactos Bloqueados Mock
   const [blockedUsers, setBlockedUsers] = useState([
@@ -773,39 +789,40 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
               </div>
 
               <div className="security-session-list">
-                <div className="session-card">
-                  <div className="session-device-meta">
-                    <div className="device-icon-box">
-                      <IconLaptop />
+                {sessions.map((sess) => (
+                  <div key={sess.id} className="session-card">
+                    <div className="session-device-meta">
+                      <div className="device-icon-box">
+                        {sess.platform === 'Mobile' || sess.platform === 'Tablet' ? (
+                          <IconSmartphone />
+                        ) : (
+                          <IconLaptop />
+                        )}
+                      </div>
+                      <div className="device-text">
+                        <span className="device-name">
+                          {sess.browser} en {sess.deviceName}
+                          {sess.isCurrent && (
+                            <span className="badge-current-session">Sesión Actual</span>
+                          )}
+                        </span>
+                        <span className="device-location">
+                          {sess.ip} · Último acceso: {sess.lastLoginDate} ({sess.lastLoginTime}) · {sess.lastActive}
+                        </span>
+                      </div>
                     </div>
-                    <div className="device-text">
-                      <span className="device-name">
-                        Google Chrome en Windows 11
-                        <span className="badge-current-session">Sesión Actual</span>
-                      </span>
-                      <span className="device-location">Ciudad de México · Activo ahora</span>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="session-card">
-                  <div className="session-device-meta">
-                    <div className="device-icon-box">
-                      <IconSmartphone />
-                    </div>
-                    <div className="device-text">
-                      <span className="device-name">Nexu Mobile en iPhone 15 Pro</span>
-                      <span className="device-location">Ciudad de México · Hace 2 horas</span>
-                    </div>
+                    {!sess.isCurrent && (
+                      <button
+                        type="button"
+                        className="btn-danger-outline"
+                        onClick={() => handleCloseSession(sess.id)}
+                      >
+                        Cerrar Sesión
+                      </button>
+                    )}
                   </div>
-                  <button
-                    type="button"
-                    className="btn-danger-outline"
-                    onClick={() => showToast('Cerrando sesión en dispositivo secundario')}
-                  >
-                    Cerrar Sesión
-                  </button>
-                </div>
+                ))}
               </div>
             </section>
           </div>

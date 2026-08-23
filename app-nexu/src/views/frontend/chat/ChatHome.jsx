@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import './Chat.css'
-import { CURRENT_USER, INITIAL_CHATS, BOT_RESPONSES, getUserProfile } from './mockData.js'
+import { CURRENT_USER, INITIAL_CHATS, BOT_RESPONSES, getUserProfile, logDeviceSession } from './mockData.js'
 
 // ============================================================================
 // ICONOS SVG VECTORIALES NATIVOS (Zero-Bloat · 100% SVG · Cero Emojis)
@@ -151,8 +151,39 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
   const [showDetailsPanel, setShowDetailsPanel] = useState(false)
   const [mobileView, setMobileView] = useState('chat') // 'list' | 'chat'
   const [toastMessage, setToastMessage] = useState('')
+  const [presenceStatus, setPresenceStatus] = useState('online') // 'online' | 'away' | 'offline'
 
   const messagesEndRef = useRef(null)
+
+  // Monitoreo de Conexión y Presencia Real del Usuario
+  useEffect(() => {
+    // Registrar o actualizar sesión del dispositivo al montar
+    logDeviceSession(currentUser.username)
+
+    const handleOnline = () => setPresenceStatus('online')
+    const handleOffline = () => setPresenceStatus('offline')
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setPresenceStatus('away')
+      } else {
+        setPresenceStatus('online')
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setPresenceStatus('offline')
+    }
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [currentUser.username])
 
   // Obtener conversación activa
   const activeChat = chats.find((c) => c.id === selectedChatId) || null
@@ -342,16 +373,21 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
             style={{ cursor: onOpenSettings ? 'pointer' : 'default' }}
             title={onOpenSettings ? 'Ir a Perfil y Configuración' : undefined}
           >
-            <div className="avatar-wrapper">
+            <div
+              className="avatar-wrapper"
+              title={`Estado: ${presenceStatus === 'online' ? 'En línea (activo)' : presenceStatus === 'away' ? 'Ausente (en segundo plano)' : 'Sin conexión'}`}
+            >
               <div className="avatar-badge">{currentUser.avatar}</div>
-              <span className={`user-status-dot ${currentUser.status}`}></span>
+              <span className={`user-status-dot ${presenceStatus}`}></span>
             </div>
             <div className="user-info-meta">
               <div className="user-name-row">
                 <span className="user-display-name">{currentUser.name}</span>
                 <span className="tag-active-pill">TÚ</span>
               </div>
-              <span className="user-handle-sub">{currentUser.handle}</span>
+              <span className="user-handle-sub">
+                {currentUser.handle} · {presenceStatus === 'online' ? 'En línea' : presenceStatus === 'away' ? 'Ausente' : 'Desconectado'}
+              </span>
             </div>
           </div>
 
