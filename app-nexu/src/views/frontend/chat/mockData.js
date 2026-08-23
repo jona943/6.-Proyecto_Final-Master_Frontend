@@ -29,21 +29,51 @@ export const MOCK_USERS = [
 export const DEFAULT_USER = MOCK_USERS[0]
 export const CURRENT_USER = DEFAULT_USER
 
-// Función para obtener perfil de usuario por alias o generar uno dinámico
+// Función para obtener perfil de usuario por alias o generar uno dinámico sincronizado
 export const getUserProfile = (username) => {
   if (!username) return DEFAULT_USER
-  const clean = username.replace(/^@/, '')
+  const clean = username.replace(/^@/, '').toLowerCase()
+
+  // 1. Verificar si existen datos actualizados en localStorage
+  try {
+    const saved = localStorage.getItem(`nexu_profile_${clean}`)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      const initials = (parsed.displayName || parsed.username || clean)
+        .split(' ')
+        .map((w) => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+
+      return {
+        id: `usr_${clean}`,
+        username: parsed.username || clean,
+        name: parsed.displayName || clean,
+        handle: `@${parsed.username || clean}`,
+        avatar: initials,
+        avatarType: parsed.avatarType || (clean === 'rosi_master' ? 'female' : 'initials'),
+        gender: parsed.gender || 'neutral',
+        status: parsed.presence || 'online',
+        statusText: `Sesión activa · ${parsed.bio ? parsed.bio.slice(0, 30) + '...' : 'Nexu Member'}`,
+        role: clean === 'adminuser' ? 'Administrador Nexu' : 'Desarrolladora Nexu'
+      }
+    }
+  } catch {}
+
   const found = MOCK_USERS.find(
-    (u) => u.username.toLowerCase() === clean.toLowerCase()
+    (u) => u.username.toLowerCase() === clean
   )
   if (found) return found
 
   return {
-    id: `usr_${clean.toLowerCase()}`,
+    id: `usr_${clean}`,
     username: clean,
     name: clean,
     handle: `@${clean}`,
     avatar: clean.slice(0, 2).toUpperCase(),
+    avatarType: 'initials',
+    gender: 'neutral',
     status: 'online',
     statusText: 'Sesión activa',
     role: 'Usuario Nexu'

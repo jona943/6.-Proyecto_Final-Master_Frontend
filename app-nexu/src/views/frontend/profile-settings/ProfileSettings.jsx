@@ -140,7 +140,7 @@ const AVATAR_TYPES = [
 // ============================================================================
 // COMPONENTE PRINCIPAL: ProfileSettings
 // ============================================================================
-function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
+function ProfileSettings({ onBackToChat, onLogout, currentUserHandle, onUpdateUser }) {
   const [activeTab, setActiveTab] = useState('profile') // 'profile' | 'settings' | 'privacy' | 'blocked'
 
   // Identificación dinámica de la cuenta activa (2 cuentas: adminUser o rosi_master)
@@ -346,8 +346,14 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
     e.preventDefault()
     try {
       localStorage.setItem(`nexu_profile_${cleanHandle}`, JSON.stringify(profile))
+      if (profile.username && profile.username.toLowerCase() !== cleanHandle) {
+        localStorage.setItem(`nexu_profile_${profile.username.toLowerCase()}`, JSON.stringify(profile))
+      }
     } catch {}
-    showToast('Perfil guardado y sincronizado correctamente')
+    if (onUpdateUser && profile.username) {
+      onUpdateUser(profile.username)
+    }
+    showToast('Perfil guardado y sincronizado con la bandeja de chat')
   }
 
   // Manejar cambio de contraseña validando contra las 2 cuentas oficiales

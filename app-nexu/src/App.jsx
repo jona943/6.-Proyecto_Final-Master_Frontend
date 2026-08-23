@@ -39,6 +39,7 @@ function App() {
       {currentView === 'settings' && (
         <ProfileSettings
           currentUserHandle={activeUser}
+          onUpdateUser={(newHandle) => setActiveUser(newHandle)}
           onBackToChat={() => setCurrentView('chat')}
           onLogout={() => setCurrentView('landing')}
         />

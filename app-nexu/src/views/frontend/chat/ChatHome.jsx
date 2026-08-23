@@ -111,6 +111,29 @@ const IconUserPlus = () => (
   </svg>
 )
 
+const AvatarNeutral = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="4"></circle>
+    <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+  </svg>
+)
+
+const AvatarFemale = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 14c-3.3 0-6 2.7-6 6v1h12v-1c0-3.3-2.7-6-6-6z"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+    <path d="M8 8c0 3 1.8 5 4 5s4-2 4-5"></path>
+  </svg>
+)
+
+const AvatarMale = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 14c-3.3 0-6 2.7-6 6v1h12v-1c0-3.3-2.7-6-6-6z"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+    <path d="M9 4.5l3-2 3 2"></path>
+  </svg>
+)
+
 const IconUser = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -500,7 +523,25 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
               className="avatar-wrapper"
               title={`Estado: ${presenceStatus === 'online' ? 'En línea (activo)' : presenceStatus === 'away' ? 'Ausente (en segundo plano)' : 'Sin conexión'}`}
             >
-              <div className="avatar-badge">{currentUser.avatar}</div>
+              {currentUser.avatarType === 'female' ? (
+                <div className="avatar-badge" style={{ borderColor: '#ff70a6', color: '#ff70a6' }}>
+                  <AvatarFemale size={18} />
+                </div>
+              ) : currentUser.avatarType === 'male' ? (
+                <div className="avatar-badge" style={{ borderColor: '#70d6ff', color: '#70d6ff' }}>
+                  <AvatarMale size={18} />
+                </div>
+              ) : currentUser.avatarType === 'neutral' ? (
+                <div className="avatar-badge" style={{ borderColor: 'var(--accent-acid)', color: 'var(--accent-acid)' }}>
+                  <AvatarNeutral size={18} />
+                </div>
+              ) : currentUser.avatarType === 'shield' ? (
+                <div className="avatar-badge" style={{ borderColor: '#ffd670', color: '#ffd670' }}>
+                  <IconShield />
+                </div>
+              ) : (
+                <div className="avatar-badge">{currentUser.avatar}</div>
+              )}
               <span className={`user-status-dot ${presenceStatus}`}></span>
             </div>
             <div className="user-info-meta">
