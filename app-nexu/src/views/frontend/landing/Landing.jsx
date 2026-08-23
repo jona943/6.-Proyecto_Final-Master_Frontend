@@ -409,24 +409,100 @@ function Landing({ onNavigate }) {
         </div>
       </section>
 
-      {/* 3. FOOTER MINIMALISTA */}
+      {/* 3. ESCASEZ MATEMÁTICA Y CIERRE (CTA FINAL) */}
+      <section className="scarcity-cta-section">
+        <div className="scarcity-container">
+          {/* Bloque de Escasez Matemática */}
+          <div className="scarcity-card">
+            <div className="scarcity-meta-tag">
+              <span className="scarcity-dot" />
+              <span>NAMESPACE FINITO · 3 A 10 CARACTERES</span>
+            </div>
+
+            <h3 className="scarcity-title">
+              Cuando un alias es reclamado, el registro se sella para siempre.
+            </h3>
+
+            <p className="scarcity-desc">
+              El protocolo Nexu restringe los identificadores a combinaciones alfanuméricas estrictas. Sin números aleatorios obligatorios (#0042), sin sufijos comerciales y sin reventa de identificadores. Tu @alias es tu soberanía digital a perpetuidad.
+            </p>
+
+            <div className="scarcity-metrics-row">
+              <div className="metric-box">
+                <span className="metric-value">3 - 10</span>
+                <span className="metric-label">Caracteres estrictos</span>
+              </div>
+              <div className="metric-box">
+                <span className="metric-value">0</span>
+                <span className="metric-label">Números de teléfono</span>
+              </div>
+              <div className="metric-box">
+                <span className="metric-value">100%</span>
+                <span className="metric-label">Propiedad por credencial</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tarjeta de Acción Final (CTA) */}
+          <div className="final-cta-card">
+            <div className="final-cta-glow" aria-hidden="true" />
+            <div className="final-cta-content">
+              <h2 className="final-cta-title">
+                El silencio es una decisión.
+              </h2>
+              <p className="final-cta-desc">
+                Crea tu usuario único en segundos y entra al santuario de comunicación directa y privada.
+              </p>
+
+              <div className="final-cta-actions">
+                <button
+                  type="button"
+                  className="btn-final-primary"
+                  onClick={() => onNavigate && onNavigate('register')}
+                >
+                  <IconUserPlus />
+                  <span>Reclamar mi Alias</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn-final-secondary"
+                  onClick={() => onNavigate && onNavigate('login')}
+                >
+                  <span>Iniciar sesión</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. FOOTER MINIMALISTA Y SOBRIO */}
       <footer className="footer-clean">
         <div className="footer-content">
-          <div className="footer-logo">
-            <div className="logo-tiny">N</div>
-            <span>Nexu v1.0</span>
+          <div className="footer-brand-row">
+            <div className="footer-logo">
+              <div className="logo-tiny">N</div>
+              <span>Nexu</span>
+            </div>
+            <span className="footer-pill">Protocol v1.0</span>
           </div>
 
           <div className="footer-links">
-            <a href="#seccion-ventajas">Ventajas</a>
-            <span>·</span>
-            <a href="#privacidad">Privacidad</a>
-            <span>·</span>
-            <a href="#terminos">Términos</a>
+            <button
+              type="button"
+              className="footer-link-btn"
+              onClick={scrollToManifiesto}
+            >
+              El Manifiesto
+            </button>
+            <span className="footer-link-sep">·</span>
+            <a href="#privacidad" className="footer-link">Privacidad</a>
+            <span className="footer-link-sep">·</span>
+            <a href="#terminos" className="footer-link">Términos de Servicio</a>
           </div>
 
           <p className="footer-copy">
-            © 2026 Nexu. Mensajería directa construida con React + Vite.
+            © 2026 Nexu. Protocolo de mensajería directa punto a punto. Cero rastreo, cero publicidad.
           </p>
         </div>
       </footer>
@@ -435,3 +511,4 @@ function Landing({ onNavigate }) {
 }
 
 export default Landing
+

@@ -898,72 +898,303 @@
 }
 
 /* ==========================================================================
-   3. FOOTER MINIMALISTA
+   3. ESCASEZ MATEMÁTICA Y CIERRE (CTA FINAL)
    ========================================================================== */
-.footer-clean {
-  border-top: 1px solid var(--border-subtle);
-  padding: 2.5rem 1.5rem;
-  margin-top: auto;
+.scarcity-cta-section {
+  padding: 5rem 1.5rem 6.5rem 1.5rem;
+  background-color: var(--bg-canvas);
+  position: relative;
 }
 
-.footer-content {
-  max-width: 720px;
+.scarcity-container {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+}
+
+/* 3.1 Tarjeta de Escasez Matemática */
+.scarcity-card {
+  background-color: rgba(16, 18, 22, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2.75rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.scarcity-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--accent-acid);
+  letter-spacing: 0.06em;
+}
+
+.scarcity-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent-acid);
+  box-shadow: 0 0 8px var(--accent-acid);
+}
+
+.scarcity-title {
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.scarcity-desc {
+  font-size: 1.02rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  text-wrap: balance;
+}
+
+.scarcity-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.metric-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.metric-value {
+  font-family: var(--font-mono);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.metric-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* 3.2 Tarjeta Final de Conversión (CTA) */
+.final-cta-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  padding: 3.5rem 2.5rem;
+  background: linear-gradient(135deg, rgba(22, 25, 31, 0.95) 0%, rgba(16, 18, 22, 0.95) 100%);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  text-align: center;
+}
+
+.final-cta-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 450px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(212, 255, 0, 0.12) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.final-cta-content {
+  position: relative;
+  z-index: 1;
+  max-width: 620px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.15rem;
+  gap: 1.25rem;
+}
+
+.final-cta-title {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.final-cta-desc {
+  font-size: 1.08rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-wrap: balance;
+}
+
+.final-cta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-final-primary {
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  font-weight: 700;
+  padding: 0.85rem 1.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 22px rgba(212, 255, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-final-primary:hover {
+  background-color: var(--accent-acid-hover);
+  box-shadow: 0 6px 30px rgba(212, 255, 0, 0.45);
+  transform: translateY(-2px);
+}
+
+.btn-final-secondary {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border-active);
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  font-weight: 600;
+  padding: 0.85rem 1.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-final-secondary:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   4. FOOTER MINIMALISTA Y SOBRIO
+   ========================================================================== */
+.footer-clean {
+  border-top: 1px solid var(--border-subtle);
+  padding: 3rem 1.5rem;
+  background-color: #060708;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
   text-align: center;
+}
+
+.footer-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 
 .footer-logo {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--text-primary);
 }
 
 .logo-tiny {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   background-color: var(--accent-acid);
   color: var(--accent-acid-contrast);
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 6px;
+}
+
+.footer-pill {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background-color: rgba(255, 255, 255, 0.04);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
 }
 
 .footer-links {
   display: flex;
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: center;
   font-size: 0.88rem;
   color: var(--text-muted);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.footer-links a {
+.footer-link-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  padding: 0;
+}
+
+.footer-link-btn:hover,
+.footer-link:hover {
+  color: var(--accent-acid);
+}
+
+.footer-link {
   color: var(--text-secondary);
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
-.footer-links a:hover {
-  color: var(--accent-acid);
+.footer-link-sep {
+  color: var(--border-active);
 }
 
 .footer-copy {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
   font-family: var(--font-mono);
+  line-height: 1.5;
 }
 
 /* ==========================================================================
-   4. ADAPTACIÓN RESPONSIVA PROFESIONAL (Mobile & Tablets)
+   5. ADAPTACIÓN RESPONSIVA PROFESIONAL (Mobile & Tablets)
    ========================================================================== */
 @media (max-width: 880px) {
   .manifesto-carousel-card {
@@ -975,6 +1206,11 @@
   .manifesto-img-wrapper {
     max-height: 280px;
     aspect-ratio: 16 / 10;
+  }
+
+  .scarcity-metrics-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 }
 
@@ -1041,6 +1277,14 @@
   .comp-text {
     font-size: 0.88rem;
   }
+
+  .scarcity-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .final-cta-card {
+    padding: 2.5rem 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1099,5 +1343,16 @@
 
   .comp-row {
     padding: 0.7rem 0.85rem;
+  }
+
+  .final-cta-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-final-primary,
+  .btn-final-secondary {
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -85,7 +85,18 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   const [rememberMe, setRememberMe] = useState(true)
 
   // Estados del Formulario de Registro (Solo Usuario y Contraseña >= 8 caracteres)
-  const [regUsername, setRegUsername] = useState('')
+  const [regUsername, setRegUsername] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('nexu_prefilled_alias')
+      if (saved) {
+        sessionStorage.removeItem('nexu_prefilled_alias')
+        return saved
+      }
+    } catch {
+      // ignore
+    }
+    return ''
+  })
   const [regPassword, setRegPassword] = useState('')
   const [regConfirmPassword, setRegConfirmPassword] = useState('')
   const [showRegPassword, setShowRegPassword] = useState(false)
