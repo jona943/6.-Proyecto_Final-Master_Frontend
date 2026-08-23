@@ -41,14 +41,6 @@ const IconUserX = () => (
   </svg>
 )
 
-const IconIdCard = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-    <line x1="8" y1="21" x2="16" y2="21"></line>
-    <line x1="12" y1="17" x2="12" y2="21"></line>
-  </svg>
-)
-
 const IconCamera = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
@@ -106,40 +98,124 @@ const IconLogOut = () => (
 )
 
 // ============================================================================
-// AVATARES PREESTABLECIDOS PARA SELECCIÓN
+// ICONOS DE IDENTIDAD DE GÉNERO Y AVATAR VECTORIAL NATIVO
 // ============================================================================
-const AVATAR_OPTIONS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?w=150&auto=format&fit=crop&q=80'
+const AvatarNeutral = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="4"></circle>
+    <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+  </svg>
+)
+
+const AvatarFemale = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 14c-3.3 0-6 2.7-6 6v1h12v-1c0-3.3-2.7-6-6-6z"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+    <path d="M8 8c0 3 1.8 5 4 5s4-2 4-5"></path>
+  </svg>
+)
+
+const AvatarMale = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 14c-3.3 0-6 2.7-6 6v1h12v-1c0-3.3-2.7-6-6-6z"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+    <path d="M9 4.5l3-2 3 2"></path>
+  </svg>
+)
+
+const AvatarShield = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+  </svg>
+)
+
+const AVATAR_TYPES = [
+  { id: 'initials', label: 'Iniciales Neón' },
+  { id: 'neutral', label: 'Icono Neutral' },
+  { id: 'female', label: 'Icono Femenino' },
+  { id: 'male', label: 'Icono Masculino' },
+  { id: 'shield', label: 'Escudo Privado' }
 ]
 
 // ============================================================================
 // COMPONENTE PRINCIPAL: ProfileSettings
 // ============================================================================
 function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
-  // Pestaña Activa
   const [activeTab, setActiveTab] = useState('profile') // 'profile' | 'settings' | 'privacy' | 'blocked'
 
-  // Perfil del Usuario basado en la sesión activa
+  // Identificación dinámica de la cuenta activa (2 cuentas: adminUser o rosi_master)
+  const cleanHandle = currentUserHandle ? currentUserHandle.replace(/^@/, '').toLowerCase() : 'adminuser'
+  const isRosi = cleanHandle === 'rosi_master'
+  const isAdmin = cleanHandle === 'adminuser'
+
+  // Perfil del Usuario persistido o inicializado
   const [profile, setProfile] = useState(() => {
-    const handle = currentUserHandle ? currentUserHandle.replace(/^@/, '') : 'adminUser'
-    const isRosi = handle.toLowerCase() === 'rosi_master'
-    const isAdmin = handle.toLowerCase() === 'adminuser'
+    try {
+      const saved = localStorage.getItem(`nexu_profile_${cleanHandle}`)
+      if (saved) return JSON.parse(saved)
+    } catch {}
+
     return {
-      displayName: isRosi ? 'Rosy Master' : isAdmin ? 'Admin User' : handle,
-      username: handle,
-      email: `${handle.toLowerCase()}@nexu.app`,
-      bio: 'Usuario activo de Nexu · Mensajería directa, libre y privada.',
-      avatar: AVATAR_OPTIONS[isAdmin ? 1 : 0],
-      presence: 'online' // 'online' | 'away' | 'dnd' | 'offline'
+      displayName: isRosi ? 'Rosy Master' : isAdmin ? 'Admin User' : cleanHandle,
+      username: isRosi ? 'rosi_master' : isAdmin ? 'adminUser' : cleanHandle,
+      gender: isRosi ? 'female' : 'male', // 'neutral' | 'female' | 'male'
+      avatarType: isRosi ? 'female' : 'initials', // 'initials' | 'neutral' | 'female' | 'male' | 'shield'
+      email: `${cleanHandle}@nexu.app`,
+      bio: isRosi
+        ? 'Especialista Frontend · Desarrollo modular en React con enfoque en privacidad.'
+        : 'Administrador del Sistema · Gestión de identidades y seguridad punto a punto.',
+      presence: 'online'
     }
   })
+
+  // Iniciales tipográficas automáticas
+  const userInitials = (profile.displayName || profile.username || 'AU')
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+
+  // Renderizador de avatar vectorial
+  const renderAvatar = (type, initials, size = 48) => {
+    const isBig = size >= 50
+    if (type === 'initials') {
+      return (
+        <div
+          className="avatar-badge-neon"
+          style={{ width: size, height: size, fontSize: isBig ? '1.5rem' : size > 36 ? '0.9rem' : '0.75rem' }}
+        >
+          {initials}
+        </div>
+      )
+    }
+    if (type === 'female') {
+      return (
+        <div className="avatar-badge-neon female" style={{ width: size, height: size }}>
+          <AvatarFemale size={size * 0.55} />
+        </div>
+      )
+    }
+    if (type === 'male') {
+      return (
+        <div className="avatar-badge-neon male" style={{ width: size, height: size }}>
+          <AvatarMale size={size * 0.55} />
+        </div>
+      )
+    }
+    if (type === 'shield') {
+      return (
+        <div className="avatar-badge-neon shield" style={{ width: size, height: size }}>
+          <AvatarShield size={size * 0.52} />
+        </div>
+      )
+    }
+    return (
+      <div className="avatar-badge-neon neutral" style={{ width: size, height: size }}>
+        <AvatarNeutral size={size * 0.55} />
+      </div>
+    )
+  }
 
   // Preferencias Generales y Tema
   const [themeMode, setThemeMode] = useState('dark') // 'dark' | 'light'
@@ -153,46 +229,39 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
 
   // Privacidad y Seguridad
   const [privacy, setPrivacy] = useState({
-    readReceipts: true, // doble check azul
+    readReceipts: true,
     lastSeen: true,
     typingIndicator: true,
     allowStrangers: false
   })
 
   // Dispositivos y Sesiones Activas Registradas
-  const [sessions, setSessions] = useState(() => getUserSessions(currentUserHandle))
+  const [sessions, setSessions] = useState(() => getUserSessions(cleanHandle))
 
   const handleCloseSession = (sessionId) => {
     setSessions((prev) => {
       const updated = prev.filter((s) => s.id !== sessionId)
       try {
-        const clean = (currentUserHandle || 'adminUser').replace(/^@/, '').toLowerCase()
-        localStorage.setItem(`nexu_sessions_${clean}`, JSON.stringify(updated))
+        localStorage.setItem(`nexu_sessions_${cleanHandle}`, JSON.stringify(updated))
       } catch {}
       return updated
     })
     showToast('Sesión cerrada en el dispositivo secundario')
   }
 
-  // Lista de Contactos Bloqueados Mock
+  // Contactos Bloqueados
   const [blockedUsers, setBlockedUsers] = useState([
     {
       id: 'usr-b1',
       name: 'Spam Bot Publicidad',
       handle: '@crypto_promo_99',
-      avatar: AVATAR_OPTIONS[7],
+      avatarType: 'neutral',
+      initials: 'SP',
       date: '14 Feb 2026'
-    },
-    {
-      id: 'usr-b2',
-      name: 'Usuario Sospechoso',
-      handle: '@phantom_guest',
-      avatar: AVATAR_OPTIONS[4],
-      date: '18 Feb 2026'
     }
   ])
 
-  // Modales
+  // Modales y Toasts
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState(null)
 
@@ -224,8 +293,8 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
         osc.type = 'sine'
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime) // Nota D5
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1) // A5
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime)
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1)
         gain.gain.setValueAtTime(0.2, ctx.currentTime)
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
         osc.connect(gain)
@@ -251,28 +320,62 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
     setProfile((prev) => ({ ...prev, username: clean }))
   }
 
-  const handleSaveProfile = (e) => {
-    e.preventDefault()
-    showToast('Perfil y estado actualizados correctamente')
+  // Cambio de sexo/género con asignación de icono representativo
+  const handleGenderChange = (newGender) => {
+    setProfile((prev) => {
+      let suggestedAvatar = prev.avatarType
+      if (newGender === 'female') suggestedAvatar = 'female'
+      else if (newGender === 'male') suggestedAvatar = 'male'
+      else if (newGender === 'neutral') suggestedAvatar = 'neutral'
+
+      const updated = {
+        ...prev,
+        gender: newGender,
+        avatarType: suggestedAvatar
+      }
+      try {
+        localStorage.setItem(`nexu_profile_${cleanHandle}`, JSON.stringify(updated))
+      } catch {}
+      return updated
+    })
+    showToast(`Identidad de género asignada: ${newGender === 'female' ? 'Femenino' : newGender === 'male' ? 'Masculino' : 'Neutral'}`)
   }
 
-  // Manejar cambio de contraseña
+  // Guardar perfil y persistir en storage
+  const handleSaveProfile = (e) => {
+    e.preventDefault()
+    try {
+      localStorage.setItem(`nexu_profile_${cleanHandle}`, JSON.stringify(profile))
+    } catch {}
+    showToast('Perfil guardado y sincronizado correctamente')
+  }
+
+  // Manejar cambio de contraseña validando contra las 2 cuentas oficiales
   const handlePasswordSubmit = (e) => {
     e.preventDefault()
-    if (!passwords.current) {
-      showToast('Ingresa tu contraseña actual')
+    const expectedPass = localStorage.getItem(`nexu_custom_pass_${cleanHandle}`) || (isRosi ? 'Nexu2026Pass!' : '12345678')
+
+    if (passwords.current !== expectedPass) {
+      showToast('La contraseña actual es incorrecta')
       return
     }
+
     if (passwords.newPass.length < 8) {
       showToast('La nueva contraseña debe tener al menos 8 caracteres')
       return
     }
+
     if (passwords.newPass !== passwords.confirmPass) {
       showToast('Las contraseñas no coinciden')
       return
     }
+
+    try {
+      localStorage.setItem(`nexu_custom_pass_${cleanHandle}`, passwords.newPass)
+    } catch {}
+
     setPasswords({ current: '', newPass: '', confirmPass: '' })
-    showToast('Contraseña actualizada correctamente')
+    showToast('Contraseña actualizada y guardada correctamente')
   }
 
   // Desbloquear usuario
@@ -282,10 +385,16 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
   }
 
   // Selección de Avatar
-  const selectAvatar = (url) => {
-    setProfile((prev) => ({ ...prev, avatar: url }))
+  const selectAvatarType = (type) => {
+    setProfile((prev) => {
+      const updated = { ...prev, avatarType: type }
+      try {
+        localStorage.setItem(`nexu_profile_${cleanHandle}`, JSON.stringify(updated))
+      } catch {}
+      return updated
+    })
     setIsAvatarModalOpen(false)
-    showToast('Foto de perfil actualizada')
+    showToast('Icono de avatar actualizado')
   }
 
   return (
@@ -308,7 +417,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <div className="header-user-quick">
-              <img src={profile.avatar} alt="Avatar" className="quick-avatar" />
+              {renderAvatar(profile.avatarType, userInitials, 40)}
               <div className="quick-info">
                 <span className="quick-name">{profile.displayName}</span>
                 <span className="quick-status-label">
@@ -351,7 +460,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
         </header>
 
         {/* ================================================================= */}
-        {/* 2. BARRA DE PESTAÑAS (TABS)                                       */}
+        {/* 2. BARRA DE PESTAÑAS (TABS FUNCIONALES)                           */}
         {/* ================================================================= */}
         <nav className="profile-nav-tabs">
           <button
@@ -389,16 +498,6 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
             <IconUserX />
             <span>Bloqueados ({blockedUsers.length})</span>
           </button>
-
-          <button
-            className="nav-tab-btn"
-            onClick={() => setIsContactDrawerOpen(true)}
-            type="button"
-            title="Ver Drawer de contacto de prueba"
-          >
-            <IconIdCard />
-            <span>Ficha de Contacto ↗</span>
-          </button>
         </nav>
 
         {/* ================================================================= */}
@@ -410,18 +509,18 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
               <div className="section-card-header">
                 <div className="section-title-group">
                   <h3>Identidad de Usuario</h3>
-                  <p>Configura tu foto de perfil, nombre visible y biografía pública.</p>
+                  <p>Configura tu icono vectorial, nombre visible, sexo y estado de presencia.</p>
                 </div>
               </div>
 
-              {/* Fila Hero del Perfil con Avatar y Datos Rápidos */}
+              {/* Fila Hero del Perfil con Avatar Vectorial y Datos Rápidos */}
               <div className="profile-hero-row">
                 <div className="avatar-edit-container">
-                  <img src={profile.avatar} alt="Foto de perfil" className="main-avatar-img" />
+                  {renderAvatar(profile.avatarType, userInitials, 100)}
                   <button
                     className="avatar-change-badge"
                     onClick={() => setIsAvatarModalOpen(true)}
-                    title="Cambiar foto de perfil"
+                    title="Cambiar estilo de avatar"
                     type="button"
                   >
                     <IconCamera />
@@ -431,7 +530,54 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                 <div className="profile-hero-details">
                   <span className="hero-display-name">{profile.displayName}</span>
                   <span className="hero-username-handle">@{profile.username}</span>
-                  <span className="hero-join-date">Miembro de Nexu desde Febrero de 2026</span>
+                  <span className="hero-join-date">
+                    Cuenta activa: {isRosi ? 'Rosy Master (Frontend Specialist)' : 'Admin User (System Admin)'} · Nexu v1.0
+                  </span>
+                </div>
+              </div>
+
+              {/* Selector de Sexo / Identidad de Género */}
+              <div className="form-group">
+                <label className="form-label">
+                  <span>Identidad de Género / Sexo</span>
+                  <span className="form-label-hint">Asigna tu icono representativo</span>
+                </label>
+                <div className="gender-selector-grid">
+                  <button
+                    type="button"
+                    className={`gender-option-btn ${profile.gender === 'neutral' ? 'active' : ''}`}
+                    onClick={() => handleGenderChange('neutral')}
+                  >
+                    <AvatarNeutral size={18} />
+                    <div className="gender-btn-meta">
+                      <span className="gender-btn-title">Prefiero no especificar</span>
+                      <span className="gender-btn-sub">Icono neutral o iniciales</span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`gender-option-btn ${profile.gender === 'female' ? 'active' : ''}`}
+                    onClick={() => handleGenderChange('female')}
+                  >
+                    <AvatarFemale size={18} />
+                    <div className="gender-btn-meta">
+                      <span className="gender-btn-title">Femenino</span>
+                      <span className="gender-btn-sub">Icono femenino</span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`gender-option-btn ${profile.gender === 'male' ? 'active' : ''}`}
+                    onClick={() => handleGenderChange('male')}
+                  >
+                    <AvatarMale size={18} />
+                    <div className="gender-btn-meta">
+                      <span className="gender-btn-title">Masculino</span>
+                      <span className="gender-btn-sub">Icono masculino</span>
+                    </div>
+                  </button>
                 </div>
               </div>
 
@@ -894,7 +1040,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                   {blockedUsers.map((user) => (
                     <div key={user.id} className="blocked-user-row">
                       <div className="blocked-user-info">
-                        <img src={user.avatar} alt={user.name} className="blocked-avatar" />
+                        {renderAvatar(user.avatarType, user.initials, 40)}
                         <div className="blocked-names">
                           <span className="blocked-name">{user.name}</span>
                           <span className="blocked-handle">{user.handle} · Bloqueado el {user.date}</span>
@@ -924,13 +1070,13 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
       </div>
 
       {/* =================================================================== */}
-      {/* 7. MODAL DE GALERÍA DE AVATARES                                     */}
+      {/* 7. MODAL DE GALERÍA DE AVATARES VECTORIALES                         */}
       {/* =================================================================== */}
       {isAvatarModalOpen && (
         <div className="modal-backdrop" onClick={() => setIsAvatarModalOpen(false)}>
           <div className="modal-dialog-box" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header-row">
-              <h3>Elige un nuevo Avatar</h3>
+              <h3>Elige tu Icono de Identidad</h3>
               <button
                 className="modal-close-btn"
                 onClick={() => setIsAvatarModalOpen(false)}
@@ -941,19 +1087,19 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
             </div>
 
             <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-              Selecciona una de las opciones predefinidas para tu identidad en Nexu:
+              Selecciona el estilo de icono vectorial que te representará en la red de Nexu:
             </p>
 
-            <div className="avatar-grid-picker">
-              {AVATAR_OPTIONS.map((imgUrl, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  className={`avatar-pick-option ${profile.avatar === imgUrl ? 'selected' : ''}`}
-                  onClick={() => selectAvatar(imgUrl)}
+            <div className="avatar-vector-picker-grid">
+              {AVATAR_TYPES.map((av) => (
+                <div
+                  key={av.id}
+                  className={`avatar-vector-option-card ${profile.avatarType === av.id ? 'selected' : ''}`}
+                  onClick={() => selectAvatarType(av.id)}
                 >
-                  <img src={imgUrl} alt={`Avatar opción ${idx + 1}`} />
-                </button>
+                  {renderAvatar(av.id, userInitials, 52)}
+                  <span className="avatar-option-label">{av.label}</span>
+                </div>
               ))}
             </div>
 
@@ -963,7 +1109,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                 className="btn-secondary"
                 onClick={() => setIsAvatarModalOpen(false)}
               >
-                Cancelar
+                Cerrar
               </button>
             </div>
           </div>
