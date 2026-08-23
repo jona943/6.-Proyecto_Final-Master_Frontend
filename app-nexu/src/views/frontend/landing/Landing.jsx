@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import './Landing.css'
 import heroMonolithImg from './assets/hero-monolith.jpg'
+import sovereignIdentityImg from './assets/sovereign-identity.jpg'
+import invisibleNetworkImg from './assets/invisible-network.jpg'
+import pureSilenceImg from './assets/pure-silence.jpg'
 
 // ============================================================================
 // ICONOS SVG VECTORIALES NATIVOS (Minimalistas, Nítidos & Zero-Bloat)
@@ -14,13 +17,6 @@ const IconUserPlus = () => (
   </svg>
 )
 
-const IconUser = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-)
-
 const IconArrowRight = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12h14"></path>
@@ -28,22 +24,10 @@ const IconArrowRight = () => (
   </svg>
 )
 
-const IconZap = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-  </svg>
-)
-
 const IconLock = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-)
-
-const IconSparkles = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"></path>
   </svg>
 )
 
@@ -72,36 +56,44 @@ const IconShield = () => (
 )
 
 // ============================================================================
-// VENTAJAS DEL MVP SIMPLIFICADO
+// EL MANIFIESTO: LAS 3 LEYES FUNDACIONALES DE NEXU
 // ============================================================================
-const ADVANTAGES = [
+const MANIFESTO_LAWS = [
   {
-    id: 'alias',
-    tag: '01 · Registro Rápido',
-    title: 'Identidad por Alias',
-    desc: 'Regístrate en segundos eligiendo tu nombre de usuario único. Sin números de teléfono ni datos obligatorios.',
-    icon: <IconUser />
+    id: 'law-01',
+    number: '01',
+    shortLabel: 'Identidad Soberana',
+    tag: 'LEY 01 · IDENTIDAD SOBERANA',
+    title: 'Tu privacidad no le pertenece a tu tarjeta SIM',
+    contrast: 'WhatsApp te exige tu número telefónico real, exponiendo tu identidad física, país y contactos a cualquiera.',
+    solution: 'En Nexu, tu @alias único es tu sola credencial. Cero números de teléfono requeridos, cero metadatos atados a tu chip móvil.',
+    badge: '0% Números Telefónicos · Identidad Soberana',
+    image: sovereignIdentityImg,
+    imageAlt: 'Arte conceptual de Identidad Soberana Nexu'
   },
   {
-    id: 'direct-chat',
-    tag: '02 · Tiempo Real',
-    title: 'Mensajería Directa 1 a 1',
-    desc: 'Conexión instantánea al milisegundo para chatear directamente con otra persona sin intermediarios ni retrasos.',
-    icon: <IconZap />
+    id: 'law-02',
+    number: '02',
+    shortLabel: 'Red Invisible',
+    tag: 'LEY 02 · RED INVISIBLE',
+    title: 'Sin directorios públicos. Si no te invitan, no existes',
+    contrast: 'Telegram y Discord indexan usuarios en directorios abiertos donde cualquiera puede rastrearte o enviarte spam.',
+    solution: 'Nexu opera con bandeja ciega. No existe barra de búsqueda global. Nadie sabe que estás en la red a menos que tú le entregues tu @alias directamente.',
+    badge: 'Bandeja Ciega · Cero Rastreo Público',
+    image: invisibleNetworkImg,
+    imageAlt: 'Arte conceptual de Red Invisible Nexu'
   },
   {
-    id: 'auth',
-    tag: '03 · Seguridad',
-    title: 'Acceso Rápido y Seguro',
-    desc: 'Inicia sesión con tu alias y contraseña para volver a tus conversaciones con total privacidad y protección.',
-    icon: <IconLock />
-  },
-  {
-    id: 'design',
-    tag: '04 · Experiencia',
-    title: 'Diseño Oscuro Minimalista',
-    desc: 'Interfaz nocturna pulida sin distracciones, anuncios ni algoritmos. Enfocada 100% en la conversación.',
-    icon: <IconSparkles />
+    id: 'law-03',
+    number: '03',
+    shortLabel: 'Silencio Absoluto',
+    tag: 'LEY 03 · SILENCIO Y PUNTO A PUNTO',
+    title: 'Cero ruido masivo. Solo tú y tu conversación',
+    contrast: 'Las grandes plataformas monetizan la distracción: notificaciones basura, bots caóticos y canales masivos sin control.',
+    solution: 'Descartamos los algoritmos para devolverle el valor a una conversación real: comunicación pura, instantánea y protegida entre dos personas.',
+    badge: '0 Bots · 0 Algoritmos · 100% Mensajería Directa',
+    image: pureSilenceImg,
+    imageAlt: 'Arte conceptual de Silencio y Comunicación Pura Nexu'
   }
 ]
 
@@ -109,23 +101,15 @@ const ADVANTAGES = [
 // COMPONENTE PRINCIPAL LANDING
 // ============================================================================
 function Landing({ onNavigate }) {
-  const [currentSlide, setCurrentSlide] = useState(0)
   const [claimAlias, setClaimAlias] = useState('')
+  const [activeLawIndex, setActiveLawIndex] = useState(0)
 
-  // Auto-avance del carrusel cada 5 segundos
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % ADVANTAGES.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [])
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % ADVANTAGES.length)
+  const nextLaw = () => {
+    setActiveLawIndex((prev) => (prev + 1) % MANIFESTO_LAWS.length)
   }
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + ADVANTAGES.length) % ADVANTAGES.length)
+  const prevLaw = () => {
+    setActiveLawIndex((prev) => (prev - 1 + MANIFESTO_LAWS.length) % MANIFESTO_LAWS.length)
   }
 
   const scrollToManifiesto = () => {
@@ -283,26 +267,6 @@ function Landing({ onNavigate }) {
             </div>
           </div>
 
-          {/* Acceso Rápido Demo */}
-          <div className="hero-demo-access">
-            <span className="demo-access-label">Cuentas demo oficiales:</span>
-            <button
-              type="button"
-              className="demo-pill-btn"
-              onClick={() => onNavigate && onNavigate('login')}
-            >
-              @adminUser
-            </button>
-            <span className="demo-sep">·</span>
-            <button
-              type="button"
-              className="demo-pill-btn"
-              onClick={() => onNavigate && onNavigate('login')}
-            >
-              @rosi_master
-            </button>
-          </div>
-
           {/* Showcase Visual: Monolito de Obsidiana */}
           <div className="hero-monolith-card">
             <div className="monolith-frame">
@@ -337,50 +301,109 @@ function Landing({ onNavigate }) {
         </div>
       </section>
 
-      {/* 2. CARRUSEL DE VENTAJAS (EL MANIFIESTO) */}
-      <section id="el-manifiesto" className="carousel-section">
-        <div className="carousel-container">
+      {/* 2. EL MANIFIESTO: LAS 3 LEYES DE NEXU EN MODO CARRUSEL INTERACTIVO */}
+      <section id="el-manifiesto" className="manifesto-section">
+        <div className="manifesto-container">
+          {/* Cabecera del Manifiesto */}
+          <div className="manifesto-header">
+            <div className="manifesto-tag-pill">
+              <IconLock />
+              <span>EL MANIFIESTO DE NEXU</span>
+            </div>
+            <h2 className="manifesto-main-title">
+              Tres leyes inquebrantables.<br />
+              <span className="hero-glow-highlight">Creado contra el ruido masivo.</span>
+            </h2>
+            <p className="manifesto-main-desc">
+              No competimos imitando a las grandes plataformas. Ganamos donde ellas fallaron: privacidad de raíz, cero invasión de datos y silencio absoluto.
+            </p>
+          </div>
+
+          {/* Selector Interactivo de Leyes (Tabs) */}
+          <div className="manifesto-tabs-bar">
+            {MANIFESTO_LAWS.map((law, index) => (
+              <button
+                key={law.id}
+                type="button"
+                className={`manifesto-tab-btn ${activeLawIndex === index ? 'active' : ''}`}
+                onClick={() => setActiveLawIndex(index)}
+              >
+                <span className="tab-number">{law.number}</span>
+                <span className="tab-label">{law.shortLabel}</span>
+              </button>
+            ))}
+          </div>
+
           {/* Tarjeta Activa del Carrusel */}
-          <div className="carousel-card">
-            <div className="card-header-bar">
-              <span className="slide-tag">{ADVANTAGES[currentSlide].tag}</span>
-              <div className="slide-icon-box">{ADVANTAGES[currentSlide].icon}</div>
+          <div className="manifesto-carousel-card" key={activeLawIndex}>
+            {/* Contenedor Visual de la Imagen */}
+            <div className="manifesto-visual-box">
+              <div className="manifesto-img-wrapper">
+                <img
+                  src={MANIFESTO_LAWS[activeLawIndex].image}
+                  alt={MANIFESTO_LAWS[activeLawIndex].imageAlt}
+                  className="manifesto-img"
+                />
+                <div className="manifesto-img-overlay" />
+                <div className="manifesto-img-badge">
+                  <span className="manifesto-badge-dot" />
+                  <span>{MANIFESTO_LAWS[activeLawIndex].badge}</span>
+                </div>
+              </div>
             </div>
 
-            <div className="slide-content">
-              <h2>{ADVANTAGES[currentSlide].title}</h2>
-              <p>{ADVANTAGES[currentSlide].desc}</p>
+            {/* Contenido Editorial de la Ley */}
+            <div className="manifesto-text-box">
+              <div className="manifesto-law-meta">
+                <span className="law-number-box">{MANIFESTO_LAWS[activeLawIndex].number}</span>
+                <span className="law-tag-text">{MANIFESTO_LAWS[activeLawIndex].tag}</span>
+              </div>
+
+              <h3 className="manifesto-law-title">{MANIFESTO_LAWS[activeLawIndex].title}</h3>
+
+              <div className="manifesto-comparison-box">
+                <div className="comp-row comp-contrast">
+                  <span className="comp-badge comp-badge-vulnerable">Problema de la industria</span>
+                  <p className="comp-text">{MANIFESTO_LAWS[activeLawIndex].contrast}</p>
+                </div>
+                <div className="comp-row comp-solution">
+                  <span className="comp-badge comp-badge-sovereign">El estándar Nexu</span>
+                  <p className="comp-text">{MANIFESTO_LAWS[activeLawIndex].solution}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Controles de Navegación del Carrusel (Dots y Flechas) */}
+          <div className="manifesto-carousel-controls">
+            <div className="manifesto-dots">
+              {MANIFESTO_LAWS.map((law, index) => (
+                <button
+                  key={law.id}
+                  className={`dot-indicator ${activeLawIndex === index ? 'active' : ''}`}
+                  onClick={() => setActiveLawIndex(index)}
+                  aria-label={`Ir a Ley ${law.number}`}
+                />
+              ))}
             </div>
 
-            {/* Controles de Navegación del Carrusel */}
-            <div className="carousel-footer">
-              <div className="carousel-dots">
-                {ADVANTAGES.map((adv, index) => (
-                  <button
-                    key={adv.id}
-                    className={`dot-indicator ${currentSlide === index ? 'active' : ''}`}
-                    onClick={() => setCurrentSlide(index)}
-                    aria-label={`Ir a ventaja ${index + 1}`}
-                  />
-                ))}
-              </div>
-
-              <div className="carousel-nav-btns">
-                <button
-                  className="nav-arrow"
-                  onClick={prevSlide}
-                  aria-label="Ventaja anterior"
-                >
-                  <IconChevronLeft />
-                </button>
-                <button
-                  className="nav-arrow"
-                  onClick={nextSlide}
-                  aria-label="Siguiente ventaja"
-                >
-                  <IconChevronRight />
-                </button>
-              </div>
+            <div className="manifesto-nav-btns">
+              <button
+                className="manifesto-nav-arrow"
+                onClick={prevLaw}
+                aria-label="Ley anterior"
+                type="button"
+              >
+                <IconChevronLeft />
+              </button>
+              <button
+                className="manifesto-nav-arrow"
+                onClick={nextLaw}
+                aria-label="Siguiente ley"
+                type="button"
+              >
+                <IconChevronRight />
+              </button>
             </div>
           </div>
         </div>
