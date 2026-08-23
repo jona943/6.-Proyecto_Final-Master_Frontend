@@ -79,21 +79,21 @@
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  border: 2px solid var(--bg-surface, #101216);
+  border: 2px solid var(--bg-surface);
 }
 
 .user-status-dot.online {
-  background-color: #27c93f;
-  box-shadow: 0 0 6px rgba(39, 201, 63, 0.6);
+  background-color: var(--status-online);
+  box-shadow: 0 0 6px var(--status-online-glow);
 }
 
 .user-status-dot.away {
-  background-color: #ffbd2e;
-  box-shadow: 0 0 6px rgba(255, 189, 46, 0.6);
+  background-color: var(--status-away);
+  box-shadow: 0 0 6px var(--status-away-glow);
 }
 
 .user-status-dot.offline {
-  background-color: #555b68;
+  background-color: var(--status-offline);
 }
 
 .user-info-meta {

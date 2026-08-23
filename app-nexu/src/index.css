@@ -1,40 +1,113 @@
+/* ============================================================================
+   NEXU DESIGN SYSTEM · BASE & DESIGN TOKENS GLOBALES
+   ============================================================================ */
+
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
 
 :root {
-  /* Paleta Base Oscura */
+  /* 1. Paleta Base Oscura (Obsidian Carbon) */
   --bg-canvas: #08090b;
   --bg-surface: #101216;
   --bg-surface-elevated: #16191f;
   --bg-surface-hover: #1e222a;
+  --bg-surface-glass: rgba(16, 18, 22, 0.85);
 
-  /* Textos */
+  /* 2. Textos y Contrastes */
   --text-primary: #f4f5f7;
   --text-secondary: #7e8796;
   --text-muted: #484f5c;
 
-  /* Acento de Marca (Acid Lime) */
+  /* 3. Acento de Marca (Acid Lime) */
   --accent-acid: #d4ff00;
   --accent-acid-hover: #e0ff38;
   --accent-acid-contrast: #08090b;
+  --accent-acid-subtle: rgba(212, 255, 0, 0.12);
+  --accent-acid-border: rgba(212, 255, 0, 0.35);
 
-  /* Bordes */
+  /* 4. Estados Semánticos */
+  --status-online: #00e676;
+  --status-online-glow: rgba(0, 230, 118, 0.35);
+  --status-away: #ffd600;
+  --status-away-glow: rgba(255, 214, 0, 0.35);
+  --status-dnd: #ff3366;
+  --status-dnd-glow: rgba(255, 51, 102, 0.35);
+  --status-offline: #555c68;
+  --color-danger: #ff3366;
+  --color-danger-subtle: rgba(255, 51, 102, 0.12);
+  --color-delivered: #70d6ff;
+
+  /* 5. Avatares de Identidad Vectorial */
+  --avatar-female: #ff70a6;
+  --avatar-female-bg: rgba(255, 112, 166, 0.12);
+  --avatar-male: #70d6ff;
+  --avatar-male-bg: rgba(112, 214, 255, 0.12);
+  --avatar-neutral: #d4ff00;
+  --avatar-neutral-bg: rgba(212, 255, 0, 0.12);
+  --avatar-shield: #ffd670;
+  --avatar-shield-bg: rgba(255, 214, 112, 0.12);
+
+  /* 6. Bordes */
   --border-subtle: #1c2028;
   --border-active: #2a303d;
+  --border-focus: rgba(212, 255, 0, 0.5);
 
-  /* Tipografías */
+  /* 7. Tipografías */
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Radios */
+  /* 8. Radios */
+  --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 18px;
+  --radius-full: 9999px;
+
+  /* 9. Sombras & Glassmorphism */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.8);
+  --glow-accent: 0 0 32px rgba(212, 255, 0, 0.22);
+  --glass-blur: blur(16px);
+
+  /* 10. Transiciones */
+  --transition-fast: 0.15s ease;
+  --transition-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-* {
+/* Modo Claro Opcional */
+.theme-light {
+  --bg-canvas: #f0f2f5;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f7f8fa;
+  --bg-surface-hover: #eaecee;
+  --bg-surface-glass: rgba(255, 255, 255, 0.9);
+  --text-primary: #121418;
+  --text-secondary: #5a6474;
+  --text-muted: #8c96a5;
+  --border-subtle: #dce1e8;
+  --border-active: #c2c9d4;
+  --accent-acid: #608800;
+  --accent-acid-hover: #72a100;
+  --accent-acid-contrast: #ffffff;
+  --accent-acid-subtle: rgba(96, 136, 0, 0.12);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.14);
+}
+
+/* ============================================================================
+   RESET GLOBAL & ESTILOS BASE
+   ============================================================================ */
+
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -43,5 +116,148 @@ body {
   color: var(--text-primary);
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scrollbars Universales Oscuros y Nítidos */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-active);
+}
+
+/* ============================================================================
+   PRIMITIVAS GLOBALES COMPARTIDAS
+   ============================================================================ */
+
+/* Puntos de Estado de Presencia */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot.online {
+  background-color: var(--status-online);
+  box-shadow: 0 0 8px var(--status-online-glow);
+}
+
+.status-dot.away {
+  background-color: var(--status-away);
+  box-shadow: 0 0 8px var(--status-away-glow);
+}
+
+.status-dot.dnd {
+  background-color: var(--status-dnd);
+  box-shadow: 0 0 8px var(--status-dnd-glow);
+}
+
+.status-dot.offline {
+  background-color: var(--status-offline);
+}
+
+/* Badges de Avatar Neón Estandarizados */
+.avatar-badge-neon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  border: 1.5px solid currentColor;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.avatar-badge-neon.initials {
+  background: var(--accent-acid-subtle);
+  color: var(--accent-acid);
+  border-color: var(--accent-acid);
+}
+
+.avatar-badge-neon.female {
+  background: var(--avatar-female-bg);
+  color: var(--avatar-female);
+  border-color: var(--avatar-female);
+}
+
+.avatar-badge-neon.male {
+  background: var(--avatar-male-bg);
+  color: var(--avatar-male);
+  border-color: var(--avatar-male);
+}
+
+.avatar-badge-neon.neutral {
+  background: var(--avatar-neutral-bg);
+  color: var(--avatar-neutral);
+  border-color: var(--avatar-neutral);
+}
+
+.avatar-badge-neon.shield {
+  background: var(--avatar-shield-bg);
+  color: var(--avatar-shield);
+  border-color: var(--avatar-shield);
+}
+
+/* Toast de Notificación Flotante */
+.toast-feedback, .profile-toast-alert {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--accent-acid-border);
+  color: var(--text-primary);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-md), var(--glow-accent);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  animation: slideToastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Animaciones Universales */
+@keyframes slideToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

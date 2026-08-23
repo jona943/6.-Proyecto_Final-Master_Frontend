@@ -16,23 +16,6 @@
   animation: profileFadeIn 0.35s ease-out;
   position: relative;
 }
-
-/* Soporte para Modo Claro Scoped */
-.profile-settings-wrapper.theme-light {
-  --bg-canvas: #f4f5f8;
-  --bg-surface: #ffffff;
-  --bg-surface-elevated: #f0f2f6;
-  --bg-surface-hover: #e4e7ee;
-  --text-primary: #0e1117;
-  --text-secondary: #5b6577;
-  --text-muted: #8c96a7;
-  --border-subtle: #e2e5eb;
-  --border-active: #c7cdd9;
-  --accent-acid: #82a800;
-  --accent-acid-hover: #93bd00;
-  --accent-acid-contrast: #ffffff;
-}
-
 @keyframes profileFadeIn {
   from {
     opacity: 0;
@@ -272,44 +255,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.avatar-badge-neon {
-  border-radius: 50%;
-  background-color: var(--bg-surface-elevated, #16191f);
-  border: 2px solid var(--accent-acid, #d4ff00);
-  color: var(--accent-acid, #d4ff00);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono, monospace);
-  font-weight: 800;
-  box-shadow: 0 0 14px rgba(212, 255, 0, 0.2);
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.avatar-badge-neon.female {
-  border-color: #ff70a6;
-  color: #ff70a6;
-  box-shadow: 0 0 14px rgba(255, 112, 166, 0.2);
-}
-
-.avatar-badge-neon.male {
-  border-color: #70d6ff;
-  color: #70d6ff;
-  box-shadow: 0 0 14px rgba(112, 214, 255, 0.2);
-}
-
-.avatar-badge-neon.shield {
-  border-color: #ffd670;
-  color: #ffd670;
-  box-shadow: 0 0 14px rgba(255, 214, 112, 0.2);
-}
-
-.avatar-badge-neon.neutral {
-  border-color: var(--accent-acid, #d4ff00);
-  color: var(--accent-acid, #d4ff00);
 }
 
 .gender-selector-grid {
