@@ -192,10 +192,16 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
     }
   ])
 
-  // Modales y Drawers
+  // Modales
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false)
-  const [isContactDrawerOpen, setIsContactDrawerOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState(null)
+
+  // Estado del formulario de cambio de contraseña
+  const [passwords, setPasswords] = useState({
+    current: '',
+    newPass: '',
+    confirmPass: ''
+  })
 
   // Mostrar notificación Toast temporal
   const showToast = (msg) => {
@@ -226,10 +232,10 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
         gain.connect(ctx.destination)
         osc.start()
         osc.stop(ctx.currentTime + 0.35)
-        showToast('🔔 Sonido de notificación reproducido')
+        showToast('Sonido de notificación reproducido')
       }
     } catch {
-      showToast('🔔 Tono de notificación simulado')
+      showToast('Tono de notificación simulado')
     }
   }
 
@@ -239,22 +245,47 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
     setProfile((prev) => ({ ...prev, [name]: value }))
   }
 
+  // Sanitizador de Alias: solo alfanumérico y máximo 10 caracteres
+  const handleUsernameChange = (e) => {
+    const clean = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
+    setProfile((prev) => ({ ...prev, username: clean }))
+  }
+
   const handleSaveProfile = (e) => {
     e.preventDefault()
-    showToast('✨ Perfil y estado actualizados correctamente')
+    showToast('Perfil y estado actualizados correctamente')
+  }
+
+  // Manejar cambio de contraseña
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault()
+    if (!passwords.current) {
+      showToast('Ingresa tu contraseña actual')
+      return
+    }
+    if (passwords.newPass.length < 8) {
+      showToast('La nueva contraseña debe tener al menos 8 caracteres')
+      return
+    }
+    if (passwords.newPass !== passwords.confirmPass) {
+      showToast('Las contraseñas no coinciden')
+      return
+    }
+    setPasswords({ current: '', newPass: '', confirmPass: '' })
+    showToast('Contraseña actualizada correctamente')
   }
 
   // Desbloquear usuario
   const handleUnblockUser = (id, name) => {
     setBlockedUsers((prev) => prev.filter((u) => u.id !== id))
-    showToast(`✅ ${name} ha sido desbloqueado`)
+    showToast(`${name} ha sido desbloqueado`)
   }
 
   // Selección de Avatar
   const selectAvatar = (url) => {
     setProfile((prev) => ({ ...prev, avatar: url }))
     setIsAvatarModalOpen(false)
-    showToast('📸 Foto de perfil actualizada')
+    showToast('Foto de perfil actualizada')
   }
 
   return (
@@ -479,7 +510,10 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label" htmlFor="username">Alias Único (Handle)</label>
+                  <label className="form-label" htmlFor="username">
+                    <span>Alias Único (Handle)</span>
+                    <span className="form-label-hint">{profile.username.length}/10</span>
+                  </label>
                   <div className="form-input-container">
                     <span className="form-input-prefix">@</span>
                     <input
@@ -488,7 +522,8 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                       type="text"
                       className="form-input has-prefix"
                       value={profile.username}
-                      onChange={handleProfileChange}
+                      onChange={handleUsernameChange}
+                      maxLength={10}
                       placeholder="usuario"
                       required
                     />
@@ -555,7 +590,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                   className={`theme-card-option ${themeMode === 'dark' ? 'active' : ''}`}
                   onClick={() => {
                     setThemeMode('dark')
-                    showToast('🌙 Modo Oscuro (Obsidian Carbon) activado')
+                    showToast('Modo Oscuro (Obsidian Carbon) activado')
                   }}
                 >
                   <div className="theme-preview-box dark">
@@ -573,7 +608,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                   className={`theme-card-option ${themeMode === 'light' ? 'active' : ''}`}
                   onClick={() => {
                     setThemeMode('light')
-                    showToast('☀️ Modo Claro activado')
+                    showToast('Modo Claro activado')
                   }}
                 >
                   <div className="theme-preview-box light">
@@ -688,7 +723,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
               <div className="settings-toggle-list">
                 <div className="toggle-item-row">
                   <div className="toggle-info">
-                    <span className="toggle-title">Confirmación de Lectura (Doble Check Azul ✓✓)</span>
+                    <span className="toggle-title">Confirmación de Lectura (Doble Check)</span>
                     <span className="toggle-desc">Permite a otros saber cuando has leído sus mensajes</span>
                   </div>
                   <label className="switch-control">
@@ -733,7 +768,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
               </div>
             </section>
 
-            {/* Cambio de Contraseña Simulado */}
+            {/* Cambio de Contraseña */}
             <section className="settings-section-card">
               <div className="section-card-header">
                 <div className="section-title-group">
@@ -742,13 +777,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                 </div>
               </div>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  showToast('🔒 Contraseña actualizada correctamente')
-                }}
-                className="form-grid-2col"
-              >
+              <form onSubmit={handlePasswordSubmit} className="form-grid-2col">
                 <div className="form-group">
                   <label className="form-label" htmlFor="currentPassword">Contraseña Actual</label>
                   <input
@@ -756,6 +785,8 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                     type="password"
                     className="form-input"
                     placeholder="••••••••••••"
+                    value={passwords.current}
+                    onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
                     required
                   />
                 </div>
@@ -767,6 +798,21 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
                     type="password"
                     className="form-input"
                     placeholder="Mínimo 8 caracteres"
+                    value={passwords.newPass}
+                    onChange={(e) => setPasswords({ ...passwords, newPass: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" htmlFor="confirmPassword">Confirmar Nueva Contraseña</label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    className="form-input"
+                    placeholder="Repite la nueva contraseña"
+                    value={passwords.confirmPass}
+                    onChange={(e) => setPasswords({ ...passwords, confirmPass: e.target.value })}
                     required
                   />
                 </div>
@@ -925,80 +971,7 @@ function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
       )}
 
       {/* =================================================================== */}
-      {/* 8. DRAWER DE INFORMACIÓN DE CONTACTO                                */}
-      {/* =================================================================== */}
-      {isContactDrawerOpen && (
-        <div className="contact-drawer-overlay" onClick={() => setIsContactDrawerOpen(false)}>
-          <div className="contact-drawer-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="drawer-header">
-              <h3>Ficha de Contacto</h3>
-              <button
-                className="modal-close-btn"
-                onClick={() => setIsContactDrawerOpen(false)}
-                type="button"
-              >
-                <IconX />
-              </button>
-            </div>
-
-            <div className="drawer-body-content">
-              <div className="drawer-contact-hero">
-                <img
-                  src={AVATAR_OPTIONS[3]}
-                  alt="Contacto"
-                  className="drawer-contact-avatar"
-                />
-                <span className="drawer-contact-name">Jonathan Gómez</span>
-                <span className="drawer-contact-handle">@jonathan · En línea</span>
-              </div>
-
-              <p className="drawer-contact-bio">
-                "Desarrollando la Landing Page y coordinando el proyecto colaborativo Nexu 🚀"
-              </p>
-
-              <div className="drawer-action-buttons">
-                <button
-                  type="button"
-                  className="btn-primary"
-                  onClick={() => {
-                    setIsContactDrawerOpen(false)
-                    showToast('💬 Abriendo chat directo con Jonathan...')
-                  }}
-                >
-                  Iniciar Chat
-                </button>
-                <button
-                  type="button"
-                  className="btn-danger-outline"
-                  onClick={() => showToast('🚫 Usuario silenciado temporalmente')}
-                >
-                  Silenciar
-                </button>
-              </div>
-
-              <div className="drawer-details-card">
-                <div className="drawer-detail-item">
-                  <span className="detail-key">Correo Electrónico</span>
-                  <span className="detail-val">jonathan@nexu.app</span>
-                </div>
-
-                <div className="drawer-detail-item">
-                  <span className="detail-key">Grupos en Común</span>
-                  <span className="detail-val">Frontend Master Squad (4 integrantes)</span>
-                </div>
-
-                <div className="drawer-detail-item">
-                  <span className="detail-key">Archivos Compartidos</span>
-                  <span className="detail-val">12 imágenes · 3 documentos</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =================================================================== */}
-      {/* 9. TOAST NOTIFICATION                                               */}
+      {/* 8. TOAST NOTIFICATION                                               */}
       {/* =================================================================== */}
       {toastMessage && (
         <div className="profile-toast-alert">
