@@ -1,78 +1,19 @@
 import { useState } from 'react'
 import './Login.css'
 
-// ============================================================================
-// ICONOS SVG VECTORIALES NATIVOS (Consistentes con la estética Nexu)
-// ============================================================================
-const IconUser = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-)
-
-const IconAtSign = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="4"></circle>
-    <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
-  </svg>
-)
-
-const IconLock = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-)
-
-const IconEye = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-    <circle cx="12" cy="12" r="3"></circle>
-  </svg>
-)
-
-const IconEyeOff = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
-    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
-    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
-    <line x1="2" x2="22" y1="2" y2="22"></line>
-  </svg>
-)
-
-const IconArrowRight = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5 12h14"></path>
-    <path d="m12 5 7 7-7 7"></path>
-  </svg>
-)
-
-const IconCheckCircle = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-  </svg>
-)
-
-const IconAlertCircle = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="8" x2="12" y2="12"></line>
-    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-  </svg>
-)
-
-const IconKey = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="7.5" cy="15.5" r="5.5"></circle>
-    <path d="m21 2-9.6 9.6"></path>
-    <path d="m15.5 7.5 3 3L22 7l-3-3"></path>
-  </svg>
-)
+import {
+  IconUser,
+  IconAtSign,
+  IconCheckCircle,
+  IconAlertCircle,
+  IconKey
+} from './components/LoginIcons'
+import LoginForm from './components/LoginForm'
+import RegisterForm from './components/RegisterForm'
+import ForgotPasswordForm from './components/ForgotPasswordForm'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN
+// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR MODULAR)
 // ============================================================================
 function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   // Pestaña activa: 'login' | 'register' | 'forgot'
@@ -84,7 +25,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
 
-  // Estados del Formulario de Registro (Solo Usuario y Contraseña >= 8 caracteres)
+  // Estados del Formulario de Registro
   const [regUsername, setRegUsername] = useState(() => {
     try {
       const saved = sessionStorage.getItem('nexu_prefilled_alias')
@@ -161,38 +102,32 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     setFormErrors({})
   }
 
-  // =========================================================================
-  // MANEJADORES DE SUBMIT (FRONTEND MOCK)
-  // =========================================================================
-
-  // 1. Manejar Inicio de Sesión con validación real contra mock
+  // 1. Manejar Envío del Login
   const handleLoginSubmit = (e) => {
     e.preventDefault()
     const errors = {}
 
     const cleanUsername = loginUsername.trim().replace(/^@/, '')
     if (!cleanUsername) {
-      errors.loginUsername = 'Ingresa tu nombre de usuario.'
+      errors.loginUsername = 'Introduce tu nombre de usuario.'
+    } else if (cleanUsername.length < 3) {
+      errors.loginUsername = 'El usuario debe tener al menos 3 caracteres.'
     }
 
     if (!loginPassword) {
-      errors.loginPassword = 'La contraseña es requerida.'
+      errors.loginPassword = 'Introduce tu contraseña.'
+    } else if (loginPassword.length < 8) {
+      errors.loginPassword = 'La contraseña debe tener al menos 8 caracteres.'
     }
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors)
-      setAlertInfo({
-        type: 'error',
-        text: 'Por favor, completa los campos requeridos.'
-      })
       return
     }
 
-    // Validar coincidencia de usuario y contraseña
+    // Comprobar credenciales contra cuentas de prueba válidas
     const matchedAccount = VALID_ACCOUNTS.find(
-      (acc) =>
-        acc.username.toLowerCase() === cleanUsername.toLowerCase() &&
-        acc.password === loginPassword
+      (acc) => acc.username.toLowerCase() === cleanUsername.toLowerCase() && acc.password === loginPassword
     )
 
     if (!matchedAccount) {
@@ -263,7 +198,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
 
   return (
     <div className="auth-view-container">
-      {/* 1. CABECERA: IDENTIDAD DE MARCA */}
+      {/* 1. Cabecera: Identidad de Marca */}
       <header className="auth-header">
         <div
           className="auth-brand-mark"
@@ -277,7 +212,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
         </div>
       </header>
 
-      {/* 2. TARJETA PRINCIPAL DEL MÓDULO */}
+      {/* 2. Tarjeta Principal del Módulo */}
       <main className="auth-main-wrapper">
         <div className="auth-card">
           {/* Selector de Pestañas (Iniciar Sesión / Registro) */}
@@ -315,366 +250,70 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
             </div>
           )}
 
-          {/* =================================================================
-              2.1 VISTA: INICIAR SESIÓN (LOGIN)
-             ================================================================= */}
+          {/* 2.1 Formulario de Inicio de Sesión */}
           {activeTab === 'login' && (
-            <form className="auth-form" onSubmit={handleLoginSubmit} noValidate>
-              <div className="auth-form-header">
-                <h2 className="auth-form-title">Bienvenido(a) a Nexu</h2>
-                <p className="auth-form-desc">
-                  Ingresa tu usuario único y contraseña para acceder.
-                </p>
-              </div>
-
-              {/* Campo Usuario Único */}
-              <div className="form-group">
-                <div className="form-label">
-                  <label htmlFor="login-username">Usuario único</label>
-                  <span className="input-hint">Máx. 10 caracteres</span>
-                </div>
-                <div className="input-container">
-                  <span className="input-prefix-at">@</span>
-                  <input
-                    id="login-username"
-                    type="text"
-                    className={`auth-input has-right-btn ${formErrors.loginUsername ? 'input-error' : ''}`}
-                    placeholder="TuAlias"
-                    value={loginUsername}
-                    onChange={(e) => handleUsernameInput(e.target.value, setLoginUsername, 'loginUsername')}
-                    maxLength={10}
-                    autoComplete="username"
-                  />
-                  <span className={`input-char-counter ${loginUsername.length === 10 ? 'limit' : loginUsername.length >= 3 ? 'valid' : ''}`}>
-                    {loginUsername.length}/10
-                  </span>
-                </div>
-                {formErrors.loginUsername && (
-                  <span className="input-error-msg">
-                    <IconAlertCircle /> {formErrors.loginUsername}
-                  </span>
-                )}
-              </div>
-
-              {/* Campo Contraseña */}
-              <div className="form-group">
-                <div className="form-label">
-                  <label htmlFor="login-password">Contraseña (8+ caracteres)</label>
-                  <button
-                    type="button"
-                    className="label-link"
-                    onClick={() => switchTab('forgot')}
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </button>
-                </div>
-                <div className="input-container">
-                  <span className="input-icon-left">
-                    <IconLock />
-                  </span>
-                  <input
-                    id="login-password"
-                    type={showLoginPassword ? 'text' : 'password'}
-                    className={`auth-input has-right-btn ${formErrors.loginPassword ? 'input-error' : ''}`}
-                    placeholder="Mínimo 8 caracteres"
-                    value={loginPassword}
-                    onChange={(e) => {
-                      setLoginPassword(e.target.value)
-                      if (formErrors.loginPassword) setFormErrors({ ...formErrors, loginPassword: null })
-                    }}
-                    autoComplete="current-password"
-                  />
-                  <button
-                    type="button"
-                    className="btn-toggle-pw"
-                    onClick={() => setShowLoginPassword(!showLoginPassword)}
-                    title={showLoginPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-                  >
-                    {showLoginPassword ? <IconEyeOff /> : <IconEye />}
-                  </button>
-                </div>
-                {formErrors.loginPassword && (
-                  <span className="input-error-msg">
-                    <IconAlertCircle /> {formErrors.loginPassword}
-                  </span>
-                )}
-              </div>
-
-              {/* Opción Recordar sesión */}
-              <div className="form-options">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    className="checkbox-custom"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                  <span>Recordar mi sesión</span>
-                </label>
-              </div>
-
-              {/* Botón de Enviar */}
-              <button
-                type="submit"
-                className="btn-auth-submit"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <span className="btn-spinner"></span>
-                    <span>Accediendo...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Entrar a Nexu</span>
-                    <IconArrowRight />
-                  </>
-                )}
-              </button>
-
-              {/* Separador y Acceso Demo Rápido */}
-              <div className="auth-divider">CUENTAS DE PRUEBA</div>
-
-              <div className="demo-credentials-box">
-                <span className="demo-title">Acceso para Testing</span>
-                <p className="demo-text">
-                  1. <strong>@adminUser</strong> (clave: 12345678)
-                  <br />
-                  2. <strong>@rosi_master</strong> (clave: Nexu2026Pass!)
-                </p>
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="demo-chip-btn"
-                    onClick={() => loadDemoUser('adminUser')}
-                  >
-                    <IconKey /> Cargar @adminUser
-                  </button>
-                  <button
-                    type="button"
-                    className="demo-chip-btn"
-                    onClick={() => loadDemoUser('rosi_master')}
-                  >
-                    <IconKey /> Cargar @rosi_master
-                  </button>
-                </div>
-              </div>
-            </form>
+            <LoginForm
+              loginUsername={loginUsername}
+              onUsernameChange={(val) => handleUsernameInput(val, setLoginUsername, 'loginUsername')}
+              loginPassword={loginPassword}
+              onPasswordChange={(val) => {
+                setLoginPassword(val)
+                if (formErrors.loginPassword) setFormErrors({ ...formErrors, loginPassword: null })
+              }}
+              showLoginPassword={showLoginPassword}
+              onToggleShowPassword={() => setShowLoginPassword(!showLoginPassword)}
+              rememberMe={rememberMe}
+              onRememberMeChange={setRememberMe}
+              formErrors={formErrors}
+              isLoading={isLoading}
+              onSubmit={handleLoginSubmit}
+              onForgotPasswordClick={() => switchTab('forgot')}
+              onLoadDemoUser={loadDemoUser}
+            />
           )}
 
-          {/* =================================================================
-              2.2 VISTA: CREAR USUARIO (REGISTRO SIMPLIFICADO)
-             ================================================================= */}
+          {/* 2.2 Formulario de Registro */}
           {activeTab === 'register' && (
-            <form className="auth-form" onSubmit={handleRegisterSubmit} noValidate>
-              <div className="auth-form-header">
-                <h2 className="auth-form-title">Crea tu usuario único</h2>
-                <p className="auth-form-desc">
-                  Sin correos ni números de teléfono. Solo tu usuario y contraseña.
-                </p>
-              </div>
-
-              {/* Usuario Único */}
-              <div className="form-group">
-                <div className="form-label">
-                  <label htmlFor="reg-username">Usuario único</label>
-                  <span className="input-hint">3 a 10 caracteres alfanuméricos</span>
-                </div>
-                <div className="input-container">
-                  <span className="input-prefix-at">@</span>
-                  <input
-                    id="reg-username"
-                    type="text"
-                    className={`auth-input has-right-btn ${formErrors.regUsername ? 'input-error' : ''}`}
-                    placeholder="TuAlias"
-                    value={regUsername}
-                    onChange={(e) => handleUsernameInput(e.target.value, setRegUsername, 'regUsername')}
-                    maxLength={10}
-                    autoComplete="username"
-                  />
-                  <span className={`input-char-counter ${regUsername.length === 10 ? 'limit' : regUsername.length >= 3 ? 'valid' : ''}`}>
-                    {regUsername.length}/10
-                  </span>
-                </div>
-                {formErrors.regUsername && (
-                  <span className="input-error-msg">
-                    <IconAlertCircle /> {formErrors.regUsername}
-                  </span>
-                )}
-              </div>
-
-              {/* Contraseña (Mínimo 8 caracteres) */}
-              <div className="form-group">
-                <label className="form-label" htmlFor="reg-password">
-                  Contraseña (mínimo 8 caracteres)
-                </label>
-                <div className="input-container">
-                  <span className="input-icon-left">
-                    <IconLock />
-                  </span>
-                  <input
-                    id="reg-password"
-                    type={showRegPassword ? 'text' : 'password'}
-                    className={`auth-input has-right-btn ${formErrors.regPassword ? 'input-error' : ''}`}
-                    placeholder="Mínimo 8 caracteres"
-                    value={regPassword}
-                    onChange={(e) => {
-                      setRegPassword(e.target.value)
-                      if (formErrors.regPassword) setFormErrors({ ...formErrors, regPassword: null })
-                    }}
-                    autoComplete="new-password"
-                  />
-                  <button
-                    type="button"
-                    className="btn-toggle-pw"
-                    onClick={() => setShowRegPassword(!showRegPassword)}
-                    title={showRegPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-                  >
-                    {showRegPassword ? <IconEyeOff /> : <IconEye />}
-                  </button>
-                </div>
-
-                {/* Indicador visual de longitud/seguridad */}
-                {regPassword && (
-                  <>
-                    <div className="password-strength-bar">
-                      <div className={`strength-segment ${passwordStrength.level >= 1 ? passwordStrength.class : ''}`} />
-                      <div className={`strength-segment ${passwordStrength.level >= 2 ? passwordStrength.class : ''}`} />
-                      <div className={`strength-segment ${passwordStrength.level >= 3 ? passwordStrength.class : ''}`} />
-                    </div>
-                    <div className="strength-label">
-                      Seguridad: <strong>{passwordStrength.label}</strong>
-                    </div>
-                  </>
-                )}
-
-                {formErrors.regPassword && (
-                  <span className="input-error-msg">
-                    <IconAlertCircle /> {formErrors.regPassword}
-                  </span>
-                )}
-              </div>
-
-              {/* Confirmar Contraseña */}
-              <div className="form-group">
-                <label className="form-label" htmlFor="reg-confirm-password">
-                  Confirmar contraseña
-                </label>
-                <div className="input-container">
-                  <span className="input-icon-left">
-                    <IconLock />
-                  </span>
-                  <input
-                    id="reg-confirm-password"
-                    type={showRegPassword ? 'text' : 'password'}
-                    className={`auth-input ${formErrors.regConfirmPassword ? 'input-error' : ''}`}
-                    placeholder="Repite tu contraseña de 8+ caracteres"
-                    value={regConfirmPassword}
-                    onChange={(e) => {
-                      setRegConfirmPassword(e.target.value)
-                      if (formErrors.regConfirmPassword) setFormErrors({ ...formErrors, regConfirmPassword: null })
-                    }}
-                    autoComplete="new-password"
-                  />
-                </div>
-                {formErrors.regConfirmPassword && (
-                  <span className="input-error-msg">
-                    <IconAlertCircle /> {formErrors.regConfirmPassword}
-                  </span>
-                )}
-              </div>
-
-              {/* Botón de Registro */}
-              <button
-                type="submit"
-                className="btn-auth-submit"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <span className="btn-spinner"></span>
-                    <span>Creando usuario...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Crear mi usuario</span>
-                    <IconArrowRight />
-                  </>
-                )}
-              </button>
-            </form>
+            <RegisterForm
+              regUsername={regUsername}
+              onUsernameChange={(val) => handleUsernameInput(val, setRegUsername, 'regUsername')}
+              regPassword={regPassword}
+              onPasswordChange={(val) => {
+                setRegPassword(val)
+                if (formErrors.regPassword) setFormErrors({ ...formErrors, regPassword: null })
+              }}
+              regConfirmPassword={regConfirmPassword}
+              onConfirmPasswordChange={(val) => {
+                setRegConfirmPassword(val)
+                if (formErrors.regConfirmPassword) setFormErrors({ ...formErrors, regConfirmPassword: null })
+              }}
+              showRegPassword={showRegPassword}
+              onToggleShowPassword={() => setShowRegPassword(!showRegPassword)}
+              passwordStrength={passwordStrength}
+              formErrors={formErrors}
+              isLoading={isLoading}
+              onSubmit={handleRegisterSubmit}
+            />
           )}
 
-          {/* =================================================================
-              2.3 VISTA: RECUPERAR ACCESO (FORGOT PASSWORD)
-             ================================================================= */}
+          {/* 2.3 Formulario de Recuperación de Acceso */}
           {activeTab === 'forgot' && (
-            <form className="auth-form" onSubmit={handleForgotSubmit} noValidate>
-              <div className="auth-form-header">
-                <h2 className="auth-form-title">Recuperar acceso</h2>
-                <p className="auth-form-desc">
-                  Ingresa tu usuario único para restablecer tu acceso.
-                </p>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="forgot-username">
-                  Usuario único registrado
-                </label>
-                <div className="input-container">
-                  <span className="input-icon-left">
-                    <IconAtSign />
-                  </span>
-                  <input
-                    id="forgot-username"
-                    type="text"
-                    className={`auth-input ${formErrors.forgotUsername ? 'input-error' : ''}`}
-                    placeholder="ej. rosi_master"
-                    value={forgotUsername}
-                    onChange={(e) => {
-                      setForgotUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))
-                      if (formErrors.forgotUsername) setFormErrors({ ...formErrors, forgotUsername: null })
-                    }}
-                  />
-                </div>
-                {formErrors.forgotUsername && (
-                  <span className="input-error-msg">
-                    <IconAlertCircle /> {formErrors.forgotUsername}
-                  </span>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                className="btn-auth-submit"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <span className="btn-spinner"></span>
-                    <span>Restableciendo...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Restablecer acceso</span>
-                    <IconArrowRight />
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                className="btn-auth-secondary"
-                onClick={() => switchTab('login')}
-              >
-                Volver a Iniciar Sesión
-              </button>
-            </form>
+            <ForgotPasswordForm
+              forgotUsername={forgotUsername}
+              onUsernameChange={(val) => {
+                setForgotUsername(val)
+                if (formErrors.forgotUsername) setFormErrors({ ...formErrors, forgotUsername: null })
+              }}
+              formErrors={formErrors}
+              isLoading={isLoading}
+              onSubmit={handleForgotSubmit}
+              onBackToLogin={() => switchTab('login')}
+            />
           )}
         </div>
       </main>
 
-      {/* 3. FOOTER DEL MÓDULO */}
+      {/* 3. Footer del Módulo */}
       <footer className="auth-footer">
         <p className="auth-footer-text">
           Nexu · Módulo de Autenticación desarrollado por <span>Rosa</span>
