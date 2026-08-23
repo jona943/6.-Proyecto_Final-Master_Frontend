@@ -95,6 +95,13 @@ const IconLock = () => (
   </svg>
 )
 
+const IconLink = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+)
+
 const IconUser = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -268,6 +275,25 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
     }, 1200)
   }
 
+  // Copiar enlace directo de invitación al portapapeles
+  const handleCopyInviteLink = () => {
+    const rawHandle = currentUser.handle || '@adminUser'
+    const inviteUrl = `https://nexu.app/c/${rawHandle}`
+
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(inviteUrl)
+        .then(() => {
+          triggerToast(`Enlace copiado: ${inviteUrl}`)
+        })
+        .catch(() => {
+          triggerToast(`Enlace listo: ${inviteUrl}`)
+        })
+    } else {
+      triggerToast(`Enlace listo: ${inviteUrl}`)
+    }
+  }
+
   // Copiar contenido del mensaje al portapapeles
   const handleCopyMessage = (text) => {
     navigator.clipboard?.writeText(text)
@@ -355,7 +381,7 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
             <IconSearch />
             <input
               type="text"
-              placeholder="Buscar contactos o canales..."
+              placeholder="Buscar contactos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -395,9 +421,21 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
               <div>
                 <h4 className="sidebar-empty-title">Bandeja Privada</h4>
                 <p className="sidebar-empty-desc">
-                  No tienes conversaciones activas aún. Conecta mediante un alias o comparte tu enlace directo.
+                  No tienes conversaciones activas aún. Comparte tu enlace directo o conecta mediante un alias.
                 </p>
               </div>
+
+              {/* Botón de Copiar Enlace Directo */}
+              <button
+                type="button"
+                className="btn-invite-link"
+                onClick={handleCopyInviteLink}
+                title="Copiar enlace de conexión directa"
+              >
+                <IconLink />
+                <span>Copiar mi enlace directo</span>
+              </button>
+
               <div className="sidebar-privacy-box">
                 <span className="sidebar-privacy-tag">
                   <IconLock /> Cero Spam · Punto a Punto
@@ -443,7 +481,7 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
                             {lastMsg.text}
                           </>
                         ) : (
-                          <em>Canal vacío</em>
+                          <em>Sin mensajes</em>
                         )}
                       </span>
 
@@ -512,12 +550,12 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
           {/* 2.2 Feed de Mensajes */}
           <div className="messages-container">
             <div className="date-divider">
-              <span>Canal Directo v1.0</span>
+              <span>Mensajería Directa 1 a 1</span>
             </div>
 
             {activeChat.messages.length === 0 ? (
               <div className="empty-search-msg">
-                <p>No hay mensajes en este canal. Envía el primer mensaje.</p>
+                <p>No hay mensajes en esta conversación. Envía el primer mensaje.</p>
               </div>
             ) : (
               activeChat.messages.map((msg) => {

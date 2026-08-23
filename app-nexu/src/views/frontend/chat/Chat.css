@@ -407,6 +407,47 @@
   line-height: 1.4;
 }
 
+/* Botón de Copiar Enlace Directo */
+.btn-invite-link {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--bg-surface-elevated, #16191f);
+  border: 1px solid var(--border-active, #2a303d);
+  color: var(--text-primary, #f4f5f7);
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-invite-link svg {
+  color: var(--accent-acid, #d4ff00);
+  transition: transform 0.2s ease;
+}
+
+.btn-invite-link:hover {
+  background-color: var(--bg-surface-hover, #1e222a);
+  border-color: var(--accent-acid, #d4ff00);
+  color: var(--accent-acid, #d4ff00);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(212, 255, 0, 0.15);
+}
+
+.btn-invite-link:hover svg {
+  transform: scale(1.15);
+}
+
+.btn-invite-link:active {
+  transform: translateY(0);
+}
+
 /* ============================================================================
    2. VENTANA PRINCIPAL DE CHAT ACTIVO (CENTRO)
    ============================================================================ */
