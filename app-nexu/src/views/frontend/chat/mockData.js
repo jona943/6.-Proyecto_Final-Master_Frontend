@@ -3,6 +3,9 @@
  * Sin emojis - 100% iconos vectoriales e iniciales tipográficas.
  */
 
+import { storage, STORAGE_KEYS } from '../../../services/storageService'
+import { getInitials } from '../../../utils/formatters'
+
 export const MOCK_USERS = [
   {
     id: 'usr_admin',
@@ -34,130 +37,124 @@ export const getUserProfile = (username) => {
   if (!username) return DEFAULT_USER
   const clean = username.replace(/^@/, '').toLowerCase()
 
-  // 1. Verificar si existen datos actualizados en localStorage
-  try {
-    const saved = localStorage.getItem(`nexu_profile_${clean}`)
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      const initials = (parsed.displayName || parsed.username || clean)
-        .split(' ')
-        .map((w) => w[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
+  // 1. Verificar si existen datos actualizados en storageService
+  const saved = storage.get(STORAGE_KEYS.profileKey(clean))
+  if (saved) {
+    const initials = getInitials(saved.displayName || saved.username || clean, 'NX')
 
-      return {
-        id: `usr_${clean}`,
-        username: parsed.username || clean,
-        name: parsed.displayName || clean,
-        handle: `@${parsed.username || clean}`,
-        avatar: initials,
-        avatarType: parsed.avatarType || (clean === 'rosi_master' ? 'female' : 'initials'),
-        gender: parsed.gender || 'neutral',
-        status: parsed.presence || 'online',
-        statusText: `Sesión activa · ${parsed.bio ? parsed.bio.slice(0, 30) + '...' : 'Nexu Member'}`,
-        role: clean === 'adminuser' ? 'Administrador Nexu' : 'Desarrolladora Nexu'
-      }
+    return {
+      id: `usr_${clean}`,
+      username: saved.username || clean,
+      name: saved.displayName || clean,
+      handle: `@${saved.username || clean}`,
+      avatar: initials,
+      avatarType: saved.avatarType || (clean === 'rosi_master' ? 'female' : 'initials'),
+      gender: saved.gender || 'neutral',
+      status: saved.presence || 'online',
+      statusText: `Sesión activa · ${saved.bio ? saved.bio.slice(0, 30) + '...' : 'Nexu Member'}`,
+      role: clean === 'adminuser' ? 'Administrador Nexu' : 'Desarrolladora Nexu'
     }
-  } catch {}
+  }
 
-  const found = MOCK_USERS.find(
-    (u) => u.username.toLowerCase() === clean
-  )
-  if (found) return found
+  // 2. Si es una de las cuentas demo iniciales
+  const matched = MOCK_USERS.find((u) => u.username.toLowerCase() === clean)
+  if (matched) return matched
 
+  // 3. Si es un usuario recién creado
   return {
     id: `usr_${clean}`,
     username: clean,
-    name: clean,
+    name: `@${clean}`,
     handle: `@${clean}`,
     avatar: clean.slice(0, 2).toUpperCase(),
-    avatarType: 'initials',
+    avatarType: 'neutral',
     gender: 'neutral',
     status: 'online',
-    statusText: 'Sesión activa',
+    statusText: 'Sesión activa · Nexu Member',
     role: 'Usuario Nexu'
   }
 }
 
-// Lista de conversaciones vacía por defecto (bandeja privada)
-export const INITIAL_CHATS = []
-
 export const BOT_RESPONSES = [
-  'Mensaje recibido y procesado por el despachador de eventos.',
-  'Confirmación de entrega en tiempo real: paquete verificado con latencia de 12ms.',
-  'Evento de mensajería ejecutado correctamente en el cliente.',
-  'Simulación de respuesta automática completada sin errores.',
-  'Flujo de comunicación validado en el Módulo 03.'
+  'Mensaje verificado. La conexión entre pares permanece cifrada.',
+  'Recibido con éxito. El estándar de Nexu mantiene el hilo seguro.',
+  'Perfecto. Notificación silenciosa entregada al destinatario.',
+  'Entendido. La sincronización se realizó de manera privada.'
+]
+
+export const INITIAL_CHATS = [
+  {
+    id: 'chat_bot',
+    name: 'Nexu Assistant',
+    handle: '@nexu_assistant',
+    avatar: 'NX',
+    isBot: true,
+    status: 'online',
+    statusText: 'Asistente de Protocolo · En línea',
+    unreadCount: 0,
+    role: 'Asistente de Privacidad',
+    email: 'assistant@nexu.app',
+    bio: 'Bot automatizado para verificar el funcionamiento de la mensajería punto a punto.',
+    messages: [
+      {
+        id: 'msg_01',
+        sender: 'them',
+        text: 'Bienvenido al santuario de comunicación privada de Nexu. Todas tus conversaciones son directas y anónimas.',
+        time: '10:00 AM',
+        status: 'read'
+      },
+      {
+        id: 'msg_02',
+        sender: 'them',
+        text: 'Escribe un mensaje para probar la simulación de respuesta automática.',
+        time: '10:01 AM',
+        status: 'read'
+      }
+    ]
+  }
 ]
 
 /**
- * Detectar información del dispositivo y navegador del cliente
- */
-export const detectCurrentDevice = () => {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
-    return {
-      deviceName: 'Escritorio Web',
-      browser: 'Navegador Web',
-      platform: 'Desktop'
-    }
-  }
-
-  const ua = navigator.userAgent
-  let deviceName = 'Linux Desktop'
-  let browser = 'Google Chrome'
-  let platform = 'Desktop'
-
-  // Detección de Sistema Operativo
-  if (/Android/i.test(ua)) {
-    deviceName = 'Dispositivo Android'
-    platform = 'Mobile'
-  } else if (/iPhone/i.test(ua)) {
-    deviceName = 'Apple iPhone'
-    platform = 'Mobile'
-  } else if (/iPad/i.test(ua)) {
-    deviceName = 'Apple iPad'
-    platform = 'Tablet'
-  } else if (/Windows/i.test(ua)) {
-    deviceName = 'Windows PC'
-    platform = 'Desktop'
-  } else if (/Macintosh|Mac OS/i.test(ua)) {
-    deviceName = 'MacBook / macOS'
-    platform = 'Desktop'
-  } else if (/Linux/i.test(ua)) {
-    deviceName = 'Linux (Ubuntu / Desktop)'
-    platform = 'Desktop'
-  }
-
-  // Detección de Navegador
-  if (/Edg\//i.test(ua)) browser = 'Microsoft Edge'
-  else if (/Firefox\//i.test(ua)) browser = 'Mozilla Firefox'
-  else if (/Chrome\//i.test(ua)) browser = 'Google Chrome'
-  else if (/Safari\//i.test(ua)) browser = 'Apple Safari'
-
-  return { deviceName, browser, platform }
-}
-
-/**
- * Registrar o actualizar sesión de dispositivo de un usuario
- * Si el dispositivo ya existe para este usuario, actualiza fecha, hora y última actividad sin duplicar.
+ * Registrar inicio de sesión en el dispositivo actual
  */
 export const logDeviceSession = (username) => {
   const clean = (username || 'adminUser').replace(/^@/, '').toLowerCase()
-  const { deviceName, browser, platform } = detectCurrentDevice()
-  const storageKey = `nexu_sessions_${clean}`
+  const storageKey = STORAGE_KEYS.sessionsKey(clean)
+
+  let platform = 'Desktop'
+  let deviceName = 'Equipo de Escritorio'
+  let browser = 'Navegador Web'
+
+  if (typeof navigator !== 'undefined') {
+    const ua = navigator.userAgent
+    if (/android/i.test(ua)) {
+      platform = 'Mobile'
+      deviceName = 'Dispositivo Android'
+      browser = 'Chrome Mobile'
+    } else if (/iphone|ipad|ipod/i.test(ua)) {
+      platform = 'Mobile'
+      deviceName = 'Apple iPhone'
+      browser = 'Safari Mobile'
+    } else if (/macintosh|mac os x/i.test(ua)) {
+      platform = 'Desktop'
+      deviceName = 'Apple MacBook Pro'
+      browser = 'Safari / Chrome'
+    } else if (/windows/i.test(ua)) {
+      platform = 'Desktop'
+      deviceName = 'PC Windows 11'
+      browser = 'Edge / Chrome'
+    } else if (/linux/i.test(ua)) {
+      platform = 'Desktop'
+      deviceName = 'HP EliteBook 840 G5'
+      browser = 'Chrome 122 · Linux'
+    }
+  }
 
   const now = new Date()
   const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   const dateStr = now.toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' })
 
-  let sessions = []
-  try {
-    const saved = localStorage.getItem(storageKey)
-    if (saved) sessions = JSON.parse(saved)
-  } catch {
-    sessions = []
-  }
+  let sessions = storage.get(storageKey, [])
 
   // Buscar si ya existe este dispositivo
   const existingIndex = sessions.findIndex(
@@ -165,7 +162,7 @@ export const logDeviceSession = (username) => {
   )
 
   if (existingIndex >= 0) {
-    // Actualizar la sesión existente sin duplicar
+    // Actualizar sesión existente
     sessions[existingIndex] = {
       ...sessions[existingIndex],
       lastLoginDate: dateStr,
@@ -189,17 +186,11 @@ export const logDeviceSession = (username) => {
       isCurrent: true,
       status: 'online'
     }
-    // Marcar otras como no actuales
     sessions = sessions.map((s) => ({ ...s, isCurrent: false }))
     sessions.unshift(newSession)
   }
 
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(sessions))
-  } catch {
-    // Manejo de error silencioso
-  }
-
+  storage.set(storageKey, sessions)
   return sessions
 }
 
@@ -208,12 +199,8 @@ export const logDeviceSession = (username) => {
  */
 export const getUserSessions = (username) => {
   const clean = (username || 'adminUser').replace(/^@/, '').toLowerCase()
-  const storageKey = `nexu_sessions_${clean}`
-  try {
-    const saved = localStorage.getItem(storageKey)
-    if (saved) return JSON.parse(saved)
-  } catch {
-    // fallback
-  }
+  const storageKey = STORAGE_KEYS.sessionsKey(clean)
+  const saved = storage.get(storageKey)
+  if (saved && saved.length > 0) return saved
   return logDeviceSession(clean)
 }

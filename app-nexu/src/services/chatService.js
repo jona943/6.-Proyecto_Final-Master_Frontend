@@ -1,8 +1,10 @@
 // ============================================================================
 // SERVICIO DE MENSAJERÍA Y CHAT (ADAPTER PATTERN)
-// Actualmente opera en modo Demo-Funcional con simulación de tiempo real.
+// Actualmente opera en modo Demo-Funcional con StorageService seguro.
 // Listo para reemplazar con WebSockets (Socket.io) / API REST sin alterar componentes.
 // ============================================================================
+
+import { storage, STORAGE_KEYS } from './storageService'
 
 export const MOCK_KNOWN_USERS = [
   {
@@ -67,19 +69,13 @@ const INITIAL_CHATS_DEFAULT = [
 export const chatService = {
   // Obtener lista de chats
   async getChats() {
-    await new Promise((resolve) => setTimeout(resolve, 100))
-    try {
-      const saved = localStorage.getItem('nexu_chats_data')
-      if (saved) return JSON.parse(saved)
-    } catch {}
-    return INITIAL_CHATS_DEFAULT
+    await new Promise((resolve) => setTimeout(resolve, 80))
+    return storage.get(STORAGE_KEYS.CHATS_DATA, INITIAL_CHATS_DEFAULT)
   },
 
   // Guardar estado de chats
   saveChats(chats) {
-    try {
-      localStorage.setItem('nexu_chats_data', JSON.stringify(chats))
-    } catch {}
+    storage.set(STORAGE_KEYS.CHATS_DATA, chats)
   },
 
   // Enviar mensaje

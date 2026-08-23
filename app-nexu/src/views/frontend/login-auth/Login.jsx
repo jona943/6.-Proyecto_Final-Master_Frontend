@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './Login.css'
 import { useAuth } from '../../../context/AuthContext'
+import { session, STORAGE_KEYS } from '../../../services/storageService'
 import {
   sanitizeAlias,
   validateLoginForm,
@@ -19,7 +20,7 @@ import RegisterForm from './components/RegisterForm'
 import ForgotPasswordForm from './components/ForgotPasswordForm'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR + UTILS)
+// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR + STORAGE + UTILS)
 // ============================================================================
 function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   const { login } = useAuth()
@@ -33,15 +34,13 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
 
-  // Estados de Registro
+  // Estados de Registro con lectura segura de session
   const [regUsername, setRegUsername] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem('nexu_prefilled_alias')
-      if (saved) {
-        sessionStorage.removeItem('nexu_prefilled_alias')
-        return saved
-      }
-    } catch {}
+    const saved = session.get(STORAGE_KEYS.PREFILLED_ALIAS, '')
+    if (saved) {
+      session.remove(STORAGE_KEYS.PREFILLED_ALIAS)
+      return saved
+    }
     return ''
   })
   const [regPassword, setRegPassword] = useState('')

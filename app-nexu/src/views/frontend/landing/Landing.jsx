@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './Landing.css'
 import { validateAlias } from '../../../utils/validators'
+import { session, STORAGE_KEYS } from '../../../services/storageService'
 
 import LandingNavbar from './components/LandingNavbar'
 import HeroSection from './components/HeroSection'
@@ -9,7 +10,7 @@ import ScarcityCtaSection from './components/ScarcityCtaSection'
 import LandingFooter from './components/LandingFooter'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: LANDING PAGE (COORDINADOR + UTILS)
+// COMPONENTE PRINCIPAL: LANDING PAGE (COORDINADOR + STORAGE + UTILS)
 // ============================================================================
 function Landing({ onNavigate }) {
   const [claimAlias, setClaimAlias] = useState('')
@@ -30,17 +31,13 @@ function Landing({ onNavigate }) {
     }
   }
 
-  // Validación pura extraída a src/utils/validators.js
+  // Validación pura
   const validation = validateAlias(claimAlias)
 
   const handleClaimSubmit = (e) => {
     e.preventDefault()
     if (validation.state === 'valid') {
-      try {
-        sessionStorage.setItem('nexu_prefilled_alias', validation.value)
-      } catch (err) {
-        console.warn('Storage not available', err)
-      }
+      session.set(STORAGE_KEYS.PREFILLED_ALIAS, validation.value)
       onNavigate && onNavigate('register')
     }
   }
