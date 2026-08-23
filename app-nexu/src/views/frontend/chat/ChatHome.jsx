@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import './Chat.css'
-import { CURRENT_USER, INITIAL_CHATS, BOT_RESPONSES } from './mockData.js'
+import { CURRENT_USER, INITIAL_CHATS, BOT_RESPONSES, getUserProfile } from './mockData.js'
 
 // ============================================================================
 // ICONOS SVG VECTORIALES NATIVOS (Zero-Bloat · 100% SVG · Cero Emojis)
@@ -126,9 +126,10 @@ const IconMenu = () => (
 // ============================================================================
 // COMPONENTE PRINCIPAL: CHAT HOME
 // ============================================================================
-function ChatHome({ onOpenSettings }) {
+function ChatHome({ onOpenSettings, currentUserHandle }) {
+  const currentUser = getUserProfile(currentUserHandle)
   const [chats, setChats] = useState(INITIAL_CHATS)
-  const [selectedChatId, setSelectedChatId] = useState('chat_bot')
+  const [selectedChatId, setSelectedChatId] = useState(null)
   const [inputText, setInputText] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('all') // 'all' | 'unread' | 'online'
@@ -140,7 +141,7 @@ function ChatHome({ onOpenSettings }) {
   const messagesEndRef = useRef(null)
 
   // Obtener conversación activa
-  const activeChat = chats.find((c) => c.id === selectedChatId) || chats[0]
+  const activeChat = chats.find((c) => c.id === selectedChatId) || null
 
   // Auto-scroll al final del contenedor de mensajes
   useEffect(() => {
@@ -309,15 +310,15 @@ function ChatHome({ onOpenSettings }) {
             title={onOpenSettings ? 'Ir a Perfil y Configuración' : undefined}
           >
             <div className="avatar-wrapper">
-              <div className="avatar-badge">{CURRENT_USER.avatar}</div>
-              <span className={`user-status-dot ${CURRENT_USER.status}`}></span>
+              <div className="avatar-badge">{currentUser.avatar}</div>
+              <span className={`user-status-dot ${currentUser.status}`}></span>
             </div>
             <div className="user-info-meta">
               <div className="user-name-row">
-                <span className="user-display-name">{CURRENT_USER.name}</span>
+                <span className="user-display-name">{currentUser.name}</span>
                 <span className="tag-active-pill">TÚ</span>
               </div>
-              <span className="user-handle-sub">{CURRENT_USER.handle}</span>
+              <span className="user-handle-sub">{currentUser.handle}</span>
             </div>
           </div>
 

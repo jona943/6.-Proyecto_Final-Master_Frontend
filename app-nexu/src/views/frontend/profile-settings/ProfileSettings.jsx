@@ -121,18 +121,23 @@ const AVATAR_OPTIONS = [
 // ============================================================================
 // COMPONENTE PRINCIPAL: ProfileSettings
 // ============================================================================
-function ProfileSettings({ onBackToChat, onLogout }) {
+function ProfileSettings({ onBackToChat, onLogout, currentUserHandle }) {
   // Pestaña Activa
   const [activeTab, setActiveTab] = useState('profile') // 'profile' | 'settings' | 'privacy' | 'blocked'
 
-  // Perfil del Usuario
-  const [profile, setProfile] = useState({
-    displayName: 'Víctor Gil',
-    username: 'victor',
-    email: 'victor@nexu.app',
-    bio: 'Desarrollador Frontend enfocado en crear interfaces limpias, reactivas y en tiempo real con React ⚡',
-    avatar: AVATAR_OPTIONS[1],
-    presence: 'online' // 'online' | 'away' | 'dnd' | 'offline'
+  // Perfil del Usuario basado en la sesión activa
+  const [profile, setProfile] = useState(() => {
+    const handle = currentUserHandle ? currentUserHandle.replace(/^@/, '') : 'adminUser'
+    const isRosi = handle.toLowerCase() === 'rosi_master'
+    const isAdmin = handle.toLowerCase() === 'adminuser'
+    return {
+      displayName: isRosi ? 'Rosy Master' : isAdmin ? 'Admin User' : handle,
+      username: handle,
+      email: `${handle.toLowerCase()}@nexu.app`,
+      bio: 'Usuario activo de Nexu · Mensajería directa, libre y privada.',
+      avatar: AVATAR_OPTIONS[isAdmin ? 1 : 0],
+      presence: 'online' // 'online' | 'away' | 'dnd' | 'offline'
+    }
   })
 
   // Preferencias Generales y Tema

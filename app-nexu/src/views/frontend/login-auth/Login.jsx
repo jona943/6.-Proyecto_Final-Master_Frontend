@@ -143,7 +143,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   const handleLoginSubmit = (e) => {
     e.preventDefault()
     if (onLoginSuccess) {
-      onLoginSuccess()
+      onLoginSuccess(loginUsername.trim() || 'adminUser')
       return
     }
 
@@ -188,7 +188,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   const handleRegisterSubmit = (e) => {
     e.preventDefault()
     if (onLoginSuccess) {
-      onLoginSuccess()
+      onLoginSuccess(regUsername.trim() || 'adminUser')
       return
     }
 
