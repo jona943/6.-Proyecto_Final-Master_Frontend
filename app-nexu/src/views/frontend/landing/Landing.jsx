@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './Landing.css'
+import { validateAlias } from '../../../utils/validators'
 
 import LandingNavbar from './components/LandingNavbar'
 import HeroSection from './components/HeroSection'
@@ -8,7 +9,7 @@ import ScarcityCtaSection from './components/ScarcityCtaSection'
 import LandingFooter from './components/LandingFooter'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: LANDING PAGE (COORDINADOR MODULAR)
+// COMPONENTE PRINCIPAL: LANDING PAGE (COORDINADOR + UTILS)
 // ============================================================================
 function Landing({ onNavigate }) {
   const [claimAlias, setClaimAlias] = useState('')
@@ -29,45 +30,8 @@ function Landing({ onNavigate }) {
     }
   }
 
-  // Validación interactiva en tiempo real (3 a 10 caracteres alfanuméricos)
-  const getValidationState = () => {
-    const trimmed = claimAlias.trim().replace(/^@/, '')
-    if (!trimmed) {
-      return {
-        state: 'idle',
-        msg: 'Introduce de 3 a 10 caracteres alfanuméricos',
-        value: ''
-      }
-    }
-    if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
-      return {
-        state: 'error',
-        msg: 'Solo letras, números y guión bajo (_)',
-        value: trimmed
-      }
-    }
-    if (trimmed.length < 3) {
-      return {
-        state: 'warning',
-        msg: `${trimmed.length}/3 caracteres mínimos`,
-        value: trimmed
-      }
-    }
-    if (trimmed.length > 10) {
-      return {
-        state: 'error',
-        msg: 'Máximo 10 caracteres permitidos',
-        value: trimmed
-      }
-    }
-    return {
-      state: 'valid',
-      msg: `@${trimmed.toLowerCase()} está disponible para reclamar`,
-      value: trimmed.toLowerCase()
-    }
-  }
-
-  const validation = getValidationState()
+  // Validación pura extraída a src/utils/validators.js
+  const validation = validateAlias(claimAlias)
 
   const handleClaimSubmit = (e) => {
     e.preventDefault()
@@ -83,13 +47,13 @@ function Landing({ onNavigate }) {
 
   return (
     <div className="landing-clean">
-      {/* 0. Navbar Superior Flotante de Cristal */}
+      {/* 0. Navbar Superior */}
       <LandingNavbar
         onNavigate={onNavigate}
         onScrollToManifiesto={scrollToManifiesto}
       />
 
-      {/* 1. Hero Cinematográfico: Portal de Entrada */}
+      {/* 1. Hero Cinematográfico */}
       <HeroSection
         claimAlias={claimAlias}
         onClaimAliasChange={setClaimAlias}
@@ -98,7 +62,7 @@ function Landing({ onNavigate }) {
         onScrollToManifiesto={scrollToManifiesto}
       />
 
-      {/* 2. El Manifiesto: Las 3 Leyes en Carrusel Interactivo */}
+      {/* 2. El Manifiesto: Carrusel Interactivo */}
       <ManifestoCarouselSection
         activeLawIndex={activeLawIndex}
         onSelectLawIndex={setActiveLawIndex}
@@ -109,7 +73,7 @@ function Landing({ onNavigate }) {
       {/* 3. Escasez Matemática y Cierre (CTA Final) */}
       <ScarcityCtaSection onNavigate={onNavigate} />
 
-      {/* 4. Footer Minimalista y Sobrio */}
+      {/* 4. Footer Minimalista */}
       <LandingFooter onScrollToManifiesto={scrollToManifiesto} />
     </div>
   )

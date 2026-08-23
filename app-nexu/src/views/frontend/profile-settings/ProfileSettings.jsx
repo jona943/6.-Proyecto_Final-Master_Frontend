@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import './ProfileSettings.css'
 import { useAuth } from '../../../context/AuthContext'
 import { authService } from '../../../services/authService'
+import { cleanHandle, getInitials } from '../../../utils/formatters'
+import { sanitizeAlias } from '../../../utils/validators'
+import { playNotificationChime } from '../../../utils/audio'
 
 import ProfileHeaderCard from './components/ProfileHeaderCard'
 import SettingsNavTabs from './components/SettingsNavTabs'
@@ -12,12 +15,12 @@ import BlockedUsersTab from './components/BlockedUsersTab'
 import AvatarSelectorModal from './components/AvatarSelectorModal'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: PERFIL Y AJUSTES (COORDINADOR + CONTEXT)
+// COMPONENTE PRINCIPAL: PERFIL Y AJUSTES (COORDINADOR + UTILS)
 // ============================================================================
 function ProfileSettings({ onBackToChat, onLogout }) {
   const { user, updateProfile, changePassword } = useAuth()
-  const cleanHandle = (user?.username || 'adminUser').toLowerCase()
-  const isRosi = cleanHandle === 'rosi_master'
+  const activeHandle = cleanHandle(user?.username || 'adminUser')
+  const isRosi = activeHandle === 'rosi_master'
 
   // Perfil del usuario
   const [profile, setProfile] = useState({
@@ -33,19 +36,12 @@ function ProfileSettings({ onBackToChat, onLogout }) {
   })
 
   useEffect(() => {
-    authService.getProfile(cleanHandle).then((data) => {
+    authService.getProfile(activeHandle).then((data) => {
       if (data) setProfile(data)
     })
-  }, [cleanHandle])
+  }, [activeHandle])
 
-  const userInitials = profile.displayName
-    ? profile.displayName
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : 'NX'
+  const userInitials = getInitials(profile.displayName, 'NX')
 
   // Pestaña activa ('profile' | 'settings' | 'privacy' | 'blocked')
   const [activeTab, setActiveTab] = useState('profile')
@@ -71,11 +67,11 @@ function ProfileSettings({ onBackToChat, onLogout }) {
   // Sesiones de Dispositivos
   const [sessions, setSessions] = useState([])
   useEffect(() => {
-    authService.getSessions(cleanHandle).then((data) => setSessions(data))
-  }, [cleanHandle])
+    authService.getSessions(activeHandle).then((data) => setSessions(data))
+  }, [activeHandle])
 
   const handleCloseSession = async (sessionId) => {
-    const updated = await authService.closeSession(cleanHandle, sessionId)
+    const updated = await authService.closeSession(activeHandle, sessionId)
     setSessions(updated)
     showToast('Sesión cerrada en el dispositivo secundario')
   }
@@ -114,28 +110,10 @@ function ProfileSettings({ onBackToChat, onLogout }) {
     }
   }, [toastMessage])
 
-  // Sonido de prueba (Web Audio API)
-  const playChimeSound = () => {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext
-      if (AudioCtx) {
-        const ctx = new AudioCtx()
-        const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime)
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1)
-        gain.gain.setValueAtTime(0.2, ctx.currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
-        osc.connect(gain)
-        gain.connect(ctx.destination)
-        osc.start()
-        osc.stop(ctx.currentTime + 0.35)
-        showToast('Sonido de notificación reproducido')
-      }
-    } catch {
-      showToast('Tono de notificación simulado')
-    }
+  // Sonido de prueba con utilitario puro de Web Audio API
+  const handlePlayChime = () => {
+    playNotificationChime()
+    showToast('Sonido de notificación reproducido')
   }
 
   const handleProfileChange = (e) => {
@@ -144,7 +122,7 @@ function ProfileSettings({ onBackToChat, onLogout }) {
   }
 
   const handleUsernameChange = (e) => {
-    const clean = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
+    const clean = sanitizeAlias(e.target.value)
     setProfile((prev) => ({ ...prev, username: clean }))
   }
 
@@ -239,7 +217,7 @@ function ProfileSettings({ onBackToChat, onLogout }) {
             }}
             notifications={notifications}
             onNotificationToggle={(key, val) => setNotifications({ ...notifications, [key]: val })}
-            onPlayChimeSound={playChimeSound}
+            onPlayChimeSound={handlePlayChime}
           />
         )}
 

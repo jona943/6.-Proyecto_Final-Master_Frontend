@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import './Login.css'
 import { useAuth } from '../../../context/AuthContext'
+import {
+  sanitizeAlias,
+  validateLoginForm,
+  getPasswordStrength
+} from '../../../utils/validators'
 
 import {
   IconUser,
@@ -14,7 +19,7 @@ import RegisterForm from './components/RegisterForm'
 import ForgotPasswordForm from './components/ForgotPasswordForm'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR + CONTEXT)
+// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR + UTILS)
 // ============================================================================
 function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   const { login } = useAuth()
@@ -51,25 +56,12 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   const [alertInfo, setAlertInfo] = useState(null)
   const [formErrors, setFormErrors] = useState({})
 
-  // Cálculo de fortaleza de contraseña
-  const getPasswordStrength = (password) => {
-    if (!password) return { level: 0, label: '', class: '' }
-    if (password.length < 8) return { level: 1, label: 'Corta (mínimo 8)', class: 'weak' }
-
-    let score = 1
-    if (/[A-Z]/.test(password) && /[0-9]/.test(password)) score += 1
-    if (/[^A-Za-z0-9]/.test(password) || password.length >= 12) score += 1
-
-    if (score === 1) return { level: 1, label: 'Aceptable (8+ car)', class: 'medium' }
-    if (score === 2) return { level: 2, label: 'Buena', class: 'medium' }
-    return { level: 3, label: 'Fuerte', class: 'strong' }
-  }
-
+  // Cálculo de fortaleza de contraseña puro
   const passwordStrength = getPasswordStrength(regPassword)
 
-  // Sanitizador de alias
+  // Sanitizador de alias puro
   const handleUsernameInput = (value, setter, errorKey) => {
-    const clean = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
+    const clean = sanitizeAlias(value)
     setter(clean)
     if (formErrors[errorKey]) {
       setFormErrors((prev) => ({ ...prev, [errorKey]: null }))
@@ -97,25 +89,12 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     setFormErrors({})
   }
 
-  // 1. Enviar Login usando AuthService via useAuth()
+  // 1. Enviar Login con validador puro
   const handleLoginSubmit = async (e) => {
     e.preventDefault()
-    const errors = {}
+    const { isValid, errors } = validateLoginForm(loginUsername, loginPassword)
 
-    const cleanUsername = loginUsername.trim().replace(/^@/, '')
-    if (!cleanUsername) {
-      errors.loginUsername = 'Introduce tu nombre de usuario.'
-    } else if (cleanUsername.length < 3) {
-      errors.loginUsername = 'El usuario debe tener al menos 3 caracteres.'
-    }
-
-    if (!loginPassword) {
-      errors.loginPassword = 'Introduce tu contraseña.'
-    } else if (loginPassword.length < 8) {
-      errors.loginPassword = 'La contraseña debe tener al menos 8 caracteres.'
-    }
-
-    if (Object.keys(errors).length > 0) {
+    if (!isValid) {
       setFormErrors(errors)
       return
     }
@@ -125,7 +104,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     setAlertInfo(null)
 
     try {
-      await login(cleanUsername, loginPassword)
+      await login(loginUsername, loginPassword)
       if (onLoginSuccess) {
         onLoginSuccess()
       }
@@ -151,7 +130,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
   // 3. Manejar Recuperación
   const handleForgotSubmit = (e) => {
     e.preventDefault()
-    const cleanUsername = forgotUsername.trim().toLowerCase().replace(/^@/, '')
+    const cleanUsername = sanitizeAlias(forgotUsername).toLowerCase()
     if (!cleanUsername || cleanUsername.length < 3) {
       setFormErrors({ forgotUsername: 'Ingresa un usuario válido.' })
       return

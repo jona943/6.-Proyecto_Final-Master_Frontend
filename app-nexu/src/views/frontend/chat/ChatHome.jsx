@@ -3,6 +3,8 @@ import './Chat.css'
 import { useAuth } from '../../../context/AuthContext'
 import { useChat } from '../../../context/ChatContext'
 import { chatService } from '../../../services/chatService'
+import { sanitizeAlias } from '../../../utils/validators'
+import { formatHandle } from '../../../utils/formatters'
 
 import ChatSidebar from './components/ChatSidebar'
 import ActiveChatPanel from './components/ActiveChatPanel'
@@ -11,7 +13,7 @@ import ConnectUserModal from './components/ConnectUserModal'
 import ChatEmptyState from './components/ChatEmptyState'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR + CONTEXT)
+// COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR + CONTEXT + UTILS)
 // ============================================================================
 function ChatHome({ onOpenSettings }) {
   const { user } = useAuth()
@@ -83,10 +85,10 @@ function ChatHome({ onOpenSettings }) {
     setInputText('')
   }
 
-  // Copiar enlace de invitación
+  // Copiar enlace de invitación con formateador
   const handleCopyInviteLink = () => {
-    const handle = user?.username ? `@${user.username}` : '@adminUser'
-    const inviteUrl = `https://nexu.app/c/${handle}`
+    const handle = formatHandle(user?.username || 'adminUser')
+    const inviteUrl = `https://nexu.app/c/${handle.replace(/^@/, '')}`
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(inviteUrl)
         .then(() => triggerToast(`Enlace copiado: ${inviteUrl}`))
@@ -96,9 +98,9 @@ function ChatHome({ onOpenSettings }) {
     }
   }
 
-  // Búsqueda de usuario por alias
+  // Búsqueda de usuario con sanitizador puro
   const handleSearchUser = (val) => {
-    const clean = val.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
+    const clean = sanitizeAlias(val)
     setSearchAlias(clean)
     const { user: found, error } = chatService.searchUser(clean, user?.username || 'adminUser')
     setSearchedUser(found)
@@ -154,7 +156,7 @@ function ChatHome({ onOpenSettings }) {
         mobileView={mobileView}
         currentUser={{
           name: user?.displayName || 'Usuario',
-          handle: user?.username ? `@${user.username}` : '@adminUser',
+          handle: formatHandle(user?.username || 'adminUser'),
           avatar: user?.avatarType ? undefined : 'NX',
           avatarType: user?.avatarType || 'male'
         }}
