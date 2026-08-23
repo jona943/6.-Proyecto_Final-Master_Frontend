@@ -327,6 +327,86 @@
   font-size: 0.84rem;
 }
 
+/* Estado Vacío de la Barra Lateral */
+.sidebar-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 1.25rem;
+  gap: 1.15rem;
+  margin: auto 0;
+  animation: sidebarFadeIn 0.3s ease-out;
+}
+
+@keyframes sidebarFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sidebar-empty-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background-color: var(--bg-surface-elevated, #16191f);
+  border: 1px solid var(--border-subtle, #1c2028);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-acid, #d4ff00);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-empty-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary, #f4f5f7);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.35rem;
+}
+
+.sidebar-empty-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #7e8796);
+  line-height: 1.5;
+  max-width: 260px;
+}
+
+.sidebar-privacy-box {
+  background-color: var(--bg-canvas, #08090b);
+  border: 1px solid var(--border-subtle, #1c2028);
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+  width: 100%;
+}
+
+.sidebar-privacy-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-acid, #d4ff00);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-transform: uppercase;
+}
+
+.sidebar-privacy-text {
+  font-size: 0.74rem;
+  color: var(--text-muted, #484f5c);
+  line-height: 1.4;
+}
+
 /* ============================================================================
    2. VENTANA PRINCIPAL DE CHAT ACTIVO (CENTRO)
    ============================================================================ */

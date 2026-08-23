@@ -88,6 +88,13 @@ const IconShield = () => (
   </svg>
 )
 
+const IconLock = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+  </svg>
+)
+
 const IconUser = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -354,31 +361,53 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
             />
           </div>
 
-          <div className="filter-pills">
-            <button
-              className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveFilter('all')}
-            >
-              Todos ({chats.length})
-            </button>
-            <button
-              className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}
-              onClick={() => setActiveFilter('unread')}
-            >
-              No leídos
-            </button>
-            <button
-              className={`filter-pill-btn ${activeFilter === 'online' ? 'active' : ''}`}
-              onClick={() => setActiveFilter('online')}
-            >
-              En línea
-            </button>
-          </div>
+          {chats.length > 0 && (
+            <div className="filter-pills">
+              <button
+                className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('all')}
+              >
+                Todos ({chats.length})
+              </button>
+              <button
+                className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('unread')}
+              >
+                No leídos
+              </button>
+              <button
+                className={`filter-pill-btn ${activeFilter === 'online' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('online')}
+              >
+                En línea
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* 1.3 Lista de Conversaciones */}
+        {/* 1.3 Lista de Conversaciones o Estado Vacío */}
         <div className="conversations-feed">
-          {filteredChats.length === 0 ? (
+          {chats.length === 0 ? (
+            <div className="sidebar-empty-state">
+              <div className="sidebar-empty-icon">
+                <IconShield />
+              </div>
+              <div>
+                <h4 className="sidebar-empty-title">Bandeja Privada</h4>
+                <p className="sidebar-empty-desc">
+                  No tienes conversaciones activas aún. Conecta mediante un alias o comparte tu enlace directo.
+                </p>
+              </div>
+              <div className="sidebar-privacy-box">
+                <span className="sidebar-privacy-tag">
+                  <IconLock /> Cero Spam · Punto a Punto
+                </span>
+                <p className="sidebar-privacy-text">
+                  Solo los usuarios con solicitudes aceptadas pueden enviarte mensajes.
+                </p>
+              </div>
+            </div>
+          ) : filteredChats.length === 0 ? (
             <div className="empty-search-msg">
               <p>No se encontraron resultados</p>
             </div>
@@ -595,13 +624,13 @@ function ChatHome({ onOpenSettings, currentUserHandle }) {
           </footer>
         </main>
       ) : (
-        /* 3. Estado Vacío */
+        /* 3. Estado Vacío Central */
         <div className="chat-empty-state">
           <div className="empty-state-badge">
-            <IconMessageSquare />
+            <IconShield />
           </div>
-          <h3>Selecciona una conversación</h3>
-          <p>Elige un contacto de la barra lateral para comenzar a interactuar en tiempo real.</p>
+          <h3>Nexu · Mensajería Privada</h3>
+          <p>Tus conversaciones son punto a punto y anónimas hasta que ambas partes deciden conectar.</p>
         </div>
       )}
 
