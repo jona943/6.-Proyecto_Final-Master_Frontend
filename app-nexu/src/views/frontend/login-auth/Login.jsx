@@ -123,49 +123,71 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     }
   }
 
+  // Cuentas oficiales de prueba para la base de datos simulada
+  const VALID_ACCOUNTS = [
+    { username: 'adminUser', password: '12345678' },
+    { username: 'rosi_master', password: 'Nexu2026Pass!' }
+  ]
+
   // Cargar credenciales simuladas de prueba
-  const loadDemoUser = () => {
+  const loadDemoUser = (accountUsername = 'rosi_master') => {
     setActiveTab('login')
-    setLoginUsername('rosi_master')
-    setLoginPassword('Nexu2026Pass!')
+    if (accountUsername === 'adminUser') {
+      setLoginUsername('adminUser')
+      setLoginPassword('12345678')
+      setAlertInfo({
+        type: 'info',
+        text: 'Credenciales cargadas: @adminUser / 12345678'
+      })
+    } else {
+      setLoginUsername('rosi_master')
+      setLoginPassword('Nexu2026Pass!')
+      setAlertInfo({
+        type: 'info',
+        text: 'Credenciales cargadas: @rosi_master / Nexu2026Pass!'
+      })
+    }
     setFormErrors({})
-    setAlertInfo({
-      type: 'info',
-      text: 'Usuario demo cargado (@rosi_master).'
-    })
   }
 
   // =========================================================================
   // MANEJADORES DE SUBMIT (FRONTEND MOCK)
   // =========================================================================
 
-  // 1. Manejar Inicio de Sesión
+  // 1. Manejar Inicio de Sesión con validación real contra mock
   const handleLoginSubmit = (e) => {
     e.preventDefault()
-    if (onLoginSuccess) {
-      onLoginSuccess(loginUsername.trim() || 'adminUser')
-      return
-    }
-
     const errors = {}
+
     const cleanUsername = loginUsername.trim().replace(/^@/, '')
     if (!cleanUsername) {
       errors.loginUsername = 'Ingresa tu nombre de usuario.'
-    } else if (cleanUsername.length < 3) {
-      errors.loginUsername = 'El usuario debe tener al menos 3 caracteres.'
     }
 
     if (!loginPassword) {
       errors.loginPassword = 'La contraseña es requerida.'
-    } else if (loginPassword.length < 8) {
-      errors.loginPassword = 'La contraseña debe tener al menos 8 caracteres.'
     }
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors)
       setAlertInfo({
         type: 'error',
-        text: 'Por favor, completa los campos correctamente.'
+        text: 'Por favor, completa los campos requeridos.'
+      })
+      return
+    }
+
+    // Validar coincidencia de usuario y contraseña
+    const matchedAccount = VALID_ACCOUNTS.find(
+      (acc) =>
+        acc.username.toLowerCase() === cleanUsername.toLowerCase() &&
+        acc.password === loginPassword
+    )
+
+    if (!matchedAccount) {
+      setAlertInfo({
+        type: 'error',
+        text: 'Usuario o contraseña incorrectos. Utiliza @adminUser (clave: 12345678) o @rosi_master (clave: Nexu2026Pass!).'
       })
       return
     }
@@ -174,71 +196,22 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     setIsLoading(true)
     setAlertInfo(null)
 
-    // Simulación de autenticación en Frontend
+    // Acceso exitoso
     setTimeout(() => {
       setIsLoading(false)
-      setAlertInfo({
-        type: 'success',
-        text: `¡Bienvenido(a) de nuevo, @${cleanUsername}! Sesión iniciada correctamente.`
-      })
-    }, 900)
+      if (onLoginSuccess) {
+        onLoginSuccess(matchedAccount.username)
+      }
+    }, 600)
   }
 
-  // 2. Manejar Registro de Usuario
+  // 2. Manejar Registro de Usuario (Inhabilitado temporalmente)
   const handleRegisterSubmit = (e) => {
     e.preventDefault()
-    if (onLoginSuccess) {
-      onLoginSuccess(regUsername.trim() || 'adminUser')
-      return
-    }
-
-    const errors = {}
-    const cleanUsername = regUsername.trim().toLowerCase().replace(/^@/, '')
-    if (!cleanUsername) {
-      errors.regUsername = 'El nombre de usuario es obligatorio.'
-    } else if (/\s/.test(cleanUsername)) {
-      errors.regUsername = 'El usuario no debe contener espacios.'
-    } else if (cleanUsername.length < 3) {
-      errors.regUsername = 'El usuario debe tener al menos 3 caracteres.'
-    }
-
-    if (!regPassword) {
-      errors.regPassword = 'La contraseña es obligatoria.'
-    } else if (regPassword.length < 8) {
-      errors.regPassword = 'La contraseña debe tener mínimo 8 caracteres.'
-    }
-
-    if (!regConfirmPassword) {
-      errors.regConfirmPassword = 'Debes confirmar tu contraseña.'
-    } else if (regPassword !== regConfirmPassword) {
-      errors.regConfirmPassword = 'Las contraseñas no coinciden.'
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors)
-      setAlertInfo({
-        type: 'error',
-        text: 'Revisa los campos del formulario.'
-      })
-      return
-    }
-
-    setFormErrors({})
-    setIsLoading(true)
-    setAlertInfo(null)
-
-    // Simulación de creación de cuenta en Frontend
-    setTimeout(() => {
-      setIsLoading(false)
-      setAlertInfo({
-        type: 'success',
-        text: `¡Usuario @${cleanUsername} registrado con éxito! Ahora puedes iniciar sesión.`
-      })
-      // Pre-cargar datos en Login para facilitar el acceso
-      setLoginUsername(cleanUsername)
-      setLoginPassword(regPassword)
-      setActiveTab('login')
-    }, 1000)
+    setAlertInfo({
+      type: 'error',
+      text: 'El registro de nuevos usuarios está inhabilitado temporalmente en esta fase. Por favor, inicia sesión con @adminUser o @rosi_master.'
+    })
   }
 
   // 3. Manejar Recuperación de Contraseña
@@ -449,20 +422,31 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
               </button>
 
               {/* Separador y Acceso Demo Rápido */}
-              <div className="auth-divider">DEMO DE PRUEBA</div>
+              <div className="auth-divider">CUENTAS DE PRUEBA</div>
 
               <div className="demo-credentials-box">
-                <span className="demo-title">⚡ Acceso Rápido para Testing</span>
+                <span className="demo-title">Acceso para Testing</span>
                 <p className="demo-text">
-                  Usuario: <strong>@rosi_master</strong> | Clave: <strong>Nexu2026Pass!</strong>
+                  1. <strong>@adminUser</strong> (clave: 12345678)
+                  <br />
+                  2. <strong>@rosi_master</strong> (clave: Nexu2026Pass!)
                 </p>
-                <button
-                  type="button"
-                  className="demo-chip-btn"
-                  onClick={loadDemoUser}
-                >
-                  <IconKey /> Autocompletar usuario de prueba
-                </button>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="demo-chip-btn"
+                    onClick={() => loadDemoUser('adminUser')}
+                  >
+                    <IconKey /> Cargar @adminUser
+                  </button>
+                  <button
+                    type="button"
+                    className="demo-chip-btn"
+                    onClick={() => loadDemoUser('rosi_master')}
+                  >
+                    <IconKey /> Cargar @rosi_master
+                  </button>
+                </div>
               </div>
             </form>
           )}
