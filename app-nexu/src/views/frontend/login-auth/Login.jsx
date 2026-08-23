@@ -114,6 +114,15 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
 
   const passwordStrength = getPasswordStrength(regPassword)
 
+  // Sanitizador de Alias: Solo alfanumérico (A-Z, a-z, 0-9) y máximo 10 caracteres
+  const handleUsernameInput = (value, setter, errorKey) => {
+    const clean = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
+    setter(clean)
+    if (formErrors[errorKey]) {
+      setFormErrors((prev) => ({ ...prev, [errorKey]: null }))
+    }
+  }
+
   // Cargar credenciales simuladas de prueba
   const loadDemoUser = () => {
     setActiveTab('login')
@@ -336,25 +345,25 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
 
               {/* Campo Usuario Único */}
               <div className="form-group">
-                <label className="form-label" htmlFor="login-username">
-                  Usuario único
-                </label>
+                <div className="form-label">
+                  <label htmlFor="login-username">Usuario único</label>
+                  <span className="input-hint">Máx. 10 caracteres</span>
+                </div>
                 <div className="input-container">
-                  <span className="input-icon-left">
-                    <IconAtSign />
-                  </span>
+                  <span className="input-prefix-at">@</span>
                   <input
                     id="login-username"
                     type="text"
-                    className={`auth-input ${formErrors.loginUsername ? 'input-error' : ''}`}
-                    placeholder="ej. rosi_master"
+                    className={`auth-input has-right-btn ${formErrors.loginUsername ? 'input-error' : ''}`}
+                    placeholder="TuAlias"
                     value={loginUsername}
-                    onChange={(e) => {
-                      setLoginUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))
-                      if (formErrors.loginUsername) setFormErrors({ ...formErrors, loginUsername: null })
-                    }}
+                    onChange={(e) => handleUsernameInput(e.target.value, setLoginUsername, 'loginUsername')}
+                    maxLength={10}
                     autoComplete="username"
                   />
+                  <span className={`input-char-counter ${loginUsername.length === 10 ? 'limit' : loginUsername.length >= 3 ? 'valid' : ''}`}>
+                    {loginUsername.length}/10
+                  </span>
                 </div>
                 {formErrors.loginUsername && (
                   <span className="input-error-msg">
@@ -472,25 +481,25 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
 
               {/* Usuario Único */}
               <div className="form-group">
-                <label className="form-label" htmlFor="reg-username">
-                  Usuario único
-                </label>
+                <div className="form-label">
+                  <label htmlFor="reg-username">Usuario único</label>
+                  <span className="input-hint">3 a 10 caracteres alfanuméricos</span>
+                </div>
                 <div className="input-container">
-                  <span className="input-icon-left">
-                    <IconAtSign />
-                  </span>
+                  <span className="input-prefix-at">@</span>
                   <input
                     id="reg-username"
                     type="text"
-                    className={`auth-input ${formErrors.regUsername ? 'input-error' : ''}`}
-                    placeholder="ej. rosi_master (sin espacios)"
+                    className={`auth-input has-right-btn ${formErrors.regUsername ? 'input-error' : ''}`}
+                    placeholder="TuAlias"
                     value={regUsername}
-                    onChange={(e) => {
-                      setRegUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))
-                      if (formErrors.regUsername) setFormErrors({ ...formErrors, regUsername: null })
-                    }}
+                    onChange={(e) => handleUsernameInput(e.target.value, setRegUsername, 'regUsername')}
+                    maxLength={10}
                     autoComplete="username"
                   />
+                  <span className={`input-char-counter ${regUsername.length === 10 ? 'limit' : regUsername.length >= 3 ? 'valid' : ''}`}>
+                    {regUsername.length}/10
+                  </span>
                 </div>
                 {formErrors.regUsername && (
                   <span className="input-error-msg">

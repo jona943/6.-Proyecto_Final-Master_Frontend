@@ -219,6 +219,12 @@
   color: var(--text-primary);
 }
 
+.input-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
 .label-link {
   font-size: 0.78rem;
   color: var(--accent-acid);
@@ -251,6 +257,51 @@
   justify-content: center;
   pointer-events: none;
   transition: color 0.2s ease;
+}
+
+.input-prefix-at {
+  position: absolute;
+  left: 0.95rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--accent-acid);
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.input-container:focus-within .input-prefix-at {
+  transform: scale(1.1);
+}
+
+.input-char-counter {
+  position: absolute;
+  right: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  pointer-events: none;
+  user-select: none;
+  background-color: var(--bg-surface-elevated);
+  padding: 0.18rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+}
+
+.input-char-counter.valid {
+  color: var(--text-secondary);
+}
+
+.input-char-counter.limit {
+  color: var(--accent-acid);
+  border-color: rgba(212, 255, 0, 0.4);
+  background-color: rgba(212, 255, 0, 0.08);
 }
 
 .auth-input {
