@@ -7,7 +7,6 @@ import LandingNavbar from './components/LandingNavbar'
 import HeroSection from './components/HeroSection'
 import ManifestoCarouselSection, { MANIFESTO_LAWS } from './components/ManifestoCarouselSection'
 import ScarcityCtaSection from './components/ScarcityCtaSection'
-import LandingFooter from './components/LandingFooter'
 
 // ============================================================================
 // COMPONENTE PRINCIPAL: LANDING PAGE (COORDINADOR + STORAGE + UTILS)
@@ -50,7 +49,7 @@ function Landing({ onNavigate }) {
         onScrollToManifiesto={scrollToManifiesto}
       />
 
-      {/* 1. Hero Cinematográfico */}
+      {/* 1. Carta 1: Hero Cinematográfico (100dvh) */}
       <HeroSection
         claimAlias={claimAlias}
         onClaimAliasChange={setClaimAlias}
@@ -59,7 +58,7 @@ function Landing({ onNavigate }) {
         onScrollToManifiesto={scrollToManifiesto}
       />
 
-      {/* 2. El Manifiesto: Carrusel Interactivo */}
+      {/* 2. Carta 2: El Manifiesto (100dvh) */}
       <ManifestoCarouselSection
         activeLawIndex={activeLawIndex}
         onSelectLawIndex={setActiveLawIndex}
@@ -67,11 +66,11 @@ function Landing({ onNavigate }) {
         onPrevLaw={prevLaw}
       />
 
-      {/* 3. Escasez Matemática y Cierre (CTA Final) */}
-      <ScarcityCtaSection onNavigate={onNavigate} />
-
-      {/* 4. Footer Minimalista */}
-      <LandingFooter onScrollToManifiesto={scrollToManifiesto} />
+      {/* 3. Carta 3: Escasez Matemática e Invitación Final Integrada (100dvh) */}
+      <ScarcityCtaSection
+        onNavigate={onNavigate}
+        onScrollToManifiesto={scrollToManifiesto}
+      />
     </div>
   )
 }

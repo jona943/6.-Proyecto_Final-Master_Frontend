@@ -1,6 +1,6 @@
 import { IconUserPlus } from '../../../../components/icons/Icons'
 
-function ScarcityCtaSection({ onNavigate }) {
+function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
   return (
     <section id="escasez" className="scarcity-cta-section">
       {/* Horizonte de luz de transición desde el Manifiesto */}
@@ -8,7 +8,7 @@ function ScarcityCtaSection({ onNavigate }) {
       <div className="scarcity-ambient-glow" aria-hidden="true" />
 
       <div className="scarcity-container">
-        {/* Tarjeta de Escasez Matemática (Diapositiva 3) */}
+        {/* Tarjeta de Escasez Matemática e Invitación Final (Carta 3) */}
         <div className="scarcity-card">
           <div className="scarcity-meta-tag">
             <span className="scarcity-dot" />
@@ -56,6 +56,33 @@ function ScarcityCtaSection({ onNavigate }) {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Micro-Footer Integrado en la Base de la Carta 3 */}
+      <div className="scarcity-footer-bar">
+        <div className="scarcity-footer-brand">
+          <span className="logo-tiny">N</span>
+          <span>Nexu</span>
+          <span className="footer-pill">v1.0</span>
+        </div>
+
+        <div className="scarcity-footer-links">
+          <button
+            type="button"
+            className="scarcity-footer-link"
+            onClick={onScrollToManifiesto}
+          >
+            El Manifiesto
+          </button>
+          <span>·</span>
+          <a href="#privacidad" className="scarcity-footer-link">Privacidad</a>
+          <span>·</span>
+          <a href="#terminos" className="scarcity-footer-link">Términos de Servicio</a>
+        </div>
+
+        <p className="scarcity-footer-copy">
+          © 2026 Nexu · Cero rastreo, cero publicidad.
+        </p>
       </div>
     </section>
   )
