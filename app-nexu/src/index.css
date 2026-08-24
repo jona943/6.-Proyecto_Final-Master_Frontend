@@ -72,6 +72,12 @@
   /* 10. Transiciones */
   --transition-fast: 0.15s ease;
   --transition-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 11. Safe Area Insets (Mobile Notch, Status Bar & Dynamic Island) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 /* Modo Claro Opcional */
@@ -108,6 +114,7 @@
 html {
   color-scheme: dark;
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
@@ -118,7 +125,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
 /* Scrollbars Universales Oscuros y Nítidos */
@@ -217,7 +229,7 @@ body {
 /* Toast de Notificación Flotante */
 .toast-feedback, .profile-toast-alert {
   position: fixed;
-  bottom: 2rem;
+  bottom: calc(2rem + var(--safe-bottom));
   right: 2rem;
   background: var(--bg-surface-elevated);
   border: 1px solid var(--accent-acid-border);
