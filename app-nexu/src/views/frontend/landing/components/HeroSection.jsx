@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { IconShield, IconArrowRight } from '../../../../components/icons/Icons'
 
 function HeroSection({
