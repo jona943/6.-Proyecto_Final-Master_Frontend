@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import sovereignIdentityImg from '../assets/sovereign-identity.jpg'
 import invisibleNetworkImg from '../assets/invisible-network.jpg'
 import pureSilenceImg from '../assets/pure-silence.jpg'
@@ -49,6 +50,30 @@ function ManifestoCarouselSection({
   onPrevLaw
 }) {
   const currentLaw = MANIFESTO_LAWS[activeLawIndex]
+  const [touchStartX, setTouchStartX] = useState(null)
+  const [touchEndX, setTouchEndX] = useState(null)
+
+  // Detección de gesto táctil (Swipe)
+  const handleTouchStart = (e) => {
+    setTouchEndX(null)
+    setTouchStartX(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e) => {
+    setTouchEndX(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return
+    const distance = touchStartX - touchEndX
+    const minSwipeDistance = 45
+
+    if (distance > minSwipeDistance) {
+      onNextLaw() // Deslizar hacia la izquierda -> siguiente
+    } else if (distance < -minSwipeDistance) {
+      onPrevLaw() // Deslizar hacia la derecha -> anterior
+    }
+  }
 
   return (
     <section id="el-manifiesto" className="manifesto-section">
@@ -83,8 +108,14 @@ function ManifestoCarouselSection({
           </div>
         </div>
 
-        {/* Tarjeta Activa del Carrusel */}
-        <div className="manifesto-carousel-card" key={activeLawIndex}>
+        {/* Tarjeta Activa del Carrusel con Soporte Táctil (Swipe) */}
+        <div
+          className="manifesto-carousel-card"
+          key={activeLawIndex}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Contenedor Visual de la Imagen (4:3 Compacto) */}
           <div className="manifesto-visual-box">
             <div className="manifesto-img-wrapper">

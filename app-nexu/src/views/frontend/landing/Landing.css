@@ -1268,13 +1268,20 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     width: 100%;
     gap: 0.5rem;
+    text-align: center;
+  }
+
+  .manifesto-badge-group {
+    justify-content: center;
+    align-items: center;
   }
 
   .manifesto-compact-title {
-    display: none;
+    display: block;
+    font-size: 1.08rem;
   }
 
   .manifesto-tag-pill {
@@ -1283,20 +1290,7 @@
   }
 
   .manifesto-tabs-bar {
-    width: auto;
-    gap: 0.25rem;
-    padding: 0.18rem;
-  }
-
-  .manifesto-tab-btn {
-    padding: 0.24rem 0.55rem;
-    font-size: 0.72rem;
-    gap: 0.28rem;
-  }
-
-  .manifesto-tab-btn .tab-number {
-    font-size: 0.64rem;
-    padding: 0.04rem 0.22rem;
+    display: none; /* Ocultar barra de tabs en móvil para navegar deslizando la tarjeta (Swipe) */
   }
 
   .manifesto-carousel-card {
@@ -1308,6 +1302,9 @@
     flex: 1;
     min-height: 0;
     justify-content: space-evenly;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .manifesto-visual-box {
@@ -1375,12 +1372,19 @@
   }
 
   .manifesto-carousel-controls {
-    padding-top: 0;
+    justify-content: center; /* Centrar los 3 puntitos indicadores de diapositiva */
+    padding-top: 0.25rem;
   }
 
-  .manifesto-nav-arrow {
-    width: 32px;
-    height: 32px;
+  .manifesto-dots {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .manifesto-nav-btns {
+    display: none; /* Las flechas se quedan solo para desktop/laptop */
   }
 
   .scarcity-card {
