@@ -650,13 +650,18 @@
 /* Bloque Visual de Imagen en Carrusel */
 .manifesto-visual-box {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .manifesto-img-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  max-height: 270px;
+  max-width: 290px;
+  max-height: 290px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
   border-radius: var(--radius-md);
   overflow: hidden;
   background-color: var(--bg-surface-elevated);
@@ -1216,9 +1221,9 @@
     position: sticky;
     top: 58px;
     z-index: 1;
-    padding: 1.25rem 1rem 1.5rem 1rem;
+    padding: 1rem 1rem 1.25rem 1rem;
     height: calc(100dvh - 58px);
-    min-height: 500px;
+    min-height: 480px;
   }
 
   .hero-pill-badge {
@@ -1230,35 +1235,144 @@
   .manifesto-section {
     position: relative;
     z-index: 2;
-    padding: 2.25rem 1rem 2.5rem 1rem;
-    min-height: auto;
+    padding: 0.85rem 0.85rem 1rem 0.85rem;
+    min-height: calc(100dvh - 58px);
+    height: calc(100dvh - 58px);
+    max-height: calc(100dvh - 58px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
     scroll-margin-top: 58px;
+    overflow: hidden;
+  }
+
+  .manifesto-container {
+    gap: 0.6rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .manifesto-top-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .manifesto-compact-title {
+    display: none;
+  }
+
+  .manifesto-tag-pill {
+    font-size: 0.66rem;
+    padding: 0.22rem 0.6rem;
   }
 
   .manifesto-tabs-bar {
-    width: 100%;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding: 0.25rem;
+    width: auto;
+    gap: 0.25rem;
+    padding: 0.18rem;
   }
 
   .manifesto-tab-btn {
-    padding: 0.35rem 0.75rem;
-    font-size: 0.78rem;
+    padding: 0.24rem 0.55rem;
+    font-size: 0.72rem;
+    gap: 0.28rem;
+  }
+
+  .manifesto-tab-btn .tab-number {
+    font-size: 0.64rem;
+    padding: 0.04rem 0.22rem;
+  }
+
+  .manifesto-carousel-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+    flex: 1;
+    min-height: 0;
+    justify-content: space-evenly;
+  }
+
+  .manifesto-visual-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .manifesto-img-wrapper {
+    max-height: clamp(120px, 24vh, 190px);
+    max-width: clamp(120px, 24vh, 190px);
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .manifesto-img-badge {
+    bottom: 0.4rem;
+    left: 0.4rem;
+    right: 0.4rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.62rem;
+  }
+
+  .manifesto-text-box {
+    gap: 0.4rem;
+  }
+
+  .manifesto-law-meta {
+    gap: 0.4rem;
+  }
+
+  .law-number-box {
+    width: 20px;
+    height: 20px;
+    font-size: 0.68rem;
+  }
+
+  .law-tag-text {
+    font-size: 0.66rem;
   }
 
   .manifesto-law-title {
-    font-size: 1.25rem;
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+
+  .manifesto-comparison-box {
+    gap: 0.35rem;
+  }
+
+  .comp-row {
+    padding: 0.38rem 0.65rem;
+    gap: 0.1rem;
+  }
+
+  .comp-badge {
+    font-size: 0.58rem;
   }
 
   .comp-text {
-    font-size: 0.82rem;
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .manifesto-carousel-controls {
+    padding-top: 0;
+  }
+
+  .manifesto-nav-arrow {
+    width: 32px;
+    height: 32px;
   }
 
   .scarcity-card {
@@ -1313,19 +1427,6 @@
     justify-content: center;
     padding: 0.65rem;
     font-size: 0.86rem;
-  }
-
-  .manifesto-carousel-card {
-    padding: 1.25rem;
-    gap: 1.25rem;
-  }
-
-  .manifesto-law-title {
-    font-size: 1.22rem;
-  }
-
-  .comp-row {
-    padding: 0.7rem 0.85rem;
   }
 
   .final-cta-actions {

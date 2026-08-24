@@ -11,16 +11,44 @@ function HeroSection({
   const [scrollProgress, setScrollProgress] = useState(0)
 
   useEffect(() => {
+    let lastScrollY = window.scrollY
+    let isSnapping = false
+    let snapTimeout = null
+
     const handleScroll = () => {
       const scrollY = window.scrollY
-      const fadeThreshold = Math.min(window.innerHeight * 0.45, 380)
+      const isScrollingDown = scrollY > lastScrollY
+      lastScrollY = scrollY
+
+      const vh = window.innerHeight || 800
+      const fadeThreshold = Math.min(vh * 0.45, 380)
       const progress = Math.min(Math.max(scrollY / fadeThreshold, 0), 1)
       setScrollProgress(progress)
+
+      const manifestoEl = document.getElementById('el-manifiesto')
+      if (!manifestoEl) return
+
+      const navbarHeight = window.innerWidth <= 768 ? 58 : 65
+      const manifestoTop = Math.max(manifestoEl.offsetTop - navbarHeight, 0)
+
+      // Si se opaca más del 70% al hacer scroll hacia abajo, centra suavemente el Manifiesto
+      if (isScrollingDown && progress >= 0.7 && scrollY < manifestoTop - 25 && !isSnapping) {
+        isSnapping = true
+        window.scrollTo({ top: manifestoTop, behavior: 'smooth' })
+
+        clearTimeout(snapTimeout)
+        snapTimeout = setTimeout(() => {
+          isSnapping = false
+        }, 750)
+      }
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      clearTimeout(snapTimeout)
+    }
   }, [])
 
   const opacity = Math.max(1 - scrollProgress, 0)
