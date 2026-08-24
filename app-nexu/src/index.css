@@ -114,6 +114,7 @@
 html {
   color-scheme: dark;
   scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
   height: 100%;
 }
 

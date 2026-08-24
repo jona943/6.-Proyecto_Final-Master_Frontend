@@ -6,6 +6,7 @@
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
   position: relative;
   overflow-x: clip;
   scrollbar-width: none;
@@ -156,12 +157,11 @@
    1. HERO CINEMATOGRÁFICO (PORTAL DE ENTRADA - SANTUARIO OBSIDIANA 100DVH)
    ========================================================================== */
 .hero-cinematic-section {
-  position: sticky;
-  top: 65px;
+  position: relative;
   z-index: 1;
   height: calc(100dvh - 65px);
-  min-height: 560px;
-  max-height: 980px;
+  min-height: calc(100dvh - 65px);
+  max-height: calc(100dvh - 65px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -170,6 +170,9 @@
   box-sizing: border-box;
   overflow: hidden;
   background-color: var(--bg-canvas);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin-top: 65px;
 }
 
 .hero-ambient-glow {
@@ -412,7 +415,7 @@
   justify-content: center;
   align-items: center;
   margin-top: auto;
-  padding-bottom: 0.5rem;
+  padding-bottom: 1.25rem;
 }
 
 .scroll-mouse-pill {
@@ -471,17 +474,22 @@
 .manifesto-section {
   position: relative;
   z-index: 2;
+  height: calc(100dvh - 65px);
   min-height: calc(100dvh - 65px);
+  max-height: calc(100dvh - 65px);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  padding: 3.5rem 1.5rem 3rem 1.5rem;
+  padding: 1.5rem 1.5rem 1.75rem 1.5rem;
   box-sizing: border-box;
-  background: linear-gradient(180deg, #090a0d 0%, #0d0f14 50%, #090a0d 100%);
+  background-color: var(--bg-canvas);
   box-shadow: 0 -40px 90px rgba(0, 0, 0, 0.95);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
   scroll-margin-top: 65px;
+  overflow: hidden;
 }
 
 /* 2.0 Horizonte de Luz (Transición Suave desde el Hero) */
@@ -888,6 +896,7 @@
   z-index: 3;
   min-height: calc(100dvh - 65px);
   height: calc(100dvh - 65px);
+  max-height: calc(100dvh - 65px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -897,6 +906,8 @@
   background: linear-gradient(180deg, #090a0d 0%, #0d0f14 60%, #060708 100%);
   box-shadow: 0 -40px 90px rgba(0, 0, 0, 0.95);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
   scroll-margin-top: 65px;
   overflow: hidden;
 }
@@ -1166,12 +1177,21 @@
   }
 
   .hero-cinematic-section {
-    position: sticky;
-    top: 58px;
+    position: relative;
     z-index: 1;
     padding: 1rem 1rem 1.25rem 1rem;
     height: calc(100dvh - 58px);
-    min-height: 480px;
+    min-height: calc(100dvh - 58px);
+    max-height: calc(100dvh - 58px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    scroll-margin-top: 58px;
+  }
+
+  .hero-scroll-wrapper {
+    display: none; /* En móvil se oculta el mouse pill para que no quede pegado en la parte inferior */
   }
 
   .hero-pill-badge {

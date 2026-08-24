@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import sovereignIdentityImg from '../assets/sovereign-identity.jpg'
 import invisibleNetworkImg from '../assets/invisible-network.jpg'
 import pureSilenceImg from '../assets/pure-silence.jpg'
@@ -74,51 +74,6 @@ function ManifestoCarouselSection({
       onPrevLaw() // Deslizar hacia la derecha -> anterior
     }
   }
-
-  // Auto-centrado magnético al 70% de avance hacia Escasez
-  useEffect(() => {
-    let lastScrollY = window.scrollY
-    let isSnapping = false
-    let snapTimeout = null
-
-    const handleScroll = () => {
-      const scrollY = window.scrollY
-      const isScrollingDown = scrollY > lastScrollY
-      lastScrollY = scrollY
-
-      const manifestoEl = document.getElementById('el-manifiesto')
-      const scarcityEl = document.getElementById('escasez')
-      if (!manifestoEl || !scarcityEl) return
-
-      const navbarHeight = window.innerWidth <= 768 ? 58 : 65
-      const manifestoTop = Math.max(manifestoEl.offsetTop - navbarHeight, 0)
-      const scarcityTop = Math.max(scarcityEl.offsetTop - navbarHeight, 0)
-
-      if (scrollY >= manifestoTop) {
-        const vh = window.innerHeight || 800
-        const fadeThreshold = Math.min(vh * 0.45, 380)
-        const progress = Math.min(Math.max((scrollY - manifestoTop) / fadeThreshold, 0), 1)
-
-        // Si se avanza más del 70% hacia abajo, centra suavemente la Diapositiva 3 (Escasez)
-        if (isScrollingDown && progress >= 0.7 && scrollY < scarcityTop - 25 && !isSnapping) {
-          isSnapping = true
-          window.scrollTo({ top: scarcityTop, behavior: 'smooth' })
-
-          clearTimeout(snapTimeout)
-          snapTimeout = setTimeout(() => {
-            isSnapping = false
-          }, 750)
-        }
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll()
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      clearTimeout(snapTimeout)
-    }
-  }, [])
 
   return (
     <section id="el-manifiesto" className="manifesto-section">
