@@ -9,10 +9,10 @@ export const MANIFESTO_LAWS = [
     number: '01',
     shortLabel: 'Identidad Soberana',
     tag: 'LEY 01 · IDENTIDAD SOBERANA',
-    title: 'Tu privacidad no le pertenece a tu tarjeta SIM',
-    contrast: 'WhatsApp te exige tu número telefónico real, exponiendo tu identidad física, país y contactos a cualquiera.',
-    solution: 'En Nexu, tu @alias único es tu sola credencial. Cero números de teléfono requeridos, cero metadatos atados a tu chip móvil.',
-    badge: '0% Números Telefónicos · Identidad Soberana',
+    title: 'Tu privacidad no le pertenece a una tarjeta SIM',
+    contrast: 'Las grandes aplicaciones atan tu cuenta a tu chip móvil, exponiendo tus contactos y operadora.',
+    solution: 'En Nexu, tu @alias único es tu sola credencial. Cero números telefónicos, cero metadatos atados.',
+    badge: '0% Números Telefónicos',
     image: sovereignIdentityImg,
     imageAlt: 'Arte conceptual de Identidad Soberana Nexu'
   },
@@ -22,9 +22,9 @@ export const MANIFESTO_LAWS = [
     shortLabel: 'Red Invisible',
     tag: 'LEY 02 · RED INVISIBLE',
     title: 'Sin directorios públicos. Si no te invitan, no existes',
-    contrast: 'Telegram y Discord indexan usuarios en directorios abiertos donde cualquiera puede rastrearte o enviarte spam.',
-    solution: 'Nexu opera con bandeja ciega. No existe barra de búsqueda global. Nadie sabe que estás en la red a menos que tú le entregues tu @alias directamente.',
-    badge: 'Bandeja Ciega · Cero Rastreo Público',
+    contrast: 'Los directorios abiertos permiten que cualquier extraño te rastree, indexe o envíe spam.',
+    solution: 'Bandeja ciega absoluta: nadie sabe que estás en la red a menos que tú le compartas tu @alias.',
+    badge: 'Bandeja Ciega · Cero Rastreo',
     image: invisibleNetworkImg,
     imageAlt: 'Arte conceptual de Red Invisible Nexu'
   },
@@ -32,11 +32,11 @@ export const MANIFESTO_LAWS = [
     id: 'law-03',
     number: '03',
     shortLabel: 'Silencio Absoluto',
-    tag: 'LEY 03 · SILENCIO Y PUNTO A PUNTO',
-    title: 'Cero ruido masivo. Solo tú y tu conversación',
-    contrast: 'Las grandes plataformas monetizan la distracción: notificaciones basura, bots caóticos y canales masivos sin control.',
-    solution: 'Descartamos los algoritmos para devolverle el valor a una conversación real: comunicación pura, instantánea y protegida entre dos personas.',
-    badge: '0 Bots · 0 Algoritmos · 100% Mensajería Directa',
+    tag: 'LEY 03 · SILENCIO ABSOLUTO',
+    title: 'Cero algoritmos de retención. Solo tú y tu conversación',
+    contrast: 'Notificaciones basura, bots y feeds diseñados para retener tu atención de forma artificial.',
+    solution: 'Canales directos persona a persona, con cifrado estricto y total ausencia de algoritmos.',
+    badge: '100% Mensajería Directa',
     image: pureSilenceImg,
     imageAlt: 'Arte conceptual de Silencio y Comunicación Pura Nexu'
   }
@@ -52,40 +52,40 @@ function ManifestoCarouselSection({
 
   return (
     <section id="el-manifiesto" className="manifesto-section">
-      <div className="manifesto-container">
-        {/* Cabecera del Manifiesto */}
-        <div className="manifesto-header">
-          <div className="manifesto-tag-pill">
-            <IconLock />
-            <span>EL MANIFIESTO DE NEXU</span>
-          </div>
-          <h2 className="manifesto-main-title">
-            Tres leyes inquebrantables.<br />
-            <span className="hero-glow-highlight">Creado contra el ruido masivo.</span>
-          </h2>
-          <p className="manifesto-main-desc">
-            No competimos imitando a las grandes plataformas. Ganamos donde ellas fallaron: privacidad de raíz, cero invasión de datos y silencio absoluto.
-          </p>
-        </div>
+      {/* Horizonte de luz de transición desde el Hero */}
+      <div className="manifesto-horizon-light" aria-hidden="true" />
+      <div className="manifesto-ambient-glow" aria-hidden="true" />
 
-        {/* Selector Interactivo de Leyes (Tabs) */}
-        <div className="manifesto-tabs-bar">
-          {MANIFESTO_LAWS.map((law, index) => (
-            <button
-              key={law.id}
-              type="button"
-              className={`manifesto-tab-btn ${activeLawIndex === index ? 'active' : ''}`}
-              onClick={() => onSelectLawIndex(index)}
-            >
-              <span className="tab-number">{law.number}</span>
-              <span className="tab-label">{law.shortLabel}</span>
-            </button>
-          ))}
+      <div className="manifesto-container">
+        {/* Cabecera Compacta y Tabs Integrados */}
+        <div className="manifesto-top-bar">
+          <div className="manifesto-badge-group">
+            <div className="manifesto-tag-pill">
+              <IconLock />
+              <span>EL MANIFIESTO</span>
+            </div>
+            <h2 className="manifesto-compact-title">Tres Leyes Inquebrantables</h2>
+          </div>
+
+          {/* Selector Interactivo de Leyes (Tabs) */}
+          <div className="manifesto-tabs-bar">
+            {MANIFESTO_LAWS.map((law, index) => (
+              <button
+                key={law.id}
+                type="button"
+                className={`manifesto-tab-btn ${activeLawIndex === index ? 'active' : ''}`}
+                onClick={() => onSelectLawIndex(index)}
+              >
+                <span className="tab-number">{law.number}</span>
+                <span className="tab-label">{law.shortLabel}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Tarjeta Activa del Carrusel */}
         <div className="manifesto-carousel-card" key={activeLawIndex}>
-          {/* Contenedor Visual de la Imagen */}
+          {/* Contenedor Visual de la Imagen (4:3 Compacto) */}
           <div className="manifesto-visual-box">
             <div className="manifesto-img-wrapper">
               <img

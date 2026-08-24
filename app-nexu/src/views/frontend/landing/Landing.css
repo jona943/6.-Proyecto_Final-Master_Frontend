@@ -7,7 +7,7 @@
   color: var(--text-primary);
   scroll-behavior: smooth;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ==========================================================================
@@ -148,7 +148,9 @@
    1. HERO CINEMATOGRÁFICO (PORTAL DE ENTRADA - SANTUARIO OBSIDIANA 100DVH)
    ========================================================================== */
 .hero-cinematic-section {
-  position: relative;
+  position: sticky;
+  top: 65px;
+  z-index: 1;
   height: calc(100dvh - 65px);
   min-height: 560px;
   max-height: 980px;
@@ -159,6 +161,7 @@
   padding: 1.5rem 1.5rem 1.75rem 1.5rem;
   box-sizing: border-box;
   overflow: hidden;
+  background-color: var(--bg-canvas);
 }
 
 .hero-ambient-glow {
@@ -455,95 +458,129 @@
 }
 
 /* ==========================================================================
-   2. EL MANIFIESTO: LAS 3 LEYES DE NEXU (CARRUSEL INTERACTIVO CON ARTE)
+   2. EL MANIFIESTO: LAS 3 LEYES DE NEXU (ENMARCADO COMPACTO 100DVH)
    ========================================================================== */
 .manifesto-section {
-  padding: 5.5rem 1.5rem 6.5rem 1.5rem;
-  background: linear-gradient(180deg, var(--bg-canvas) 0%, #0d0f14 50%, var(--bg-canvas) 100%);
   position: relative;
+  z-index: 2;
+  min-height: calc(100dvh - 65px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3.5rem 1.5rem 3rem 1.5rem;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #090a0d 0%, #0d0f14 50%, #090a0d 100%);
+  box-shadow: 0 -40px 90px rgba(0, 0, 0, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  scroll-margin-top: 65px;
+}
+
+/* 2.0 Horizonte de Luz (Transición Suave desde el Hero) */
+.manifesto-horizon-light {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 960px);
+  height: 1px;
+  background: radial-gradient(circle, rgba(212, 255, 0, 0.45) 0%, rgba(212, 255, 0, 0.12) 40%, transparent 80%);
+  box-shadow: 0 0 18px rgba(212, 255, 0, 0.25);
+  pointer-events: none;
+}
+
+.manifesto-ambient-glow {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw, 680px);
+  height: 320px;
+  background: radial-gradient(circle, rgba(212, 255, 0, 0.035) 0%, rgba(212, 255, 0, 0.008) 50%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .manifesto-container {
-  max-width: 1040px;
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2.75rem;
+  gap: 1.35rem;
 }
 
-.manifesto-header {
+/* 2.1 Cabecera Compacta y Tabs Integrados */
+.manifesto-top-bar {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 1.1rem;
-  max-width: 740px;
-  margin: 0 auto;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.manifesto-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
 }
 
 .manifesto-tag-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   background-color: rgba(212, 255, 0, 0.08);
   border: 1px solid rgba(212, 255, 0, 0.25);
   color: var(--accent-acid);
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  padding: 0.35rem 0.95rem;
+  padding: 0.28rem 0.8rem;
   border-radius: 999px;
-  box-shadow: 0 0 16px rgba(212, 255, 0, 0.08);
+  box-shadow: 0 0 14px rgba(212, 255, 0, 0.08);
 }
 
-.manifesto-main-title {
-  font-size: clamp(2rem, 4.8vw, 3.2rem);
+.manifesto-compact-title {
+  font-size: clamp(1.2rem, 2.4vw, 1.65rem);
   font-weight: 800;
-  line-height: 1.18;
   letter-spacing: -0.03em;
   color: var(--text-primary);
-  text-wrap: balance;
+  margin: 0;
 }
 
-.manifesto-main-desc {
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  color: var(--text-secondary);
-  line-height: 1.65;
-  text-wrap: balance;
-}
-
-/* 2.1 Selector de Leyes (Tabs Interactivos) */
+/* Selector de Leyes (Tabs Interactivos) */
 .manifesto-tabs-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  background-color: rgba(16, 18, 22, 0.8);
+  gap: 0.45rem;
+  background-color: rgba(16, 18, 22, 0.85);
   border: 1px solid var(--border-subtle);
-  padding: 0.35rem;
+  padding: 0.25rem;
   border-radius: 999px;
   backdrop-filter: blur(12px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-  max-width: 100%;
-  overflow-x: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .manifesto-tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.45rem;
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  padding: 0.5rem 1.15rem;
+  padding: 0.38rem 0.9rem;
   border-radius: 999px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
@@ -556,36 +593,37 @@
   background-color: var(--bg-surface-elevated);
   border-color: rgba(212, 255, 0, 0.35);
   color: var(--text-primary);
-  box-shadow: 0 0 16px rgba(212, 255, 0, 0.15);
+  box-shadow: 0 0 14px rgba(212, 255, 0, 0.15);
 }
 
 .manifesto-tab-btn .tab-number {
   font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: var(--accent-acid);
   background-color: rgba(212, 255, 0, 0.1);
-  padding: 0.1rem 0.4rem;
+  padding: 0.08rem 0.35rem;
   border-radius: 4px;
 }
 
-/* 2.2 Tarjeta Activa del Carrusel */
+/* 2.2 Tarjeta Activa del Carrusel (40% Visual / 60% Texto) */
 .manifesto-carousel-card {
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1.1fr;
-  gap: 2.75rem;
+  grid-template-columns: 0.95fr 1.2fr;
+  gap: 2rem;
   align-items: center;
-  background-color: rgba(16, 18, 22, 0.7);
+  background-color: rgba(16, 18, 22, 0.75);
   border: 1px solid var(--border-active);
   border-radius: var(--radius-lg);
-  padding: 2.75rem 2.5rem;
+  padding: 1.75rem 2rem;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.7);
-  animation: cardSlideFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7);
+  animation: cardSlideFade 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .manifesto-carousel-card::before {
@@ -601,7 +639,7 @@
 @keyframes cardSlideFade {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -617,13 +655,13 @@
 .manifesto-img-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  max-height: 380px;
+  aspect-ratio: 4 / 3;
+  max-height: 270px;
   border-radius: var(--radius-md);
   overflow: hidden;
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-active);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
 }
 
 .manifesto-img {
@@ -648,19 +686,19 @@
 
 .manifesto-img-badge {
   position: absolute;
-  bottom: 1rem;
-  left: 1rem;
-  right: 1rem;
+  bottom: 0.85rem;
+  left: 0.85rem;
+  right: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   background-color: rgba(8, 9, 11, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
-  padding: 0.4rem 0.85rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.03em;
@@ -679,24 +717,24 @@
 .manifesto-text-box {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 0.9rem;
 }
 
 .manifesto-law-meta {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .law-number-box {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-active);
   color: var(--accent-acid);
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -705,34 +743,35 @@
 
 .law-tag-text {
   font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--accent-acid);
   letter-spacing: 0.05em;
 }
 
 .manifesto-law-title {
-  font-size: 1.55rem;
+  font-size: clamp(1.2rem, 2.2vw, 1.45rem);
   font-weight: 800;
   color: var(--text-primary);
   line-height: 1.25;
   letter-spacing: -0.02em;
+  margin: 0;
 }
 
 /* Comparativa de Impacto (Problema vs Solución) */
 .manifesto-comparison-box {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.2rem;
+  gap: 0.55rem;
+  margin-top: 0.15rem;
 }
 
 .comp-row {
-  padding: 0.85rem 1.05rem;
+  padding: 0.65rem 0.85rem;
   border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
   transition: all 0.2s ease;
 }
 
@@ -748,7 +787,7 @@
 
 .comp-badge {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -763,9 +802,10 @@
 }
 
 .comp-text {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  line-height: 1.55;
+  line-height: 1.45;
+  margin: 0;
 }
 
 /* 2.3 Controles de Navegación del Carrusel */
@@ -774,7 +814,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 0.5rem;
+  padding-top: 0.25rem;
 }
 
 .manifesto-dots {
@@ -795,7 +835,7 @@
 }
 
 .manifesto-dots .dot-indicator.active {
-  width: 26px;
+  width: 24px;
   border-radius: 999px;
   background-color: var(--accent-acid);
   box-shadow: 0 0 12px rgba(212, 255, 0, 0.4);
@@ -803,12 +843,12 @@
 
 .manifesto-nav-btns {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
 }
 
 .manifesto-nav-arrow {
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-sm);
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
@@ -831,9 +871,12 @@
    3. ESCASEZ MATEMÁTICA Y CIERRE (CTA FINAL)
    ========================================================================== */
 .scarcity-cta-section {
+  position: relative;
+  z-index: 3;
   padding: 5rem 1.5rem 6.5rem 1.5rem;
   background-color: var(--bg-canvas);
-  position: relative;
+  box-shadow: 0 -35px 70px rgba(0, 0, 0, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .scarcity-container {
@@ -1025,6 +1068,8 @@
    4. FOOTER MINIMALISTA Y SOBRIO
    ========================================================================== */
 .footer-clean {
+  position: relative;
+  z-index: 4;
   border-top: 1px solid var(--border-subtle);
   padding: 3rem 1.5rem;
   background-color: #060708;
@@ -1129,13 +1174,13 @@
 @media (max-width: 880px) {
   .manifesto-carousel-card {
     grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 2rem;
+    gap: 1.5rem;
+    padding: 1.5rem;
   }
 
   .manifesto-img-wrapper {
-    max-height: 280px;
-    aspect-ratio: 16 / 10;
+    max-height: 220px;
+    aspect-ratio: 16 / 9;
   }
 
   .scarcity-metrics-row {
@@ -1168,6 +1213,9 @@
   }
 
   .hero-cinematic-section {
+    position: sticky;
+    top: 58px;
+    z-index: 1;
     padding: 1.25rem 1rem 1.5rem 1rem;
     height: calc(100dvh - 58px);
     min-height: 500px;
@@ -1180,26 +1228,37 @@
   }
 
   .manifesto-section {
-    padding: 3.5rem 1rem 4.5rem 1rem;
+    position: relative;
+    z-index: 2;
+    padding: 2.25rem 1rem 2.5rem 1rem;
+    min-height: auto;
+    scroll-margin-top: 58px;
+  }
+
+  .manifesto-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
 
   .manifesto-tabs-bar {
     width: 100%;
     justify-content: flex-start;
-    padding: 0.3rem;
+    overflow-x: auto;
+    padding: 0.25rem;
   }
 
   .manifesto-tab-btn {
-    padding: 0.45rem 0.85rem;
-    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
   }
 
   .manifesto-law-title {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
   }
 
   .comp-text {
-    font-size: 0.88rem;
+    font-size: 0.82rem;
   }
 
   .scarcity-card {

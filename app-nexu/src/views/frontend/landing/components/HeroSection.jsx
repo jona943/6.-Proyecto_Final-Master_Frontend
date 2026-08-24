@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { IconShield, IconArrowRight } from '../../../../components/icons/Icons'
 
 function HeroSection({
@@ -7,8 +8,37 @@ function HeroSection({
   onClaimSubmit,
   onScrollToManifiesto
 }) {
+  const [scrollProgress, setScrollProgress] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY
+      const fadeThreshold = Math.min(window.innerHeight * 0.45, 380)
+      const progress = Math.min(Math.max(scrollY / fadeThreshold, 0), 1)
+      setScrollProgress(progress)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const opacity = Math.max(1 - scrollProgress, 0)
+  const scale = 1 - (scrollProgress * 0.04)
+  const blurPx = scrollProgress * 6
+  const isHidden = opacity <= 0.01
+
   return (
-    <section className="hero-cinematic-section">
+    <section
+      className={`hero-cinematic-section ${isHidden ? 'is-faded-out' : ''}`}
+      style={{
+        opacity,
+        transform: `scale(${scale}) translateY(${scrollProgress * 18}px)`,
+        filter: blurPx > 0.2 ? `blur(${blurPx}px)` : 'none',
+        visibility: isHidden ? 'hidden' : 'visible',
+        pointerEvents: isHidden ? 'none' : 'auto'
+      }}
+    >
       <div className="hero-ambient-glow" aria-hidden="true" />
 
       <div className="hero-content-wrapper">
