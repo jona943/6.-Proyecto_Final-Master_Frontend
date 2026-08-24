@@ -1,5 +1,4 @@
-import heroMonolithImg from '../assets/hero-monolith.jpg'
-import { IconShield, IconArrowRight, IconChevronDown } from '../../../../components/icons/Icons'
+import { IconShield, IconArrowRight } from '../../../../components/icons/Icons'
 
 function HeroSection({
   claimAlias,
@@ -65,38 +64,18 @@ function HeroSection({
             <span className="status-text">{validation.msg}</span>
           </div>
         </div>
+      </div>
 
-        {/* Showcase Visual: Monolito de Obsidiana */}
-        <div className="hero-monolith-card">
-          <div className="monolith-frame">
-            <img
-              src={heroMonolithImg}
-              alt="Arquitectura de Monolito Nexu"
-              className="monolith-image"
-              loading="eager"
-            />
-            <div className="monolith-overlay" />
-            <div className="monolith-tag-badge">
-              <span className="monolith-dot-live" />
-              <span>NEXU CORE · ENCRIPTACIÓN SOBERANA DIRECTA</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Indicador sutil de scroll al Manifiesto */}
-        <div className="hero-scroll-wrapper">
-          <button
-            className="scroll-cue-btn"
-            onClick={onScrollToManifiesto}
-            type="button"
-            aria-label="Explorar el Manifiesto de Nexu"
-          >
-            <span className="scroll-cue-text">El Manifiesto</span>
-            <span className="scroll-icon-wrap">
-              <IconChevronDown />
-            </span>
-          </button>
-        </div>
+      {/* Indicador intuitivo de scroll al Manifiesto (Mouse Nudge minimalista) */}
+      <div className="hero-scroll-wrapper">
+        <button
+          className="scroll-mouse-pill"
+          onClick={onScrollToManifiesto}
+          type="button"
+          aria-label="Desplazarse al Manifiesto de Nexu"
+        >
+          <span className="scroll-dot-wheel" aria-hidden="true" />
+        </button>
       </div>
     </section>
   )
