@@ -8,8 +8,6 @@ function HeroSection({
   onClaimSubmit,
   onScrollToManifiesto
 }) {
-  const [scrollProgress, setScrollProgress] = useState(0)
-
   useEffect(() => {
     let lastScrollY = window.scrollY
     let isSnapping = false
@@ -23,7 +21,6 @@ function HeroSection({
       const vh = window.innerHeight || 800
       const fadeThreshold = Math.min(vh * 0.45, 380)
       const progress = Math.min(Math.max(scrollY / fadeThreshold, 0), 1)
-      setScrollProgress(progress)
 
       const manifestoEl = document.getElementById('el-manifiesto')
       if (!manifestoEl) return
@@ -51,22 +48,8 @@ function HeroSection({
     }
   }, [])
 
-  const opacity = Math.max(1 - scrollProgress, 0)
-  const scale = 1 - (scrollProgress * 0.04)
-  const blurPx = scrollProgress * 6
-  const isHidden = opacity <= 0.01
-
   return (
-    <section
-      className={`hero-cinematic-section ${isHidden ? 'is-faded-out' : ''}`}
-      style={{
-        opacity,
-        transform: `scale(${scale}) translateY(${scrollProgress * 18}px)`,
-        filter: blurPx > 0.2 ? `blur(${blurPx}px)` : 'none',
-        visibility: isHidden ? 'hidden' : 'visible',
-        pointerEvents: isHidden ? 'none' : 'auto'
-      }}
-    >
+    <section className="hero-cinematic-section">
       <div className="hero-ambient-glow" aria-hidden="true" />
 
       <div className="hero-content-wrapper">
