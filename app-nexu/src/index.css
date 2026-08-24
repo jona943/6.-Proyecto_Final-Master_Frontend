@@ -2,7 +2,7 @@
    NEXU DESIGN SYSTEM · BASE & DESIGN TOKENS GLOBALES
    ============================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&family=Space+Grotesk:wght@600;700&family=Sora:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap');
 
 :root {
   /* 1. Paleta Base Oscura (Obsidian Carbon) */
@@ -51,9 +51,14 @@
   --border-active: #2a303d;
   --border-focus: rgba(212, 255, 0, 0.5);
 
-  /* 7. Tipografías */
+  /* 7. Tipografías (Herencia 100% Automática) */
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+
+  /* Tipografía de Titulares Activa (Cambia aquí para probar opciones) */
+  /* --font-display: 'Syne', sans-serif; */          /* Opción 1: Avant-Garde */
+  /* --font-display: 'Space Grotesk', sans-serif; */ /* Opción 2: Tech Cyber */
+  --font-display: 'Sora', sans-serif;                /* Opción 3: Minimalista (ACTIVA) */
 
   /* 8. Radios */
   --radius-xs: 4px;
@@ -132,6 +137,15 @@ body {
   padding-bottom: var(--safe-bottom);
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
+}
+
+/* Herencia Tipográfica Global (Cambias el token en :root y cambia en toda la app) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+input, button, select, textarea {
+  font-family: inherit;
 }
 
 /* Ocultar barra de scroll visual manteniendo el desplazamiento activo (Estilo App Nativa) */

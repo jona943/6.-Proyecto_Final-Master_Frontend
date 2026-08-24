@@ -70,9 +70,10 @@
 }
 
 .brand-title {
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
 }
 
@@ -231,10 +232,11 @@
 }
 
 .hero-cinematic-title {
+  font-family: var(--font-display);
   font-size: clamp(2.2rem, 5.5vw, 4.2rem);
   font-weight: 800;
-  line-height: 1.14;
-  letter-spacing: -0.04em;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
   text-wrap: balance;
   margin: 0;
