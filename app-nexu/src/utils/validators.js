@@ -11,7 +11,7 @@
  */
 export function sanitizeAlias(value, maxLength = 10) {
   if (!value) return ''
-  return value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, maxLength)
+  return value.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, maxLength)
 }
 
 /**
@@ -24,14 +24,22 @@ export function validateAlias(alias) {
   if (!trimmed) {
     return {
       state: 'idle',
-      msg: 'Introduce de 3 a 10 caracteres alfanuméricos',
+      msg: 'Introduce de 3 a 10 caracteres',
       value: ''
     }
   }
-  if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+  // Rechazo explícito de Ñ y caracteres con acento
+  if (/[ñÑáéíóúÁÉÍÓÚ]/.test(trimmed)) {
     return {
       state: 'error',
-      msg: 'Solo letras, números y guión bajo (_)',
+      msg: 'No se permite la letra Ñ ni acentos',
+      value: trimmed
+    }
+  }
+  if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
+    return {
+      state: 'error',
+      msg: 'Solo letras, números, guión bajo (_) y guión (-)',
       value: trimmed
     }
   }
@@ -51,8 +59,8 @@ export function validateAlias(alias) {
   }
   return {
     state: 'valid',
-    msg: `@${trimmed.toLowerCase()} está disponible para reclamar`,
-    value: trimmed.toLowerCase()
+    msg: 'Formato válido',
+    value: trimmed
   }
 }
 
