@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './Login.css'
 import { useAuth } from '../../../context/AuthContext'
 import { session, STORAGE_KEYS } from '../../../services/storageService'
+import { authService } from '../../../services/authService'
 import {
   sanitizeAlias,
   validateLoginForm,
@@ -23,7 +24,7 @@ import ForgotPasswordForm from './components/ForgotPasswordForm'
 // COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR + STORAGE + UTILS)
 // ============================================================================
 function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
-  const { login } = useAuth()
+  const { login, setUser } = useAuth()
 
   // Pestaña activa: 'login' | 'register' | 'forgot'
   const [activeTab, setActiveTab] = useState(initialTab)
@@ -117,8 +118,8 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     }
   }
 
-  // 2. Manejar Registro
-  const handleRegisterSubmit = (e) => {
+  // 2. Manejar Registro conectando con authService / backend
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault()
 
     const errors = {}
@@ -156,14 +157,35 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     }
 
     setFormErrors({})
-    setAlertInfo({
-      type: 'error',
-      text: 'El registro de nuevos usuarios está inhabilitado temporalmente en esta fase. Por favor, inicia sesión con @adminUser o @rosi_master.'
-    })
+    setIsLoading(true)
+    setAlertInfo(null)
+
+    try {
+      const newUser = await authService.register(cleanUsername, regPassword)
+      if (setUser) {
+        setUser(newUser)
+      }
+      setAlertInfo({
+        type: 'success',
+        text: `¡Usuario @${cleanUsername} registrado exitosamente! Accediendo a Nexu...`
+      })
+      setTimeout(() => {
+        if (onLoginSuccess) {
+          onLoginSuccess(newUser)
+        }
+      }, 700)
+    } catch (err) {
+      setAlertInfo({
+        type: 'error',
+        text: err.message || 'Error al crear la cuenta.'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  // 3. Manejar Recuperación
-  const handleForgotSubmit = (e) => {
+  // 3. Manejar Recuperación conectando con authService / backend
+  const handleForgotSubmit = async (e) => {
     e.preventDefault()
     const cleanUsername = sanitizeAlias(forgotUsername).toLowerCase()
     if (!cleanUsername || cleanUsername.length < 3) {
@@ -175,13 +197,20 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     setIsLoading(true)
     setAlertInfo(null)
 
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const response = await authService.forgotPassword(cleanUsername)
       setAlertInfo({
         type: 'success',
-        text: `Acceso simulado restablecido para el usuario @${cleanUsername}.`
+        text: response.message || `Instrucciones de recuperación generadas para @${cleanUsername}.`
       })
-    }, 800)
+    } catch (err) {
+      setAlertInfo({
+        type: 'error',
+        text: err.message || 'Error al procesar la recuperación de acceso.'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const switchTab = (tab) => {
