@@ -71,6 +71,47 @@ function generateSessionToken(userId, username, rememberMe = false) {
 // ============================================================================
 
 /**
+ * GET /api/auth/check-alias?alias=xxx
+ * Responsable: Rosy (Módulo de Autenticación)
+ * Comprueba reactivamente la disponibilidad de un alias único en USERS_DATABASE.
+ */
+router.get('/check-alias', (req, res) => {
+  const raw = req.query.alias || req.query.username
+  const clean = sanitizeUsername(raw)
+
+  if (!clean || clean.length < 3) {
+    return res.status(400).json({
+      success: false,
+      available: false,
+      message: 'El alias debe tener al menos 3 caracteres alfanuméricos.'
+    })
+  }
+
+  if (!ALIAS_REGEX.test(clean)) {
+    return res.status(400).json({
+      success: false,
+      available: false,
+      message: 'El alias solo puede contener letras, números y guión bajo (_).'
+    })
+  }
+
+  const normalized = clean.toLowerCase()
+  const isTaken = USERS_DATABASE.some(
+    (u) => u.usernameNormalized === normalized || u.username.toLowerCase() === normalized
+  )
+
+  return res.status(200).json({
+    success: true,
+    available: !isTaken,
+    alias: clean,
+    formatted: `@${clean}`,
+    message: isTaken
+      ? `El alias @${clean} ya se encuentra registrado o sellado por otro usuario.`
+      : `El alias @${clean} está disponible para reclamar.`
+  })
+})
+
+/**
  * POST /api/auth/login
  * Responsable: Rosy (Módulo de Autenticación)
  * Autentica credenciales y emite token de sesión.
@@ -141,7 +182,7 @@ router.post('/login', (req, res) => {
 /**
  * POST /api/auth/register
  * Responsable: Rosy (Módulo de Autenticación)
- * Registra un nuevo usuario con alias soberano y contraseña.
+ * Registra un nuevo usuario con alias soberano y contraseña garantizando no duplicación.
  */
 router.post('/register', (req, res) => {
   const { username, password } = req.body || {}

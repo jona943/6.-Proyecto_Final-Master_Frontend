@@ -58,6 +58,13 @@ const DEFAULT_SESSIONS = [
   }
 ]
 
+const SUGGESTIONS_POOL = [
+  'ciber_neo', 'luna_dev', 'nexus_26', 'pixel_io', 'shadow_9',
+  'zen_code', 'echo_user', 'nova_run', 'sol_nexu', 'vortex_7',
+  'alpha_9', 'zero_byte', 'pulse_x', 'byte_pro', 'sky_link',
+  'neon_core', 'flux_8', 'grid_dev', 'krypt_26', 'apex_me'
+]
+
 /**
  * Obtiene las cuentas locales combinando las predeterminadas y las registradas
  */
@@ -71,8 +78,13 @@ function getAllLocalAccounts() {
  */
 function saveLocalAccount(account) {
   const registered = storage.get(LOCAL_ACCOUNTS_KEY, [])
-  registered.push(account)
-  storage.set(LOCAL_ACCOUNTS_KEY, registered)
+  const exists = registered.some(
+    (a) => a.username.toLowerCase() === account.username.toLowerCase()
+  )
+  if (!exists) {
+    registered.push(account)
+    storage.set(LOCAL_ACCOUNTS_KEY, registered)
+  }
 }
 
 /**
@@ -90,6 +102,104 @@ function isNetworkError(errorMsg) {
 }
 
 export const authService = {
+  /**
+   * Retorna todas las cuentas registradas en la aplicación
+   */
+  getAllAccounts() {
+    return getAllLocalAccounts()
+  },
+
+  /**
+   * Genera sugerencias de alias únicos garantizando que no estén ocupados
+   * @param {number} count - Cantidad de sugerencias a devolver
+   * @returns {string[]} Lista de sugerencias disponibles
+   */
+  getAliasSuggestions(count = 4) {
+    const accounts = getAllLocalAccounts()
+    const takenSet = new Set(accounts.map((a) => a.username.toLowerCase()))
+
+    const available = SUGGESTIONS_POOL.filter((alias) => !takenSet.has(alias.toLowerCase()))
+    const shuffled = [...available].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, count)
+  },
+
+  /**
+   * Verifica la disponibilidad de un alias único en tiempo real consultando Backend y Local
+   * @param {string} username - Alias a consultar
+   * @returns {Promise<{ available: boolean, state: 'idle'|'valid'|'warning'|'error', reason: string }>}
+   */
+  async checkUsernameAvailability(username) {
+    const clean = (username || '').trim().replace(/^@/, '')
+
+    if (!clean) {
+      return {
+        available: false,
+        state: 'idle',
+        reason: 'Introduce de 3 a 10 caracteres alfanuméricos.'
+      }
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(clean)) {
+      return {
+        available: false,
+        state: 'error',
+        reason: 'Solo se permiten letras, números y guión bajo (_).'
+      }
+    }
+
+    if (clean.length < 3) {
+      return {
+        available: false,
+        state: 'warning',
+        reason: `${clean.length}/3 caracteres mínimos requeridos.`
+      }
+    }
+
+    if (clean.length > 10) {
+      return {
+        available: false,
+        state: 'error',
+        reason: 'Máximo 10 caracteres permitidos.'
+      }
+    }
+
+    // 1. Verificación local previa inmediata
+    const accounts = getAllLocalAccounts()
+    const takenLocally = accounts.some(
+      (acc) => acc.username.toLowerCase() === clean.toLowerCase()
+    )
+
+    if (takenLocally) {
+      return {
+        available: false,
+        state: 'error',
+        reason: `El alias @${clean} ya se encuentra registrado. Elige otro para evitar confusiones.`
+      }
+    }
+
+    // 2. Verificación contra el Backend Auth (consulta USERS_DATABASE donde están registrados gary02, etc.)
+    try {
+      const res = await api.get(`/auth/check-alias?alias=${encodeURIComponent(clean)}`)
+      if (res.success && res.data) {
+        if (!res.data.available) {
+          return {
+            available: false,
+            state: 'error',
+            reason: res.data.message || `El alias @${clean} ya se encuentra registrado o sellado por otro usuario.`
+          }
+        }
+      }
+    } catch {
+      // Si el backend no responde, se usa el estado de almacenamiento local
+    }
+
+    return {
+      available: true,
+      state: 'valid',
+      reason: `¡@${clean} está disponible y es único!`
+    }
+  },
+
   /**
    * Iniciar sesión conectando con el backend REST: POST /api/auth/login
    * Si el backend está apagado, opera con fallback local inteligente.
@@ -122,6 +232,17 @@ export const authService = {
           gender: userData.gender || 'neutral',
           token: payload?.token || `nexu_token_${Date.now()}`
         }
+
+        saveLocalAccount({
+          id: sessionData.id,
+          username: sessionData.username,
+          password,
+          displayName: sessionData.displayName,
+          role: sessionData.role,
+          email: sessionData.email,
+          avatarType: sessionData.avatarType,
+          gender: sessionData.gender
+        })
 
         storage.set(STORAGE_KEYS.ACTIVE_USER, sessionData)
         return sessionData
@@ -165,13 +286,23 @@ export const authService = {
 
   /**
    * Registrar nuevo usuario conectando con el backend REST: POST /api/auth/register
-   * Si el backend está apagado, opera con fallback local registrando la cuenta en storage.
+   * Garantiza unicidad estricta para evitar repeticiones o confusiones.
    * @param {string} username - Alias único deseado
    * @param {string} password - Contraseña segura
    * @returns {Promise<Object>} Datos del nuevo usuario registrado
    */
   async register(username, password) {
     const cleanUsername = (username || '').trim().replace(/^@/, '')
+
+    // Validación de unicidad previa local
+    const accounts = getAllLocalAccounts()
+    const existsLocally = accounts.some(
+      (acc) => acc.username.toLowerCase() === cleanUsername.toLowerCase()
+    )
+
+    if (existsLocally) {
+      throw new Error(`El alias @${cleanUsername} ya se encuentra registrado por otro usuario. Elige un alias único.`)
+    }
 
     try {
       const response = await api.post('/auth/register', {
@@ -194,11 +325,23 @@ export const authService = {
           token: payload?.token || `nexu_token_${Date.now()}`
         }
 
+        // Sincronizar en local para persistencia y búsquedas
+        saveLocalAccount({
+          id: sessionData.id,
+          username: sessionData.username,
+          password,
+          displayName: sessionData.displayName,
+          role: sessionData.role,
+          email: sessionData.email,
+          avatarType: sessionData.avatarType,
+          gender: sessionData.gender
+        })
+
         storage.set(STORAGE_KEYS.ACTIVE_USER, sessionData)
         return sessionData
       }
 
-      // Si el servidor respondió con un error de negocio (409 alias ocupado, 400, etc.), lanzarlo
+      // Si el servidor respondió con error de unicidad (409 Conflict) u otro error de negocio
       if (!isNetworkError(response.error)) {
         throw new Error(response.error)
       }
@@ -210,14 +353,6 @@ export const authService = {
 
     // --- FALLBACK MODO OFFLINE / LOCAL ---
     await new Promise((resolve) => setTimeout(resolve, 350))
-    const accounts = getAllLocalAccounts()
-    const exists = accounts.some(
-      (acc) => acc.username.toLowerCase() === cleanUsername.toLowerCase()
-    )
-
-    if (exists) {
-      throw new Error(`El alias @${cleanUsername} ya se encuentra registrado o sellado por otro usuario.`)
-    }
 
     const newLocalAccount = {
       id: `usr_${Date.now()}`,

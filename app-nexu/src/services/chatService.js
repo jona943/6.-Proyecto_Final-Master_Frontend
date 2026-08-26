@@ -150,18 +150,30 @@ export const chatService = {
   // Buscar usuario por alias
   searchUser(cleanAlias, currentUsername) {
     if (!cleanAlias) return { user: null, error: '' }
-    if (cleanAlias.toLowerCase() === currentUsername.toLowerCase()) {
+    if (cleanAlias.toLowerCase() === (currentUsername || '').toLowerCase()) {
       return { user: null, error: 'No puedes enviarte una solicitud a ti mismo.' }
     }
 
-    const found = MOCK_KNOWN_USERS.find(
+    const registered = storage.get('nexu_registered_accounts_db', []).map((u) => ({
+      username: u.username,
+      name: u.displayName || u.username,
+      handle: `@${u.username}`,
+      role: u.role || 'Usuario Nexu',
+      avatar: (u.displayName || u.username).replace(/^@/, '').slice(0, 2).toUpperCase(),
+      status: 'offline',
+      statusText: 'Usuario Nexu'
+    }))
+
+    const allUsers = [...MOCK_KNOWN_USERS, ...registered]
+
+    const found = allUsers.find(
       (u) => u.username.toLowerCase() === cleanAlias.toLowerCase()
     )
 
     if (found) {
       return { user: found, error: '' }
     } else if (cleanAlias.length >= 3) {
-      return { user: null, error: 'Usuario no encontrado. Prueba con @adminUser o @rosi_master.' }
+      return { user: null, error: 'Usuario no encontrado. Verifica el alias exacto.' }
     }
 
     return { user: null, error: '' }

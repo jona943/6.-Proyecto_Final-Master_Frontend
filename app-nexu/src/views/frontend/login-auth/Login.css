@@ -335,12 +335,183 @@
   color: var(--accent-acid);
 }
 
+.auth-input.input-valid {
+  border-color: rgba(39, 201, 63, 0.5);
+}
+
+.auth-input.input-valid:focus {
+  box-shadow: 0 0 0 3px rgba(39, 201, 63, 0.15);
+}
+
 .auth-input.input-error {
   border-color: #ff5c5c;
 }
 
 .auth-input.input-error:focus {
   box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15);
+}
+
+/* Indicador de Disponibilidad en Tiempo Real del Alias */
+.alias-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.76rem;
+  font-family: var(--font-mono);
+  padding: 0.35rem 0.65rem;
+  border-radius: 4px;
+  animation: tabFadeIn 0.2s ease-out;
+}
+
+.alias-status-indicator.status-valid {
+  background-color: rgba(39, 201, 63, 0.1);
+  border: 1px solid rgba(39, 201, 63, 0.25);
+  color: #72f085;
+}
+
+.alias-status-indicator.status-error {
+  background-color: rgba(255, 92, 92, 0.1);
+  border: 1px solid rgba(255, 92, 92, 0.25);
+  color: #ff8e8e;
+}
+
+.alias-status-indicator.status-warning {
+  background-color: rgba(255, 189, 46, 0.1);
+  border: 1px solid rgba(255, 189, 46, 0.25);
+  color: #ffbd2e;
+}
+
+.status-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sugerencias Rápidas de Alias Únicos */
+.alias-suggestions-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.8rem;
+  margin-top: 0.2rem;
+}
+
+.alias-suggestions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.suggestions-title {
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-refresh-suggestions {
+  background: transparent;
+  border: none;
+  color: var(--accent-acid);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+}
+
+.btn-refresh-suggestions:hover {
+  background-color: rgba(212, 255, 0, 0.1);
+}
+
+.alias-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.alias-chip-btn {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 0.25rem 0.55rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.alias-chip-btn:hover {
+  border-color: var(--accent-acid);
+  color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.alias-chip-btn.active {
+  background-color: rgba(212, 255, 0, 0.15);
+  border-color: var(--accent-acid);
+  color: var(--accent-acid);
+}
+
+/* Caja de Recomendaciones para Crear Usuario */
+.alias-recommendations-box {
+  background-color: rgba(16, 18, 22, 0.6);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+}
+
+.recommendations-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-acid);
+}
+
+.recommendations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.recommendations-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.recommendations-list li strong {
+  color: var(--text-primary);
+}
+
+.recommendations-list .rec-bullet {
+  color: var(--accent-acid);
+  font-weight: bold;
 }
 
 .btn-toggle-pw {
