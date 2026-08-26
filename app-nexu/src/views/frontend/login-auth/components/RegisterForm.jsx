@@ -3,7 +3,8 @@ import {
   IconEye,
   IconEyeOff,
   IconArrowRight,
-  IconAlertCircle
+  IconAlertCircle,
+  IconCheck
 } from '../../../../components/icons/Icons'
 
 function RegisterForm({
@@ -58,11 +59,12 @@ function RegisterForm({
         )}
       </div>
 
-      {/* Contraseña (Mínimo 8 caracteres) */}
+      {/* Contraseña */}
       <div className="form-group">
-        <label className="form-label" htmlFor="reg-password">
-          Contraseña (mínimo 8 caracteres)
-        </label>
+        <div className="form-label">
+          <label htmlFor="reg-password">Contraseña</label>
+          <span className="input-hint">Mín. 8 caracteres</span>
+        </div>
         <div className="input-container">
           <span className="input-icon-left">
             <IconLock />
@@ -71,7 +73,7 @@ function RegisterForm({
             id="reg-password"
             type={showRegPassword ? 'text' : 'password'}
             className={`auth-input has-right-btn ${formErrors.regPassword ? 'input-error' : ''}`}
-            placeholder="Mínimo 8 caracteres"
+            placeholder="Crea tu contraseña"
             value={regPassword}
             onChange={(e) => onPasswordChange(e.target.value)}
             autoComplete="new-password"
@@ -100,6 +102,35 @@ function RegisterForm({
           </>
         )}
 
+        {/* Requisitos descritos de la contraseña */}
+        <div className="password-requirements-box">
+          <span className="password-requirements-title">
+            Requisitos de la contraseña:
+          </span>
+          <ul className="password-requirements-list">
+            <li className={regPassword.length >= 8 ? 'met' : ''}>
+              <span className="req-bullet">{regPassword.length >= 8 ? <IconCheck size={12} /> : '•'}</span>
+              <span>Mínimo 8 caracteres</span>
+            </li>
+            <li className={/[A-Z]/.test(regPassword) ? 'met' : ''}>
+              <span className="req-bullet">{/[A-Z]/.test(regPassword) ? <IconCheck size={12} /> : '•'}</span>
+              <span>Al menos una mayúscula (A-Z)</span>
+            </li>
+            <li className={/[a-z]/.test(regPassword) ? 'met' : ''}>
+              <span className="req-bullet">{/[a-z]/.test(regPassword) ? <IconCheck size={12} /> : '•'}</span>
+              <span>Al menos una minúscula (a-z)</span>
+            </li>
+            <li className={/[0-9]/.test(regPassword) ? 'met' : ''}>
+              <span className="req-bullet">{/[0-9]/.test(regPassword) ? <IconCheck size={12} /> : '•'}</span>
+              <span>Al menos un número (0-9)</span>
+            </li>
+            <li className={/[^a-zA-Z0-9]/.test(regPassword) ? 'met' : ''}>
+              <span className="req-bullet">{/[^a-zA-Z0-9]/.test(regPassword) ? <IconCheck size={12} /> : '•'}</span>
+              <span>Al menos un símbolo (+, -, *, !, etc.)</span>
+            </li>
+          </ul>
+        </div>
+
         {formErrors.regPassword && (
           <span className="input-error-msg">
             <IconAlertCircle /> {formErrors.regPassword}
@@ -120,7 +151,7 @@ function RegisterForm({
             id="reg-confirm-password"
             type={showRegPassword ? 'text' : 'password'}
             className={`auth-input ${formErrors.regConfirmPassword ? 'input-error' : ''}`}
-            placeholder="Repite tu contraseña de 8+ caracteres"
+            placeholder="Repite tu contraseña"
             value={regConfirmPassword}
             onChange={(e) => onConfirmPasswordChange(e.target.value)}
             autoComplete="new-password"

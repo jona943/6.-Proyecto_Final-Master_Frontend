@@ -405,6 +405,57 @@
   margin-top: 0.15rem;
 }
 
+/* Requisitos de la Contraseña en Registro */
+.password-requirements-box {
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.password-requirements-title {
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.password-requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.password-requirements-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.73rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.password-requirements-list li.met {
+  color: #72f085;
+}
+
+.req-bullet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  font-weight: bold;
+}
+
 /* Opciones de Formulario (Checkbox) */
 .form-options {
   display: flex;
