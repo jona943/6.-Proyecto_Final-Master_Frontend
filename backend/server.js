@@ -8,8 +8,14 @@ import authRoutes from './routes/auth.routes.js'
 import chatRoutes from './routes/chat.routes.js'
 import userRoutes from './routes/user.routes.js'
 
+// Importar Conexión a Base de Datos
+import { connectDB } from './config/db.js'
+
 // Cargar variables de entorno
 dotenv.config()
+
+// Conectar a MongoDB Atlas
+connectDB()
 
 const app = express()
 const PORT = process.env.PORT || 5000
