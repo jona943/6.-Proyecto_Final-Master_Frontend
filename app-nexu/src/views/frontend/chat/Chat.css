@@ -814,6 +814,176 @@
   border-color: var(--border-active, #2a303d);
 }
 
+/* 2.1.1 Barra Desplegable de Búsqueda Interna en la Conversación Activa */
+.in-chat-search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.65rem 1.5rem;
+  background-color: var(--bg-surface-elevated, #16191f);
+  border-bottom: 1px solid var(--border-active, #2a303d);
+  animation: slideDownInChatSearch 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 4;
+}
+
+@keyframes slideDownInChatSearch {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.in-chat-search-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background-color: var(--bg-canvas, #08090b);
+  border: 1px solid var(--border-subtle, #1c2028);
+  border-radius: 8px;
+  padding: 0.38rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.in-chat-search-input-wrapper:focus-within {
+  border-color: var(--accent-acid, #d4ff00);
+  box-shadow: 0 0 0 1px rgba(212, 255, 0, 0.2);
+}
+
+.in-chat-search-input-wrapper svg {
+  color: var(--text-muted, #484f5c);
+  flex-shrink: 0;
+}
+
+.in-chat-search-input-wrapper input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #f4f5f7);
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.86rem;
+  outline: none;
+}
+
+.in-chat-search-input-wrapper input::placeholder {
+  color: var(--text-muted, #484f5c);
+}
+
+.btn-clear-search-inchat {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary, #7e8796);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.btn-clear-search-inchat:hover {
+  color: var(--text-primary, #f4f5f7);
+}
+
+.in-chat-search-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.in-chat-search-hint {
+  font-size: 0.74rem;
+  color: var(--text-muted, #484f5c);
+  font-family: var(--font-mono, monospace);
+}
+
+.in-chat-match-badge {
+  font-size: 0.72rem;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.in-chat-match-badge.has-matches {
+  background-color: rgba(212, 255, 0, 0.12);
+  color: var(--accent-acid, #d4ff00);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+}
+
+.in-chat-match-badge.no-matches {
+  background-color: rgba(255, 68, 68, 0.1);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 68, 68, 0.25);
+}
+
+.btn-close-inchat-search {
+  background: transparent;
+  border: 1px solid var(--border-subtle, #1c2028);
+  color: var(--text-secondary, #7e8796);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-close-inchat-search:hover {
+  background-color: var(--bg-surface-hover, #1e222a);
+  color: var(--text-primary, #f4f5f7);
+  border-color: var(--border-active, #2a303d);
+}
+
+/* Resaltado de Texto en Burbujas */
+.chat-search-match {
+  background-color: rgba(212, 255, 0, 0.35);
+  color: #ffffff;
+  border-radius: 3px;
+  padding: 1px 3px;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(212, 255, 0, 0.3);
+}
+
+.search-active-bubble {
+  border-color: rgba(212, 255, 0, 0.45) !important;
+  box-shadow: 0 0 18px rgba(212, 255, 0, 0.15) !important;
+}
+
+.in-chat-no-results-banner {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--text-secondary, #7e8796);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--bg-surface, #101216);
+  border: 1px dashed var(--border-subtle, #1c2028);
+  border-radius: 10px;
+  margin: 0.5rem 0;
+  font-size: 0.84rem;
+}
+
+.in-chat-no-results-banner svg {
+  color: var(--text-muted, #484f5c);
+}
+
+.in-chat-no-results-banner strong {
+  color: var(--accent-acid, #d4ff00);
+}
+
 /* 2.2 Feed / Área de Mensajes */
 .messages-container {
   flex: 1;
