@@ -36,6 +36,8 @@
   align-items: center;
   justify-content: space-between;
   background-color: rgba(16, 18, 22, 0.95);
+  position: relative;
+  z-index: 50;
 }
 
 .user-profile-summary {
@@ -94,6 +96,11 @@
 
 .user-status-dot.offline {
   background-color: var(--status-offline);
+}
+
+.user-status-dot.dnd {
+  background-color: #ff5555;
+  box-shadow: 0 0 6px rgba(255, 85, 85, 0.7);
 }
 
 .user-info-meta {
@@ -783,6 +790,11 @@
 
 .status-dot-sm.offline {
   background-color: #555b68;
+}
+
+.status-dot-sm.dnd {
+  background-color: #ff5555;
+  box-shadow: 0 0 6px rgba(255, 85, 85, 0.7);
 }
 
 .chat-header-actions {
@@ -1624,6 +1636,7 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
+  z-index: 60;
 }
 
 .user-avatar-clickable {
@@ -1656,15 +1669,15 @@
 
 .presence-popover-menu {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 12px);
   left: 0;
-  width: 250px;
-  background-color: var(--bg-surface-elevated, #16191f);
+  width: 260px;
+  background-color: #16191f;
   border: 1px solid var(--border-active, #2a303d);
   border-radius: 12px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(16px);
-  z-index: 100;
+  z-index: 9999;
   animation: fadeInPresenceMenu 0.18s ease;
   overflow: hidden;
 }

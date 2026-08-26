@@ -54,19 +54,29 @@ function ChatSidebar({
   onCopyInviteLink
 }) {
   const [isPresenceMenuOpen, setIsPresenceMenuOpen] = useState(false)
-  const presenceMenuRef = useRef(null)
+  const userHeaderLeftRef = useRef(null)
 
-  // Cerrar menú de presencia al hacer clic fuera
+  // Cerrar menú de presencia al hacer clic fuera o presionar Escape
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (presenceMenuRef.current && !presenceMenuRef.current.contains(e.target)) {
+      if (userHeaderLeftRef.current && !userHeaderLeftRef.current.contains(e.target)) {
         setIsPresenceMenuOpen(false)
       }
     }
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsPresenceMenuOpen(false)
+      }
+    }
+
     if (isPresenceMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleKeyDown)
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [isPresenceMenuOpen])
 
   const getPresenceLabel = (status) => {
@@ -80,7 +90,7 @@ function ChatSidebar({
     <aside className={`chat-sidebar ${mobileView === 'chat' ? 'hidden-mobile' : ''}`}>
       {/* 1. Encabezado del Usuario Activo */}
       <header className="chat-user-header">
-        <div className="user-header-left-box">
+        <div className="user-header-left-box" ref={userHeaderLeftRef}>
           <div
             className="avatar-wrapper user-avatar-clickable"
             onClick={() => setIsPresenceMenuOpen((prev) => !prev)}
@@ -110,52 +120,59 @@ function ChatSidebar({
 
           <div className="user-info-meta">
             <div className="user-name-row">
-              <span className="user-display-name">{currentUser.name}</span>
+              <span
+                className="user-display-name"
+                onClick={onOpenSettings}
+                style={{ cursor: onOpenSettings ? 'pointer' : 'default' }}
+                title={onOpenSettings ? 'Ir a Perfil y Configuración' : undefined}
+              >
+                {currentUser.name}
+              </span>
               <span className="tag-active-pill">TÚ</span>
             </div>
             <button
               type="button"
               className="presence-status-trigger-btn"
               onClick={() => setIsPresenceMenuOpen((prev) => !prev)}
-              title="Cambiar estado"
+              title="Cambiar estado de presencia"
             >
               <span className={`status-dot-sm ${presenceStatus}`}></span>
               <span>{currentUser.handle} · {getPresenceLabel(presenceStatus)}</span>
             </button>
           </div>
-        </div>
 
-        {/* Menú Flotante de Selector de Presencia */}
-        {isPresenceMenuOpen && (
-          <div className="presence-popover-menu" ref={presenceMenuRef}>
-            <div className="presence-popover-header">
-              <span>Tu Estado de Presencia</span>
+          {/* Menú Flotante de Selector de Presencia */}
+          {isPresenceMenuOpen && (
+            <div className="presence-popover-menu">
+              <div className="presence-popover-header">
+                <span>Tu Estado de Presencia</span>
+              </div>
+              <div className="presence-options-list">
+                {PRESENCE_OPTIONS.map((opt) => {
+                  const isSelected = presenceStatus === opt.id
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      className={`presence-option-item ${isSelected ? 'selected' : ''}`}
+                      onClick={() => {
+                        if (onSelectPresence) onSelectPresence(opt.id)
+                        setIsPresenceMenuOpen(false)
+                      }}
+                    >
+                      <span className={`status-dot-lg ${opt.id}`}></span>
+                      <div className="presence-option-text">
+                        <strong>{opt.label}</strong>
+                        <small>{opt.desc}</small>
+                      </div>
+                      {isSelected && <IconCheck size={14} />}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-            <div className="presence-options-list">
-              {PRESENCE_OPTIONS.map((opt) => {
-                const isSelected = presenceStatus === opt.id
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    className={`presence-option-item ${isSelected ? 'selected' : ''}`}
-                    onClick={() => {
-                      if (onSelectPresence) onSelectPresence(opt.id)
-                      setIsPresenceMenuOpen(false)
-                    }}
-                  >
-                    <span className={`status-dot-lg ${opt.id}`}></span>
-                    <div className="presence-option-text">
-                      <strong>{opt.label}</strong>
-                      <small>{opt.desc}</small>
-                    </div>
-                    {isSelected && <IconCheck size={14} />}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
           <button
