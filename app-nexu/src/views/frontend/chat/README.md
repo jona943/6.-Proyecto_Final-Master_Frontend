@@ -15,7 +15,12 @@ Desarrollar la interfaz de usuario interactiva y navegable (UI/UX Mock) para la 
 ## 2. Requerimientos y Funcionalidades Implementadas
 
 ### A. Barra Lateral (Sidebar de Conversaciones)
-- **Perfil de Usuario:** Avatar monograma con indicador de presencia en tiempo real (*Online*, *Away*, *Offline*), nombre de usuario y alias.
+- **Perfil de Usuario & Selector Rápido de Presencia:**
+  - Avatar monograma interactivo que despliega un menú flotante con 3 estados:
+    - 🟢 **En línea:** Disponible y activo para recibir mensajes.
+    - 🟡 **Ausente:** Inactivo temporalmente o en descanso.
+    - 🔴 **No molestar:** Silenciar alertas y avisos.
+  - Feedback visual inmediato con notificación toast y punto de presencia con resplandor (*glow*).
 - **Buscador de Contactos:** Filtro reactivo para buscar contactos por nombre o por handle en toda la bandeja.
 - **Filtros Rápidos:** Pestañas para conmutar entre *Todos*, *No leídos* y *En línea*.
 - **Lista de Conversaciones:** Monogramas vectorizados, badges numéricos de mensajes no leídos, hora de entrega y preview del último mensaje con prefijo `"Tú:"`.
@@ -39,9 +44,14 @@ Desarrollar la interfaz de usuario interactiva y navegable (UI/UX Mock) para la 
 
 ### C. Panel Lateral Derecho (Drawer de Detalles del Contacto)
 - Botón **"Detalles"** en la cabecera del chat para abrir/cerrar el panel de información del usuario.
-- Muestra el perfil ampliado: Monograma, nombre, handle, rol, correo electrónico y biografía.
-- Indicador de seguridad y cifrado.
-- Botón de acción para **Limpiar Historial de Chat** de forma local.
+- **Pestaña 1: Perfil & Cuenta:**
+  - Muestra el perfil ampliado: Monograma, nombre, handle, rol, correo electrónico y biografía.
+  - Indicador de seguridad y cifrado.
+  - Botones de acción para **Vaciar Mensajes** y **Eliminar Contacto**.
+- **Pestaña 2: Archivos & Enlaces Compartidos:**
+  - Sección de **Documentos y Archivos** con iconos vectoriales de PDF, código e imágenes, pesos de archivo y fechas.
+  - Sección de **Enlaces Compartidos** con enlaces directos al repositorio GitHub y documentación.
+  - Indicador de almacenamiento seguro punto a punto.
 
 ### D. Simulación Reactiva (Mock Data & Bot)
 - Auto-respuesta simulada con animación de 3 puntos (*typing indicator*) y despacho reactivo de mensajes.
@@ -67,9 +77,9 @@ src/views/frontend/chat/
 └── components/
     ├── ActiveChatPanel.jsx               # Panel de conversación activa con buscador interno
     ├── ChatEmptyState.jsx                # Estado vacío cuando no hay chat seleccionado
-    ├── ChatSidebar.jsx                   # Barra lateral de contactos y buscador global
+    ├── ChatSidebar.jsx                   # Barra lateral de contactos y selector de presencia
     ├── ConnectUserModal.jsx              # Modal para conectar con nuevo usuario por alias
-    └── ContactDetailsPanel.jsx           # Panel lateral derecho con perfil del contacto
+    └── ContactDetailsPanel.jsx           # Panel lateral con tabs de perfil, archivos y enlaces
 ```
 
 ---

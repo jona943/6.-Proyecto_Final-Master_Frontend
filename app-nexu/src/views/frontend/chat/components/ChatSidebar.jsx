@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import {
   IconSearch,
   IconUserPlus,
@@ -6,15 +7,35 @@ import {
   IconShield,
   IconLink,
   IconLock,
+  IconCheck,
   AvatarFemale,
   AvatarMale,
   AvatarNeutral
 } from '../../../../components/icons/Icons'
 
+const PRESENCE_OPTIONS = [
+  {
+    id: 'online',
+    label: 'En línea',
+    desc: 'Disponible y activo para recibir mensajes'
+  },
+  {
+    id: 'away',
+    label: 'Ausente',
+    desc: 'Inactivo temporalmente o en descanso'
+  },
+  {
+    id: 'dnd',
+    label: 'No molestar',
+    desc: 'Silenciar alertas y avisos'
+  }
+]
+
 function ChatSidebar({
   mobileView,
   currentUser,
   presenceStatus,
+  onSelectPresence,
   onOpenSettings,
   onOpenConnectModal,
   onToggleDetailsPanel,
@@ -32,19 +53,38 @@ function ChatSidebar({
   onSelectChat,
   onCopyInviteLink
 }) {
+  const [isPresenceMenuOpen, setIsPresenceMenuOpen] = useState(false)
+  const presenceMenuRef = useRef(null)
+
+  // Cerrar menú de presencia al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (presenceMenuRef.current && !presenceMenuRef.current.contains(e.target)) {
+        setIsPresenceMenuOpen(false)
+      }
+    }
+    if (isPresenceMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isPresenceMenuOpen])
+
+  const getPresenceLabel = (status) => {
+    if (status === 'online') return 'En línea'
+    if (status === 'away') return 'Ausente'
+    if (status === 'dnd') return 'No molestar'
+    return 'Desconectado'
+  }
+
   return (
     <aside className={`chat-sidebar ${mobileView === 'chat' ? 'hidden-mobile' : ''}`}>
       {/* 1. Encabezado del Usuario Activo */}
       <header className="chat-user-header">
-        <div
-          className="user-profile-summary"
-          onClick={onOpenSettings}
-          style={{ cursor: onOpenSettings ? 'pointer' : 'default' }}
-          title={onOpenSettings ? 'Ir a Perfil y Configuración' : undefined}
-        >
+        <div className="user-header-left-box">
           <div
-            className="avatar-wrapper"
-            title={`Estado: ${presenceStatus === 'online' ? 'En línea (activo)' : presenceStatus === 'away' ? 'Ausente (en segundo plano)' : 'Sin conexión'}`}
+            className="avatar-wrapper user-avatar-clickable"
+            onClick={() => setIsPresenceMenuOpen((prev) => !prev)}
+            title="Haz clic para cambiar tu estado de presencia"
           >
             {currentUser.avatarType === 'female' ? (
               <div className="avatar-badge" style={{ borderColor: '#ff70a6', color: '#ff70a6' }}>
@@ -73,11 +113,49 @@ function ChatSidebar({
               <span className="user-display-name">{currentUser.name}</span>
               <span className="tag-active-pill">TÚ</span>
             </div>
-            <span className="user-handle-sub">
-              {currentUser.handle} · {presenceStatus === 'online' ? 'En línea' : presenceStatus === 'away' ? 'Ausente' : 'Desconectado'}
-            </span>
+            <button
+              type="button"
+              className="presence-status-trigger-btn"
+              onClick={() => setIsPresenceMenuOpen((prev) => !prev)}
+              title="Cambiar estado"
+            >
+              <span className={`status-dot-sm ${presenceStatus}`}></span>
+              <span>{currentUser.handle} · {getPresenceLabel(presenceStatus)}</span>
+            </button>
           </div>
         </div>
+
+        {/* Menú Flotante de Selector de Presencia */}
+        {isPresenceMenuOpen && (
+          <div className="presence-popover-menu" ref={presenceMenuRef}>
+            <div className="presence-popover-header">
+              <span>Tu Estado de Presencia</span>
+            </div>
+            <div className="presence-options-list">
+              {PRESENCE_OPTIONS.map((opt) => {
+                const isSelected = presenceStatus === opt.id
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={`presence-option-item ${isSelected ? 'selected' : ''}`}
+                    onClick={() => {
+                      if (onSelectPresence) onSelectPresence(opt.id)
+                      setIsPresenceMenuOpen(false)
+                    }}
+                  >
+                    <span className={`status-dot-lg ${opt.id}`}></span>
+                    <div className="presence-option-text">
+                      <strong>{opt.label}</strong>
+                      <small>{opt.desc}</small>
+                    </div>
+                    {isSelected && <IconCheck size={14} />}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
           <button
