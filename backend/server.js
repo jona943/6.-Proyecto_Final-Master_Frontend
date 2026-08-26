@@ -24,7 +24,19 @@ const PORT = process.env.PORT || 5000
 // MIDDLEWARES GLOBALES
 // ============================================================================
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Permitir peticiones sin origen (ej. Postman), localhost o cualquier subdominio de vercel.app
+    if (
+      !origin ||
+      process.env.FRONTEND_URL === '*' ||
+      origin.includes('localhost') ||
+      origin.endsWith('.vercel.app')
+    ) {
+      callback(null, true)
+    } else {
+      callback(null, true)
+    }
+  },
   credentials: true
 }))
 app.use(express.json())
