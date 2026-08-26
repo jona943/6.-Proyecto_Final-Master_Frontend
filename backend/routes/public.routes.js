@@ -20,7 +20,7 @@ router.get('/health', (req, res) => {
  * GET /api/public/check-alias?alias=xxx
  * Verificación reactiva de disponibilidad de alias para la Landing
  */
-router.get('/check-alias', (req, res) => {
+router.get(['/check-alias', '/public/check-alias'], (req, res) => {
   const { alias } = req.query
   const raw = (alias || '').trim().replace(/^@/, '')
 
@@ -82,7 +82,7 @@ router.get('/check-alias', (req, res) => {
  * GET /api/public/network-stats
  * Métricas públicas de escasez matemática y estado de la red
  */
-router.get('/network-stats', (req, res) => {
+router.get(['/network-stats', '/public/network-stats'], (req, res) => {
   res.status(200).json({
     success: true,
     data: {
