@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import User from '../models/User.js'
 
 const router = Router()
 
@@ -20,7 +21,7 @@ router.get('/health', (req, res) => {
  * GET /api/public/check-alias?alias=xxx
  * Verificación reactiva de disponibilidad de alias para la Landing
  */
-router.get(['/check-alias', '/public/check-alias'], (req, res) => {
+router.get(['/check-alias', '/public/check-alias'], async (req, res) => {
   const { alias } = req.query
   const raw = (alias || '').trim().replace(/^@/, '')
 
@@ -54,28 +55,37 @@ router.get(['/check-alias', '/public/check-alias'], (req, res) => {
 
   const clean = raw.toLowerCase()
 
-  // 4. Usuarios ocupados del sistema (@adminUser y @rosi_master)
-  const usuariosOcupados = ['adminuser', 'rosi_master']
-  const isTaken = usuariosOcupados.includes(clean)
+  try {
+    // 4. Verificar si ya existe en MongoDB Atlas o en la lista demo
+    const userInDb = await User.findOne({ username: clean })
+    const isMockTaken = ['adminuser', 'rosi_master'].includes(clean)
 
-  if (isTaken) {
+    if (userInDb || isMockTaken) {
+      return res.status(200).json({
+        success: true,
+        available: false,
+        alias: clean,
+        formatted: `@${raw}`,
+        message: 'Este identificador ya ha sido sellado por otro usuario.'
+      })
+    }
+
+    // 5. Identificador libre para reclamar
     return res.status(200).json({
       success: true,
-      available: false,
+      available: true,
       alias: clean,
       formatted: `@${raw}`,
-      message: 'Este identificador ya ha sido sellado por otro usuario.'
+      message: 'Identificador libre para reclamar.'
+    })
+  } catch (error) {
+    console.error('Error al consultar alias en MongoDB:', error.message)
+    return res.status(500).json({
+      success: false,
+      available: false,
+      message: 'Error en el servidor al verificar disponibilidad del alias.'
     })
   }
-
-  // 5. Identificador libre para reclamar
-  res.status(200).json({
-    success: true,
-    available: true,
-    alias: clean,
-    formatted: `@${raw}`,
-    message: 'Identificador libre para reclamar.'
-  })
 })
 
 /**
