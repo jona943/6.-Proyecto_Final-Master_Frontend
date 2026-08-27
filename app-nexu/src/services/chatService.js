@@ -96,11 +96,15 @@ export const chatService = {
     // Guardar en backend si es conversación 1 a 1 con otro usuario
     if (targetUsername && !targetChat?.isBot) {
       try {
-        await api.post('/chats/message', {
+        const res = await api.post('/chats/message', {
           senderUsername: cleanUser,
           recipientUsername: targetUsername,
           text: text.trim()
         })
+        const realId = res?.data?._id || res?.data?.data?._id
+        if (realId) {
+          newMessage.id = realId.toString()
+        }
       } catch {
         // Fallback local
       }

@@ -93,7 +93,7 @@ export function ChatProvider({ children }) {
             }
           }
 
-          // Sincronizar mensajes 1 a 1 en tiempo real
+          // Sincronizar mensajes 1 a 1 en tiempo real (evitando duplicados)
           if (serverMsgs && Array.isArray(serverMsgs)) {
             const relMsgs = serverMsgs.filter(
               (m) =>
@@ -103,7 +103,11 @@ export function ChatProvider({ children }) {
 
             if (relMsgs.length > 0) {
               const existingIds = new Set(c.messages.map((m) => m.id))
-              const newMsgsToAdd = relMsgs.filter((m) => !existingIds.has(m.id))
+              const existingSignatures = new Set(c.messages.map((m) => `${m.sender}:${m.text.trim()}`))
+
+              const newMsgsToAdd = relMsgs.filter(
+                (m) => !existingIds.has(m.id) && !existingSignatures.has(`${m.sender}:${m.text.trim()}`)
+              )
 
               if (newMsgsToAdd.length > 0) {
                 hasChanges = true
