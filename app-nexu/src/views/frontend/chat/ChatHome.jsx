@@ -22,6 +22,7 @@ function ChatHome({ onOpenSettings }) {
     activeChat,
     selectChat,
     sendMessage,
+    sendRequest,
     isTyping,
     presenceStatus,
     incomingRequests,
@@ -110,11 +111,16 @@ function ChatHome({ onOpenSettings }) {
     }
   }
 
-  // Búsqueda de usuario con sanitizador puro
-  const handleSearchUser = (val) => {
+  // Búsqueda de usuario conectando con MongoDB Atlas y la API REST
+  const handleSearchUser = async (val) => {
     const clean = sanitizeAlias(val)
     setSearchAlias(clean)
-    const { user: found, error } = chatService.searchUser(clean, user?.username || 'adminUser')
+    if (!clean) {
+      setSearchedUser(null)
+      setSearchError('')
+      return
+    }
+    const { user: found, error } = await chatService.searchUser(clean, user?.username || 'adminUser')
     setSearchedUser(found)
     setSearchError(error)
   }
@@ -122,15 +128,13 @@ function ChatHome({ onOpenSettings }) {
   // Enviar solicitud de conexión
   const handleSendConnectionRequest = (target) => {
     if (!target) return
-    if (sentRequests.includes(target.username)) {
-      triggerToast(`Ya enviaste una solicitud a ${target.handle}`)
-      return
-    }
+    sendRequest(target)
     setSentRequests((prev) => [...prev, target.username])
-    triggerToast(`Solicitud enviada a ${target.handle}`)
+    triggerToast(`Solicitud de conexión enviada a ${target.handle}`)
     setShowConnectModal(false)
     setSearchAlias('')
     setSearchedUser(null)
+    setMobileView('chat')
   }
 
   // Aceptar solicitud

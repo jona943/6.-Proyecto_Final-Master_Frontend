@@ -280,58 +280,69 @@ function ActiveChatPanel({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 3. Barra de Entrada (Input Footer) */}
-      <footer className="chat-input-footer">
-        <div className="chat-toolbar">
-          <div className="toolbar-group">
-            <button
-              type="button"
-              className="btn-tool-icon"
-              title="Adjuntar imagen"
-              onClick={() => onTriggerToast('Simulación: Adjuntar imagen disponible')}
-            >
-              <IconImage size={16} />
-            </button>
-            <button
-              type="button"
-              className="btn-tool-icon"
-              title="Adjuntar archivo"
-              onClick={() => onTriggerToast('Simulación: Adjuntar documento disponible')}
-            >
-              <IconPaperclip size={16} />
-            </button>
-            <button
-              type="button"
-              className="btn-tool-icon"
-              title="Insertar código"
-              onClick={onInsertCodeSnippet}
-            >
-              <IconCode size={16} />
-            </button>
+      {/* 3. Barra de Entrada (Input Footer) o Banner de Solicitud Pendiente */}
+      {activeChat.isPending ? (
+        <footer className="chat-input-footer" style={{ justifyContent: 'center', textAlign: 'center', padding: '1.2rem 1.5rem', background: 'rgba(15, 23, 42, 0.6)' }}>
+          <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+            <span>⏳</span>
+            <span>
+              <strong>Solicitud de conexión enviada.</strong> Podrás entablar una conversación 1 a 1 cuando <strong>{activeChat.name}</strong> acepte tu solicitud.
+            </span>
+          </div>
+        </footer>
+      ) : (
+        <footer className="chat-input-footer">
+          <div className="chat-toolbar">
+            <div className="toolbar-group">
+              <button
+                type="button"
+                className="btn-tool-icon"
+                title="Adjuntar imagen"
+                onClick={() => onTriggerToast('Simulación: Adjuntar imagen disponible')}
+              >
+                <IconImage size={16} />
+              </button>
+              <button
+                type="button"
+                className="btn-tool-icon"
+                title="Adjuntar archivo"
+                onClick={() => onTriggerToast('Simulación: Adjuntar documento disponible')}
+              >
+                <IconPaperclip size={16} />
+              </button>
+              <button
+                type="button"
+                className="btn-tool-icon"
+                title="Insertar código"
+                onClick={onInsertCodeSnippet}
+              >
+                <IconCode size={16} />
+              </button>
+            </div>
+
+            <span className="toolbar-hint">Presiona Enter para enviar</span>
           </div>
 
-          <span className="toolbar-hint">Presiona Enter para enviar</span>
-        </div>
+          <form className="input-controls-row" onSubmit={onSendMessage}>
+            <input
+              type="text"
+              className="message-text-input"
+              placeholder={`Escribe un mensaje para ${activeChat.name}...`}
+              value={inputText}
+              onChange={(e) => onInputTextChange(e.target.value)}
+            />
 
-        <form className="input-controls-row" onSubmit={onSendMessage}>
-          <input
-            type="text"
-            className="message-text-input"
-            placeholder={`Escribe un mensaje para ${activeChat.name}...`}
-            value={inputText}
-            onChange={(e) => onInputTextChange(e.target.value)}
-          />
-
-          <button
-            type="submit"
-            className="btn-send-message"
-            disabled={!inputText.trim()}
-            title="Enviar mensaje"
-          >
-            <IconSend size={17} />
-          </button>
-        </form>
-      </footer>
+            <button
+              type="submit"
+              className="btn-send-message"
+              disabled={!inputText.trim()}
+              title="Enviar mensaje"
+            >
+              <IconSend size={17} />
+            </button>
+          </form>
+        </footer>
+      )}
     </main>
   )
 }

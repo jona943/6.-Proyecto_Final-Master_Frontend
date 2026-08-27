@@ -23,11 +23,13 @@ export function ChatProvider({ children }) {
       return
     }
 
-    // Reiniciar selección al cambiar de cuenta para evitar ver chats del usuario anterior
+    // Reiniciar selección al cambiar de cuenta
     setSelectedChatId(null)
     chatService.getChats(currentUsername).then((data) => setChats(data))
 
-    if (currentUsername.toLowerCase() === 'rosi_master') {
+    // Cargar solicitudes de conexión pendientes
+    const reqs = chatService.getIncomingRequests(currentUsername)
+    if (currentUsername.toLowerCase() === 'rosi_master' && reqs.length === 0) {
       setIncomingRequests([
         {
           id: 'req_admin',
@@ -37,7 +39,7 @@ export function ChatProvider({ children }) {
         }
       ])
     } else {
-      setIncomingRequests([])
+      setIncomingRequests(reqs)
     }
   }, [currentUsername])
 
@@ -74,56 +76,41 @@ export function ChatProvider({ children }) {
   }
 
   const sendMessage = async (text) => {
-    if (!text.trim() || !activeChat) return
+    if (!text.trim() || !activeChat || activeChat.isPending) return
 
     const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername)
     setChats(updatedChats)
 
-    // Simular auto-respuesta asíncrona
-    setIsTyping(true)
-    setTimeout(async () => {
-      const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, text, currentUsername)
-      setChats(replyChats)
-      setIsTyping(false)
-    }, 1100)
+    // Simular auto-respuesta asíncrona sólo para bots
+    if (activeChat.isBot) {
+      setIsTyping(true)
+      setTimeout(async () => {
+        const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, text, currentUsername)
+        setChats(replyChats)
+        setIsTyping(false)
+      }, 1100)
+    }
   }
 
-  const acceptRequest = (req) => {
-    const partner = req.fromUser
-    const newChatId = `chat_${partner.username}`
-
-    const newChat = {
-      id: newChatId,
-      name: partner.name,
-      handle: partner.handle,
-      avatar: partner.avatar,
-      isBot: false,
-      status: partner.status || 'online',
-      statusText: partner.statusText || 'En línea',
-      unreadCount: 1,
-      role: partner.role || 'Contacto Nexu',
-      email: `${partner.username.toLowerCase()}@nexu.app`,
-      bio: 'Conversación directa y privada cifrada punto a punto.',
-      messages: [
-        {
-          id: `msg_init_${Date.now()}`,
-          sender: 'them',
-          text: `¡Hola! Gracias por aceptar la solicitud de conexión en Nexu.`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: 'read'
-        }
-      ]
-    }
-
-    setIncomingRequests((prev) => prev.filter((r) => r.id !== req.id))
-    const updated = [newChat, ...chats.filter((c) => c.id !== newChatId)]
-    setChats(updated)
-    chatService.saveChats(updated, currentUsername)
+  // Enviar solicitud de conexión a un usuario buscado
+  const sendRequest = (targetUser) => {
+    const { updatedChats, newChatId } = chatService.sendConnectionRequest(currentUsername, targetUser, chats)
+    setChats(updatedChats)
     setSelectedChatId(newChatId)
   }
 
+  // Aceptar solicitud de conexión entrante
+  const acceptRequest = (req) => {
+    const { updatedRecipientChats, updatedReqs, newChatId } = chatService.acceptConnectionRequest(req, currentUsername, chats)
+    setChats(updatedRecipientChats)
+    setIncomingRequests(updatedReqs)
+    setSelectedChatId(newChatId)
+  }
+
+  // Rechazar solicitud de conexión
   const rejectRequest = (reqId) => {
-    setIncomingRequests((prev) => prev.filter((r) => r.id !== reqId))
+    const updatedReqs = chatService.rejectConnectionRequest(reqId, currentUsername)
+    setIncomingRequests(updatedReqs)
   }
 
   const deleteConversation = (chatId) => {
@@ -150,6 +137,7 @@ export function ChatProvider({ children }) {
     activeChat,
     selectChat,
     sendMessage,
+    sendRequest,
     isTyping,
     presenceStatus,
     incomingRequests,
