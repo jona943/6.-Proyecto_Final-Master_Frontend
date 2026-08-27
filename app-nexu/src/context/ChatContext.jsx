@@ -44,6 +44,92 @@ export function ChatProvider({ children }) {
     })
   }, [currentUsername])
 
+  // Polling en tiempo real (cada 2.5 segundos) para sincronizar aceptaciones de solicitudes y mensajes entrantes
+  useEffect(() => {
+    if (!currentUsername) return
+
+    const intervalId = setInterval(async () => {
+      const syncData = await chatService.syncUserSession(currentUsername)
+      if (!syncData) return
+
+      const { incomingRequests: serverReqs, acceptedUsers, messages: serverMsgs } = syncData
+
+      // 1. Actualizar solicitudes entrantes si cambiaron en el servidor
+      if (serverReqs && Array.isArray(serverReqs)) {
+        setIncomingRequests((prev) => {
+          if (JSON.stringify(prev) !== JSON.stringify(serverReqs)) {
+            return serverReqs
+          }
+          return prev
+        })
+      }
+
+      // 2. Actualizar chats si alguna solicitud pendiente fue aceptada en MongoDB Atlas
+      setChats((prevChats) => {
+        let hasChanges = false
+        const nextChats = prevChats.map((c) => {
+          const target = c.handle ? c.handle.replace(/^@/, '').toLowerCase() : ''
+
+          // Si el chat estaba pendiente y ahora fue aceptado por el receptor en la nube:
+          if (c.isPending && acceptedUsers.includes(target)) {
+            hasChanges = true
+            return {
+              ...c,
+              isPending: false,
+              status: 'online',
+              statusText: 'En línea · Conectado',
+              messages: c.messages.some((m) => m.id.includes('accepted'))
+                ? c.messages
+                : [
+                    ...c.messages,
+                    {
+                      id: `msg_accepted_sync_${Date.now()}`,
+                      sender: 'them',
+                      text: `@${target} aceptó tu solicitud de conexión. ¡Ya pueden chatear!`,
+                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      status: 'read'
+                    }
+                  ]
+            }
+          }
+
+          // Sincronizar mensajes 1 a 1 en tiempo real
+          if (serverMsgs && Array.isArray(serverMsgs)) {
+            const relMsgs = serverMsgs.filter(
+              (m) =>
+                (m.senderUsername === target && m.recipientUsername === currentUsername.toLowerCase()) ||
+                (m.senderUsername === currentUsername.toLowerCase() && m.recipientUsername === target)
+            )
+
+            if (relMsgs.length > 0) {
+              const existingIds = new Set(c.messages.map((m) => m.id))
+              const newMsgsToAdd = relMsgs.filter((m) => !existingIds.has(m.id))
+
+              if (newMsgsToAdd.length > 0) {
+                hasChanges = true
+                return {
+                  ...c,
+                  messages: [...c.messages, ...newMsgsToAdd]
+                }
+              }
+            }
+          }
+
+          return c
+        })
+
+        if (hasChanges) {
+          chatService.saveChats(nextChats, currentUsername)
+          return nextChats
+        }
+
+        return prevChats
+      })
+    }, 2500)
+
+    return () => clearInterval(intervalId)
+  }, [currentUsername])
+
   // Monitoreo de Presencia y Conexión Real
   useEffect(() => {
     const handleOnline = () => setPresenceStatus('online')

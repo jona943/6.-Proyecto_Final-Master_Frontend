@@ -76,10 +76,14 @@ export const chatService = {
     storage.set(key, chats)
   },
 
-  // Enviar mensaje
+  // Enviar mensaje 1 a 1 a MongoDB Atlas
   async sendMessage(chats, chatId, text, sender = 'me', username = 'guest') {
     const now = new Date()
     const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const cleanUser = (username || 'guest').trim().toLowerCase()
+
+    const targetChat = chats.find((c) => c.id === chatId)
+    const targetUsername = targetChat?.handle ? targetChat.handle.replace(/^@/, '').toLowerCase() : ''
 
     const newMessage = {
       id: `msg_${Date.now()}`,
@@ -87,6 +91,19 @@ export const chatService = {
       text: text.trim(),
       time: timeFormatted,
       status: sender === 'me' ? 'delivered' : 'read'
+    }
+
+    // Guardar en backend si es conversación 1 a 1 con otro usuario
+    if (targetUsername && !targetChat?.isBot) {
+      try {
+        await api.post('/chats/message', {
+          senderUsername: cleanUser,
+          recipientUsername: targetUsername,
+          text: text.trim()
+        })
+      } catch {
+        // Fallback local
+      }
     }
 
     const updated = chats.map((c) => {
@@ -99,8 +116,24 @@ export const chatService = {
       return c
     })
 
-    this.saveChats(updated, username)
+    this.saveChats(updated, cleanUser)
     return { updatedChats: updated, newMessage }
+  },
+
+  // Sincronizar en tiempo real solicitudes, aceptaciones y mensajes desde MongoDB Atlas
+  async syncUserSession(username) {
+    const clean = (username || '').trim().toLowerCase()
+    if (!clean) return null
+
+    try {
+      const res = await api.get(`/chats/sync?username=${encodeURIComponent(clean)}`)
+      if (res && res.success && res.data?.sync) {
+        return res.data.sync
+      }
+    } catch {
+      // Fallback local
+    }
+    return null
   },
 
   // Simular respuesta automática (Bot o contacto simulado)
