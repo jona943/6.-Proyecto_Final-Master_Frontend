@@ -67,19 +67,21 @@ const INITIAL_CHATS_DEFAULT = [
 ]
 
 export const chatService = {
-  // Obtener lista de chats
-  async getChats() {
+  // Obtener lista de chats aislada por usuario
+  async getChats(username = 'guest') {
     await new Promise((resolve) => setTimeout(resolve, 80))
-    return storage.get(STORAGE_KEYS.CHATS_DATA, INITIAL_CHATS_DEFAULT)
+    const key = STORAGE_KEYS.userChatsKey(username)
+    return storage.get(key, INITIAL_CHATS_DEFAULT)
   },
 
-  // Guardar estado de chats
-  saveChats(chats) {
-    storage.set(STORAGE_KEYS.CHATS_DATA, chats)
+  // Guardar estado de chats aislado por usuario
+  saveChats(chats, username = 'guest') {
+    const key = STORAGE_KEYS.userChatsKey(username)
+    storage.set(key, chats)
   },
 
   // Enviar mensaje
-  async sendMessage(chats, chatId, text, sender = 'me') {
+  async sendMessage(chats, chatId, text, sender = 'me', username = 'guest') {
     const now = new Date()
     const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
@@ -101,12 +103,12 @@ export const chatService = {
       return c
     })
 
-    this.saveChats(updated)
+    this.saveChats(updated, username)
     return { updatedChats: updated, newMessage }
   },
 
   // Simular respuesta automática (Bot o contacto simulado)
-  async getAutoReply(chats, chatId, userMessage) {
+  async getAutoReply(chats, chatId, userMessage, username = 'guest') {
     await new Promise((resolve) => setTimeout(resolve, 1100))
 
     const targetChat = chats.find((c) => c.id === chatId)
@@ -143,25 +145,37 @@ export const chatService = {
       return c
     })
 
-    this.saveChats(updated)
+    this.saveChats(updated, username)
     return { updatedChats: updated, botMessage }
   },
 
   // Buscar usuario por alias
   searchUser(cleanAlias, currentUsername) {
     if (!cleanAlias) return { user: null, error: '' }
-    if (cleanAlias.toLowerCase() === currentUsername.toLowerCase()) {
+    if (cleanAlias.toLowerCase() === (currentUsername || '').toLowerCase()) {
       return { user: null, error: 'No puedes enviarte una solicitud a ti mismo.' }
     }
 
-    const found = MOCK_KNOWN_USERS.find(
+    const registered = storage.get('nexu_registered_accounts_db', []).map((u) => ({
+      username: u.username,
+      name: u.displayName || u.username,
+      handle: `@${u.username}`,
+      role: u.role || 'Usuario Nexu',
+      avatar: (u.displayName || u.username).replace(/^@/, '').slice(0, 2).toUpperCase(),
+      status: 'offline',
+      statusText: 'Usuario Nexu'
+    }))
+
+    const allUsers = [...MOCK_KNOWN_USERS, ...registered]
+
+    const found = allUsers.find(
       (u) => u.username.toLowerCase() === cleanAlias.toLowerCase()
     )
 
     if (found) {
       return { user: found, error: '' }
     } else if (cleanAlias.length >= 3) {
-      return { user: null, error: 'Usuario no encontrado. Prueba con @adminUser o @rosi_master.' }
+      return { user: null, error: 'Usuario no encontrado. Verifica el alias exacto.' }
     }
 
     return { user: null, error: '' }

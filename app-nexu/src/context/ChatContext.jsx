@@ -6,30 +6,40 @@ const ChatContext = createContext(null)
 
 export function ChatProvider({ children }) {
   const { user } = useAuth()
-  const currentUsername = user?.username || 'adminUser'
+  const currentUsername = user?.username || 'guest'
 
   const [chats, setChats] = useState([])
   const [selectedChatId, setSelectedChatId] = useState(null)
   const [isTyping, setIsTyping] = useState(false)
   const [presenceStatus, setPresenceStatus] = useState('online')
-  const [incomingRequests, setIncomingRequests] = useState(() => {
-    if (currentUsername === 'rosi_master') {
-      return [
+  const [incomingRequests, setIncomingRequests] = useState([])
+
+  // Cargar chats aislados por usuario cada vez que cambia el usuario autenticado
+  useEffect(() => {
+    if (!currentUsername) {
+      setChats([])
+      setSelectedChatId(null)
+      setIncomingRequests([])
+      return
+    }
+
+    // Reiniciar selección al cambiar de cuenta para evitar ver chats del usuario anterior
+    setSelectedChatId(null)
+    chatService.getChats(currentUsername).then((data) => setChats(data))
+
+    if (currentUsername.toLowerCase() === 'rosi_master') {
+      setIncomingRequests([
         {
           id: 'req_admin',
-          fromUser: MOCK_KNOWN_USERS[0], // adminUser
+          fromUser: MOCK_KNOWN_USERS[0],
           time: 'Reciente',
           status: 'pending'
         }
-      ]
+      ])
+    } else {
+      setIncomingRequests([])
     }
-    return []
-  })
-
-  // Cargar chats iniciales
-  useEffect(() => {
-    chatService.getChats().then((data) => setChats(data))
-  }, [])
+  }, [currentUsername])
 
   // Monitoreo de Presencia y Conexión Real
   useEffect(() => {
@@ -66,13 +76,13 @@ export function ChatProvider({ children }) {
   const sendMessage = async (text) => {
     if (!text.trim() || !activeChat) return
 
-    const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me')
+    const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername)
     setChats(updatedChats)
 
     // Simular auto-respuesta asíncrona
     setIsTyping(true)
     setTimeout(async () => {
-      const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, text)
+      const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, text, currentUsername)
       setChats(replyChats)
       setIsTyping(false)
     }, 1100)
@@ -108,7 +118,7 @@ export function ChatProvider({ children }) {
     setIncomingRequests((prev) => prev.filter((r) => r.id !== req.id))
     const updated = [newChat, ...chats.filter((c) => c.id !== newChatId)]
     setChats(updated)
-    chatService.saveChats(updated)
+    chatService.saveChats(updated, currentUsername)
     setSelectedChatId(newChatId)
   }
 
@@ -119,7 +129,7 @@ export function ChatProvider({ children }) {
   const deleteConversation = (chatId) => {
     const updated = chats.filter((c) => c.id !== chatId)
     setChats(updated)
-    chatService.saveChats(updated)
+    chatService.saveChats(updated, currentUsername)
     if (selectedChatId === chatId) {
       setSelectedChatId(null)
     }
@@ -131,7 +141,7 @@ export function ChatProvider({ children }) {
       c.id === activeChat.id ? { ...c, messages: [] } : c
     )
     setChats(updated)
-    chatService.saveChats(updated)
+    chatService.saveChats(updated, currentUsername)
   }
 
   const value = {

@@ -157,7 +157,7 @@ function GeneralProfileTab({
         {/* Formulario de Datos */}
         <form onSubmit={onSaveProfile} className="form-grid-2col">
           <div className="form-group">
-            <label className="form-label" htmlFor="displayName">Nombre Completo</label>
+            <label className="form-label" htmlFor="displayName">Nombre Real</label>
             <input
               id="displayName"
               name="displayName"
@@ -165,15 +165,15 @@ function GeneralProfileTab({
               className="form-input"
               value={profile.displayName}
               onChange={onProfileChange}
-              placeholder="Ej. Víctor Gil"
+              placeholder="Ej. Jonathan Medina"
               required
             />
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="username">
-              <span>Alias Único (Handle)</span>
-              <span className="form-label-hint">{profile.username.length}/10</span>
+              <span>Usuario Único (Alias)</span>
+              <span className="form-label-hint">Inmutable</span>
             </label>
             <div className="form-input-container">
               <span className="form-input-prefix">@</span>
@@ -183,26 +183,14 @@ function GeneralProfileTab({
                 type="text"
                 className="form-input has-prefix"
                 value={profile.username}
-                onChange={onUsernameChange}
-                maxLength={10}
-                placeholder="usuario"
-                required
+                readOnly
+                disabled
+                style={{ opacity: 0.75, cursor: 'not-allowed' }}
               />
             </div>
-          </div>
-
-          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-            <label className="form-label" htmlFor="email">Correo Electrónico Vinculado</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              className="form-input"
-              value={profile.email}
-              onChange={onProfileChange}
-              placeholder="correo@ejemplo.com"
-              required
-            />
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)', marginTop: '4px', display: 'block' }}>
+              Tu alias único es tu dirección soberana y no se puede modificar.
+            </span>
           </div>
 
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
@@ -214,10 +202,10 @@ function GeneralProfileTab({
               id="bio"
               name="bio"
               className="form-textarea"
-              value={profile.bio}
+              value={profile.bio || ''}
               onChange={onProfileChange}
               maxLength={150}
-              placeholder="Escribe una breve descripción para tus contactos..."
+              placeholder="Escribe una breve descripción para que la vean tus contactos..."
               rows={3}
             />
           </div>

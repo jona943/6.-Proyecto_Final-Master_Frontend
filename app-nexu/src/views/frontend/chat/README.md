@@ -15,13 +15,23 @@ Desarrollar la interfaz de usuario interactiva y navegable (UI/UX Mock) para la 
 ## 2. Requerimientos y Funcionalidades Implementadas
 
 ### A. Barra Lateral (Sidebar de Conversaciones)
-- **Perfil de Usuario:** Avatar monograma con indicador de estado (*Online*), nombre de usuario (`EmaRama`) y alias (`@emarama`).
-- **Buscador en Tiempo Real:** Filtro reactivo para buscar contactos por nombre o por handle.
+- **Perfil de Usuario & Selector Rápido de Presencia:**
+  - Avatar monograma interactivo que despliega un menú flotante con 3 estados:
+    - 🟢 **En línea:** Disponible y activo para recibir mensajes.
+    - 🟡 **Ausente:** Inactivo temporalmente o en descanso.
+    - 🔴 **No molestar:** Silenciar alertas y avisos.
+  - Feedback visual inmediato con notificación toast y punto de presencia con resplandor (*glow*).
+- **Buscador de Contactos:** Filtro reactivo para buscar contactos por nombre o por handle en toda la bandeja.
 - **Filtros Rápidos:** Pestañas para conmutar entre *Todos*, *No leídos* y *En línea*.
-- **Lista de Conversaciones:** Monogramas vectorizados, badges numéricos de mensajes no leídos, hora de entrega y preview del último mensaje con prefijo `"Tú:"` si fue enviado por el usuario.
+- **Lista de Conversaciones:** Monogramas vectorizados, badges numéricos de mensajes no leídos, hora de entrega y preview del último mensaje con prefijo `"Tú:"`.
 
 ### B. Ventana Principal de Conversación Activa
 - **Cabecera Dinámica:** Avatar, nombre del contacto seleccionado, indicador de presencia y estado dinámico animado (*"Generando respuesta en tiempo real..."*).
+- **Buscador en Conversación Activa (In-Chat Search):**
+  - Botón **"Buscar"** en la cabecera del chat con atajo `Escape` para cerrar.
+  - Barra desplegable con contador dinámico de coincidencias (*"X coincidencias"*).
+  - Resaltado visual en tiempo real de las palabras y frases coincidentes dentro de las burbujas de mensaje (`<mark>` con resplandor Acid Lime).
+  - Banner informativo cuando no se encuentran coincidencias.
 - **Feed de Mensajes con Burbujas:**
   - Burbujas alineadas a la izquierda (contacto) y a la derecha (usuario activo).
   - Indicadores de entrega: Enviado (`✓`), Entregado (`✓✓`) y Leído (`✓✓` resaltado con Acid Lime).
@@ -34,9 +44,14 @@ Desarrollar la interfaz de usuario interactiva y navegable (UI/UX Mock) para la 
 
 ### C. Panel Lateral Derecho (Drawer de Detalles del Contacto)
 - Botón **"Detalles"** en la cabecera del chat para abrir/cerrar el panel de información del usuario.
-- Muestra el perfil ampliado: Monograma, nombre, handle, rol, correo electrónico y biografía.
-- Indicador de seguridad y cifrado.
-- Botón de acción para **Limpiar Historial de Chat** de forma local.
+- **Pestaña 1: Perfil & Cuenta:**
+  - Muestra el perfil ampliado: Monograma, nombre, handle, rol, correo electrónico y biografía.
+  - Indicador de seguridad y cifrado.
+  - Botones de acción para **Vaciar Mensajes** y **Eliminar Contacto**.
+- **Pestaña 2: Archivos & Enlaces Compartidos:**
+  - Sección de **Documentos y Archivos** con iconos vectoriales de PDF, código e imágenes, pesos de archivo y fechas.
+  - Sección de **Enlaces Compartidos** con enlaces directos al repositorio GitHub y documentación.
+  - Indicador de almacenamiento seguro punto a punto.
 
 ### D. Simulación Reactiva (Mock Data & Bot)
 - Auto-respuesta simulada con animación de 3 puntos (*typing indicator*) y despacho reactivo de mensajes.
@@ -55,10 +70,16 @@ Desarrollar la interfaz de usuario interactiva y navegable (UI/UX Mock) para la 
 
 ```text
 src/views/frontend/chat/
-├── ChatHome.jsx     # Componente principal interactivo del chat (100% SVG)
-├── Chat.css         # Estilos completos Obsidian Carbon & Acid Lime
-├── mockData.js      # Base de datos simulada (usuarios, contactos, mensajes)
-└── README.md        # Documentación de especificaciones y alcance
+├── ChatHome.jsx                          # Componente coordinador del chat
+├── Chat.css                              # Estilos completos Obsidian Carbon & Acid Lime
+├── mockData.js                           # Base de datos simulada (usuarios, contactos, mensajes)
+├── README.md                             # Documentación de especificaciones y alcance
+└── components/
+    ├── ActiveChatPanel.jsx               # Panel de conversación activa con buscador interno
+    ├── ChatEmptyState.jsx                # Estado vacío cuando no hay chat seleccionado
+    ├── ChatSidebar.jsx                   # Barra lateral de contactos y selector de presencia
+    ├── ConnectUserModal.jsx              # Modal para conectar con nuevo usuario por alias
+    └── ContactDetailsPanel.jsx           # Panel lateral con tabs de perfil, archivos y enlaces
 ```
 
 ---
@@ -67,4 +88,4 @@ src/views/frontend/chat/
 
 1. Cambiar a la rama: `git switch feature/EmaRama`
 2. Iniciar el entorno: `npm run dev` (dentro de la carpeta `app-nexu`)
-3. Probar la vista aislada en: `http://localhost:5173/?view=chat` o desde el **Developer Hub** (`http://localhost:5173/`).
+3. Probar la vista en: `http://localhost:5173/?view=chat` o en el flujo completo de la app.

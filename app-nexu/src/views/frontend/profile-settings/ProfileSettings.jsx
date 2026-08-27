@@ -22,24 +22,30 @@ function ProfileSettings({ onBackToChat, onLogout }) {
   const activeHandle = cleanHandle(user?.username || 'adminUser')
   const isRosi = activeHandle === 'rosi_master'
 
-  // Perfil del usuario
+  // Perfil del usuario autenticado
   const [profile, setProfile] = useState({
-    displayName: user?.displayName || (isRosi ? 'Rosa Melano' : 'Administrador Nexu'),
-    username: user?.username || (isRosi ? 'rosi_master' : 'adminUser'),
-    email: user?.email || (isRosi ? 'rosa@nexu.app' : 'admin@nexu.app'),
-    bio: isRosi
-      ? 'Especialista en interfaces reactivas y arquitectura frontend de Nexu.'
-      : 'Superadministrador de la plataforma de mensajería privada Nexu.',
-    avatarType: user?.avatarType || (isRosi ? 'female' : 'male'),
-    gender: user?.gender || (isRosi ? 'female' : 'male'),
+    displayName: user?.displayName || `@${activeHandle}`,
+    username: activeHandle,
+    bio: user?.bio || '',
+    avatarType: user?.avatarType || 'neutral',
+    gender: user?.gender || 'neutral',
     presence: 'online'
   })
 
   useEffect(() => {
-    authService.getProfile(activeHandle).then((data) => {
-      if (data) setProfile(data)
-    })
-  }, [activeHandle])
+    if (activeHandle) {
+      authService.getProfile(activeHandle).then((data) => {
+        if (data) {
+          setProfile((prev) => ({
+            ...prev,
+            ...data,
+            displayName: user?.displayName || data.displayName || `@${activeHandle}`,
+            username: activeHandle
+          }))
+        }
+      })
+    }
+  }, [activeHandle, user])
 
   const userInitials = getInitials(profile.displayName, 'NX')
 
