@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './Login.css'
 import { useAuth } from '../../../context/AuthContext'
 import { session, STORAGE_KEYS } from '../../../services/storageService'
+import { authService } from '../../../services/authService'
 import {
   sanitizeAlias,
   validateLoginForm,
@@ -23,7 +24,7 @@ import ForgotPasswordForm from './components/ForgotPasswordForm'
 // COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR + STORAGE + UTILS)
 // ============================================================================
 function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
-  const { login } = useAuth()
+  const { login, setUser } = useAuth()
 
   // Pestaña activa: 'login' | 'register' | 'forgot'
   const [activeTab, setActiveTab] = useState(initialTab)
@@ -117,17 +118,74 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     }
   }
 
-  // 2. Manejar Registro
-  const handleRegisterSubmit = (e) => {
+  // 2. Manejar Registro conectando con authService / backend
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault()
-    setAlertInfo({
-      type: 'error',
-      text: 'El registro de nuevos usuarios está inhabilitado temporalmente en esta fase. Por favor, inicia sesión con @adminUser o @rosi_master.'
-    })
+
+    const errors = {}
+    const cleanUsername = sanitizeAlias(regUsername)
+
+    if (!cleanUsername) {
+      errors.regUsername = 'Introduce tu nombre de usuario.'
+    } else if (cleanUsername.length < 3) {
+      errors.regUsername = 'El usuario debe tener al menos 3 caracteres.'
+    }
+
+    if (!regPassword) {
+      errors.regPassword = 'Introduce una contraseña.'
+    } else if (regPassword.length < 8) {
+      errors.regPassword = 'La contraseña debe tener al menos 8 caracteres.'
+    } else if (!/[A-Z]/.test(regPassword)) {
+      errors.regPassword = 'Debe incluir al menos una letra mayúscula.'
+    } else if (!/[a-z]/.test(regPassword)) {
+      errors.regPassword = 'Debe incluir al menos una letra minúscula.'
+    } else if (!/[0-9]/.test(regPassword)) {
+      errors.regPassword = 'Debe incluir al menos un número.'
+    } else if (!/[^a-zA-Z0-9]/.test(regPassword)) {
+      errors.regPassword = 'Debe incluir al menos un símbolo (+, -, *, etc.).'
+    }
+
+    if (!regConfirmPassword) {
+      errors.regConfirmPassword = 'Confirma tu contraseña.'
+    } else if (regPassword !== regConfirmPassword) {
+      errors.regConfirmPassword = 'Las contraseñas no coinciden.'
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+
+    setFormErrors({})
+    setIsLoading(true)
+    setAlertInfo(null)
+
+    try {
+      const newUser = await authService.register(cleanUsername, regPassword)
+      if (setUser) {
+        setUser(newUser)
+      }
+      setAlertInfo({
+        type: 'success',
+        text: `¡Usuario @${cleanUsername} registrado exitosamente! Accediendo a Nexu...`
+      })
+      setTimeout(() => {
+        if (onLoginSuccess) {
+          onLoginSuccess(newUser)
+        }
+      }, 700)
+    } catch (err) {
+      setAlertInfo({
+        type: 'error',
+        text: err.message || 'Error al crear la cuenta.'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  // 3. Manejar Recuperación
-  const handleForgotSubmit = (e) => {
+  // 3. Manejar Recuperación conectando con authService / backend
+  const handleForgotSubmit = async (e) => {
     e.preventDefault()
     const cleanUsername = sanitizeAlias(forgotUsername).toLowerCase()
     if (!cleanUsername || cleanUsername.length < 3) {
@@ -139,13 +197,20 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     setIsLoading(true)
     setAlertInfo(null)
 
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const response = await authService.forgotPassword(cleanUsername)
       setAlertInfo({
         type: 'success',
-        text: `Acceso simulado restablecido para el usuario @${cleanUsername}.`
+        text: response.message || `Instrucciones de recuperación generadas para @${cleanUsername}.`
       })
-    }, 800)
+    } catch (err) {
+      setAlertInfo({
+        type: 'error',
+        text: err.message || 'Error al procesar la recuperación de acceso.'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const switchTab = (tab) => {

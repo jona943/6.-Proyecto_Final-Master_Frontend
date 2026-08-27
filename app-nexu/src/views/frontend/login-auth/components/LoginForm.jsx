@@ -63,7 +63,7 @@ function LoginForm({
       {/* Campo Contraseña */}
       <div className="form-group">
         <div className="form-label">
-          <label htmlFor="login-password">Contraseña (8+ caracteres)</label>
+          <label htmlFor="login-password">Contraseña</label>
           <button
             type="button"
             className="label-link"
