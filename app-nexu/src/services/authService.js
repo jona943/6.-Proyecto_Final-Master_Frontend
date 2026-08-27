@@ -220,7 +220,7 @@ export const authService = {
 
       if (response.success) {
         const payload = response.data?.data
-        const userData = payload?.user || {}
+        const userData = payload?.user || payload || {}
 
         const sessionData = {
           id: userData.id || `usr_${Date.now()}`,
@@ -230,7 +230,7 @@ export const authService = {
           email: userData.email || `${userData.username || cleanUsername}@nexu.app`,
           avatarType: userData.avatarType || 'neutral',
           gender: userData.gender || 'neutral',
-          token: payload?.token || `nexu_token_${Date.now()}`
+          token: payload?.token || userData?.token || `nexu_token_${Date.now()}`
         }
 
         saveLocalAccount({
@@ -312,7 +312,7 @@ export const authService = {
 
       if (response.success) {
         const payload = response.data?.data
-        const userData = payload?.user || {}
+        const userData = payload?.user || payload || {}
 
         const sessionData = {
           id: userData.id || `usr_${Date.now()}`,
@@ -322,7 +322,7 @@ export const authService = {
           email: userData.email || `${userData.username || cleanUsername}@nexu.app`,
           avatarType: userData.avatarType || 'neutral',
           gender: userData.gender || 'neutral',
-          token: payload?.token || `nexu_token_${Date.now()}`
+          token: payload?.token || userData?.token || `nexu_token_${Date.now()}`
         }
 
         // Sincronizar en local para persistencia y búsquedas
