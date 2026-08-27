@@ -177,15 +177,15 @@ export const authService = {
       }
     }
 
-    // 2. Verificación contra el Backend Auth (consulta USERS_DATABASE donde están registrados gary02, etc.)
+    // 2. Verificación contra el Backend (consulta MongoDB Atlas en vivo)
     try {
-      const res = await api.get(`/auth/check-alias?alias=${encodeURIComponent(clean)}`)
+      const res = await api.checkAlias(clean)
       if (res.success && res.data) {
         if (!res.data.available) {
           return {
             available: false,
             state: 'error',
-            reason: res.data.message || `El alias @${clean} ya se encuentra registrado o sellado por otro usuario.`
+            reason: res.data.message || `El alias @${clean} ya se encuentra registrado por otro usuario.`
           }
         }
       }
