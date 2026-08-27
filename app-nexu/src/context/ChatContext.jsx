@@ -27,20 +27,21 @@ export function ChatProvider({ children }) {
     setSelectedChatId(null)
     chatService.getChats(currentUsername).then((data) => setChats(data))
 
-    // Cargar solicitudes de conexión pendientes
-    const reqs = chatService.getIncomingRequests(currentUsername)
-    if (currentUsername.toLowerCase() === 'rosi_master' && reqs.length === 0) {
-      setIncomingRequests([
-        {
-          id: 'req_admin',
-          fromUser: MOCK_KNOWN_USERS[0],
-          time: 'Reciente',
-          status: 'pending'
-        }
-      ])
-    } else {
-      setIncomingRequests(reqs)
-    }
+    // Cargar solicitudes de conexión pendientes desde el servidor (MongoDB Atlas)
+    chatService.getIncomingRequests(currentUsername).then((reqs) => {
+      if (currentUsername.toLowerCase() === 'rosi_master' && reqs.length === 0) {
+        setIncomingRequests([
+          {
+            id: 'req_admin',
+            fromUser: MOCK_KNOWN_USERS[0],
+            time: 'Reciente',
+            status: 'pending'
+          }
+        ])
+      } else {
+        setIncomingRequests(reqs)
+      }
+    })
   }, [currentUsername])
 
   // Monitoreo de Presencia y Conexión Real
@@ -93,23 +94,23 @@ export function ChatProvider({ children }) {
   }
 
   // Enviar solicitud de conexión a un usuario buscado
-  const sendRequest = (targetUser) => {
-    const { updatedChats, newChatId } = chatService.sendConnectionRequest(currentUsername, targetUser, chats)
+  const sendRequest = async (targetUser) => {
+    const { updatedChats, newChatId } = await chatService.sendConnectionRequest(currentUsername, targetUser, chats)
     setChats(updatedChats)
     setSelectedChatId(newChatId)
   }
 
   // Aceptar solicitud de conexión entrante
-  const acceptRequest = (req) => {
-    const { updatedRecipientChats, updatedReqs, newChatId } = chatService.acceptConnectionRequest(req, currentUsername, chats)
+  const acceptRequest = async (req) => {
+    const { updatedRecipientChats, updatedReqs, newChatId } = await chatService.acceptConnectionRequest(req, currentUsername, chats)
     setChats(updatedRecipientChats)
     setIncomingRequests(updatedReqs)
     setSelectedChatId(newChatId)
   }
 
   // Rechazar solicitud de conexión
-  const rejectRequest = (reqId) => {
-    const updatedReqs = chatService.rejectConnectionRequest(reqId, currentUsername)
+  const rejectRequest = async (reqId) => {
+    const updatedReqs = await chatService.rejectConnectionRequest(reqId, currentUsername)
     setIncomingRequests(updatedReqs)
   }
 

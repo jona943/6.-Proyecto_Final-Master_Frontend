@@ -200,18 +200,40 @@ export const chatService = {
     return { user: null, error: '' }
   },
 
-  // Obtener solicitudes entrantes de un usuario
-  getIncomingRequests(username) {
-    const key = STORAGE_KEYS.userRequestsKey(username)
+  // Obtener solicitudes entrantes de un usuario desde MongoDB Atlas
+  async getIncomingRequests(username) {
+    const clean = (username || '').trim().toLowerCase()
+    if (!clean) return []
+
+    try {
+      const res = await api.get(`/chats/requests?username=${encodeURIComponent(clean)}`)
+      if (res && res.success && Array.isArray(res.data?.requests)) {
+        return res.data.requests
+      }
+    } catch {
+      // Fallback local
+    }
+
+    const key = STORAGE_KEYS.userRequestsKey(clean)
     return storage.get(key, [])
   },
 
-  // Enviar solicitud de conexión de sender a recipient
-  sendConnectionRequest(senderUsername, targetUser, currentSenderChats) {
+  // Enviar solicitud de conexión a MongoDB Atlas
+  async sendConnectionRequest(senderUsername, targetUser, currentSenderChats) {
     const senderClean = senderUsername.toLowerCase()
     const targetClean = targetUser.username.toLowerCase()
 
-    // 1. Crear solicitud entrante para el destinatario
+    // 1. Notificar al backend Express / MongoDB Atlas
+    try {
+      await api.post('/chats/request', {
+        senderUsername: senderClean,
+        targetUsername: targetClean
+      })
+    } catch {
+      // Fallback local
+    }
+
+    // 2. Guardar solicitud local de respaldo
     const recipientRequestsKey = STORAGE_KEYS.userRequestsKey(targetClean)
     const existingIncoming = storage.get(recipientRequestsKey, [])
     const newIncomingReq = {
@@ -230,7 +252,7 @@ export const chatService = {
       storage.set(recipientRequestsKey, [newIncomingReq, ...existingIncoming])
     }
 
-    // 2. Agregar chat en estado "Pendiente (En espera)" a la lista del emisor
+    // 3. Agregar chat en estado "Pendiente (En espera)" a la lista del emisor
     const chatId = `chat_${targetClean}`
     const pendingChat = {
       id: chatId,
@@ -261,12 +283,23 @@ export const chatService = {
     return { updatedChats, newChatId: chatId }
   },
 
-  // Aceptar solicitud de conexión
-  acceptConnectionRequest(req, recipientUsername, currentRecipientChats) {
+  // Aceptar solicitud de conexión en MongoDB Atlas
+  async acceptConnectionRequest(req, recipientUsername, currentRecipientChats) {
     const recipientClean = recipientUsername.toLowerCase()
     const senderClean = req.fromUser.username.toLowerCase()
 
-    // 1. Agregar conversación activa a la lista del destinatario (quien acepta)
+    // 1. Notificar al backend Express / MongoDB Atlas
+    try {
+      await api.post('/chats/accept', {
+        reqId: req.id,
+        recipientUsername: recipientClean,
+        senderUsername: senderClean
+      })
+    } catch {
+      // Fallback local
+    }
+
+    // 2. Agregar conversación activa a la lista del destinatario (quien acepta)
     const newChatForRecipient = {
       id: `chat_${senderClean}`,
       name: req.fromUser.name || `@${senderClean}`,
@@ -294,7 +327,7 @@ export const chatService = {
     const updatedRecipientChats = [newChatForRecipient, ...currentRecipientChats.filter((c) => c.id !== newChatForRecipient.id)]
     this.saveChats(updatedRecipientChats, recipientClean)
 
-    // 2. Actualizar la conversación en la cuenta del emisor (cambiar de isPending: true a isPending: false)
+    // 3. Actualizar la conversación en la cuenta del emisor
     const senderChatsKey = STORAGE_KEYS.userChatsKey(senderClean)
     const senderChats = storage.get(senderChatsKey, INITIAL_CHATS_DEFAULT)
     const updatedSenderChats = senderChats.map((c) => {
@@ -320,7 +353,7 @@ export const chatService = {
     })
     storage.set(senderChatsKey, updatedSenderChats)
 
-    // 3. Eliminar la solicitud de la lista de pendientes del destinatario
+    // 4. Eliminar la solicitud de la lista de pendientes del destinatario
     const reqKey = STORAGE_KEYS.userRequestsKey(recipientClean)
     const pendingReqs = storage.get(reqKey, [])
     const updatedReqs = pendingReqs.filter((r) => r.id !== req.id)
@@ -330,8 +363,13 @@ export const chatService = {
   },
 
   // Rechazar solicitud de conexión
-  rejectConnectionRequest(reqId, recipientUsername) {
+  async rejectConnectionRequest(reqId, recipientUsername) {
     const recipientClean = recipientUsername.toLowerCase()
+    try {
+      await api.post('/chats/reject', { reqId })
+    } catch {
+      // Fallback local
+    }
     const reqKey = STORAGE_KEYS.userRequestsKey(recipientClean)
     const pendingReqs = storage.get(reqKey, [])
     const updatedReqs = pendingReqs.filter((r) => r.id !== reqId)
