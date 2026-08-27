@@ -7,9 +7,13 @@ import ChatHome from './views/frontend/chat/ChatHome.jsx'
 import ProfileSettings from './views/frontend/profile-settings/ProfileSettings.jsx'
 
 function AppContent() {
+  const { user, isAuthenticated, logout } = useAuth()
+
   // Estado de la pantalla activa: 'landing' | 'login' | 'register' | 'chat' | 'settings'
-  const [currentView, setCurrentView] = useState('landing')
-  const { logout } = useAuth()
+  // Si existe una sesión activa persistida, se restaura a 'chat' en lugar de volver a 'landing'
+  const [currentView, setCurrentView] = useState(() => {
+    return isAuthenticated && user?.username ? 'chat' : 'landing'
+  })
 
   return (
     <>

@@ -413,19 +413,7 @@ export const authService = {
    * Obtener usuario actualmente autenticado desde el almacenamiento seguro
    */
   getCurrentUser() {
-    const saved = storage.get(STORAGE_KEYS.ACTIVE_USER)
-    if (saved) return saved
-
-    // Fallback seguro por defecto
-    return {
-      username: 'adminUser',
-      displayName: 'Administrador Nexu',
-      role: 'System Admin',
-      email: 'admin@nexu.app',
-      avatarType: 'male',
-      gender: 'male',
-      token: 'demo_token_default'
-    }
+    return storage.get(STORAGE_KEYS.ACTIVE_USER, null)
   },
 
   /**
