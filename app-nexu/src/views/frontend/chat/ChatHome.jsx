@@ -37,6 +37,7 @@ function ChatHome({ onOpenSettings }) {
   const [showDetailsPanel, setShowDetailsPanel] = useState(false)
   const [mobileView, setMobileView] = useState('list') // 'list' | 'chat'
   const [toastMessage, setToastMessage] = useState('')
+  const [customPresence, setCustomPresence] = useState(presenceStatus || 'online')
 
   // Estado para el modal de conectar con nuevo usuario
   const [showConnectModal, setShowConnectModal] = useState(false)
@@ -83,6 +84,17 @@ function ChatHome({ onOpenSettings }) {
 
     sendMessage(inputText)
     setInputText('')
+  }
+
+  // Cambiar presencia de forma interactiva
+  const handleSelectPresence = (newStatus) => {
+    setCustomPresence(newStatus)
+    const labels = {
+      online: 'En línea',
+      away: 'Ausente',
+      dnd: 'No molestar'
+    }
+    triggerToast(`Estado actualizado: ${labels[newStatus] || newStatus}`)
   }
 
   // Copiar enlace de invitación con formateador
@@ -160,7 +172,8 @@ function ChatHome({ onOpenSettings }) {
           avatar: user?.avatarType ? undefined : 'NX',
           avatarType: user?.avatarType || 'male'
         }}
-        presenceStatus={presenceStatus}
+        presenceStatus={customPresence || presenceStatus}
+        onSelectPresence={handleSelectPresence}
         onOpenSettings={onOpenSettings}
         onOpenConnectModal={() => setShowConnectModal(true)}
         onToggleDetailsPanel={() => setShowDetailsPanel(!showDetailsPanel)}
