@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
   PREFILLED_ALIAS: 'nexu_prefilled_alias',
   THEME_MODE: 'nexu_theme_mode',
   
+  userChatsKey: (handle) => `nexu_user_chats_${(handle || 'guest').trim().replace(/^@/, '').toLowerCase()}`,
   profileKey: (handle) => `nexu_profile_${(handle || 'adminUser').trim().replace(/^@/, '').toLowerCase()}`,
   passKey: (handle) => `nexu_custom_pass_${(handle || 'adminUser').trim().replace(/^@/, '').toLowerCase()}`,
   sessionsKey: (handle) => `nexu_sessions_${(handle || 'adminUser').trim().replace(/^@/, '').toLowerCase()}`
