@@ -375,5 +375,53 @@ export const chatService = {
     const updatedReqs = pendingReqs.filter((r) => r.id !== reqId)
     storage.set(reqKey, updatedReqs)
     return updatedReqs
+  },
+
+  // Cancelar solicitud de conexión enviada por el emisor
+  async cancelConnectionRequest(senderUsername, targetUsername, currentSenderChats) {
+    const senderClean = senderUsername.toLowerCase()
+    const targetClean = targetUsername.toLowerCase()
+
+    try {
+      await api.post('/chats/cancel', {
+        senderUsername: senderClean,
+        targetUsername: targetClean
+      })
+    } catch {
+      // Fallback local
+    }
+
+    const chatId = `chat_${targetClean}`
+    const updatedChats = currentSenderChats.filter((c) => c.id !== chatId)
+    this.saveChats(updatedChats, senderClean)
+
+    // Eliminar la solicitud de la bandeja del destinatario si estaba local
+    const recipientKey = STORAGE_KEYS.userRequestsKey(targetClean)
+    const pendingReqs = storage.get(recipientKey, [])
+    storage.set(recipientKey, pendingReqs.filter((r) => r.fromUser.username.toLowerCase() !== senderClean))
+
+    return updatedChats
+  },
+
+  // Bloquear usuario desde una solicitud recibida
+  async blockUserRequest(req, recipientUsername) {
+    const recipientClean = recipientUsername.toLowerCase()
+    const senderClean = req.fromUser.username.toLowerCase()
+
+    try {
+      await api.post('/chats/block', {
+        reqId: req.id,
+        recipientUsername: recipientClean,
+        senderUsername: senderClean
+      })
+    } catch {
+      // Fallback local
+    }
+
+    const reqKey = STORAGE_KEYS.userRequestsKey(recipientClean)
+    const pendingReqs = storage.get(reqKey, [])
+    const updatedReqs = pendingReqs.filter((r) => r.id !== req.id)
+    storage.set(reqKey, updatedReqs)
+    return updatedReqs
   }
 }

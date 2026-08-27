@@ -48,6 +48,7 @@ function ChatSidebar({
   incomingRequests,
   onAcceptRequest,
   onRejectRequest,
+  onBlockUser,
   filteredChats,
   activeChatId,
   onSelectChat,
@@ -255,10 +256,11 @@ function ChatSidebar({
                     <div className="user-found-handle">{req.fromUser.handle}</div>
                   </div>
                 </div>
-                <div className="pending-request-actions">
+                <div className="pending-request-actions" style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn-accept-req"
+                    style={{ flex: '1 1 auto', padding: '0.45rem 0.6rem', fontSize: '0.78rem' }}
                     onClick={() => onAcceptRequest(req)}
                   >
                     Aceptar
@@ -266,9 +268,19 @@ function ChatSidebar({
                   <button
                     type="button"
                     className="btn-reject-req"
+                    style={{ flex: '1 1 auto', padding: '0.45rem 0.6rem', fontSize: '0.78rem' }}
                     onClick={() => onRejectRequest(req.id)}
                   >
                     Rechazar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-reject-req"
+                    style={{ flex: '1 1 auto', padding: '0.45rem 0.6rem', fontSize: '0.78rem', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+                    onClick={() => onBlockUser && onBlockUser(req)}
+                    title="Rechazar y bloquear usuario"
+                  >
+                    Bloquear
                   </button>
                 </div>
               </div>

@@ -114,6 +114,24 @@ export function ChatProvider({ children }) {
     setIncomingRequests(updatedReqs)
   }
 
+  // Cancelar solicitud enviada por el usuario
+  const cancelRequest = async (targetUsername) => {
+    const updatedChats = await chatService.cancelConnectionRequest(currentUsername, targetUsername, chats)
+    setChats(updatedChats)
+    if (selectedChatId === `chat_${targetUsername.toLowerCase()}`) {
+      setSelectedChatId(null)
+    }
+  }
+
+  // Bloquear usuario desde una solicitud recibida
+  const blockUser = async (req) => {
+    const updatedReqs = await chatService.blockUserRequest(req, currentUsername)
+    setIncomingRequests(updatedReqs)
+    if (selectedChatId === `chat_${req.fromUser.username.toLowerCase()}`) {
+      setSelectedChatId(null)
+    }
+  }
+
   const deleteConversation = (chatId) => {
     const updated = chats.filter((c) => c.id !== chatId)
     setChats(updated)
@@ -139,11 +157,13 @@ export function ChatProvider({ children }) {
     selectChat,
     sendMessage,
     sendRequest,
+    cancelRequest,
     isTyping,
     presenceStatus,
     incomingRequests,
     acceptRequest,
     rejectRequest,
+    blockUser,
     deleteConversation,
     clearCurrentChat
   }

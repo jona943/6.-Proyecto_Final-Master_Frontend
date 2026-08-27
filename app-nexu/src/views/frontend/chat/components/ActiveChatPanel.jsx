@@ -26,6 +26,7 @@ function ActiveChatPanel({
   onCopyMessage,
   onInsertCodeSnippet,
   onTriggerToast,
+  onCancelRequest,
   messagesEndRef
 }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -282,13 +283,23 @@ function ActiveChatPanel({
 
       {/* 3. Barra de Entrada (Input Footer) o Banner de Solicitud Pendiente */}
       {activeChat.isPending ? (
-        <footer className="chat-input-footer" style={{ justifyContent: 'center', textAlign: 'center', padding: '1.2rem 1.5rem', background: 'rgba(15, 23, 42, 0.6)' }}>
+        <footer className="chat-input-footer" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '1.2rem 1.5rem', background: 'rgba(15, 23, 42, 0.6)', gap: '0.8rem' }}>
           <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
             <span>⏳</span>
             <span>
               <strong>Solicitud de conexión enviada.</strong> Podrás entablar una conversación 1 a 1 cuando <strong>{activeChat.name}</strong> acepte tu solicitud.
             </span>
           </div>
+          {onCancelRequest && (
+            <button
+              type="button"
+              className="btn-reject-req"
+              style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+              onClick={() => onCancelRequest(activeChat.handle.replace(/^@/, ''))}
+            >
+              Cancelar solicitud enviada
+            </button>
+          )}
         </footer>
       ) : (
         <footer className="chat-input-footer">

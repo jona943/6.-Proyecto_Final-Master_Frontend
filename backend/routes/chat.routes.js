@@ -160,4 +160,70 @@ router.post('/reject', async (req, res) => {
   }
 })
 
+/**
+ * POST /api/chats/cancel
+ * Cancelar solicitud de conexión enviada en MongoDB Atlas
+ */
+router.post('/cancel', async (req, res) => {
+  try {
+    const { senderUsername, targetUsername } = req.body || {}
+    const sender = (senderUsername || '').trim().toLowerCase()
+    const target = (targetUsername || '').trim().toLowerCase()
+
+    if (sender && target) {
+      await ConnectionRequest.deleteMany({
+        senderUsername: sender,
+        targetUsername: target,
+        status: 'pending'
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Solicitud de conexión cancelada exitosamente.'
+    })
+  } catch (error) {
+    console.error('Error en /api/chats/cancel:', error.message)
+    return res.status(500).json({
+      success: false,
+      message: 'Error al cancelar la solicitud.'
+    })
+  }
+})
+
+/**
+ * POST /api/chats/block
+ * Bloquear usuario y descartar cualquier solicitud activa en MongoDB Atlas
+ */
+router.post('/block', async (req, res) => {
+  try {
+    const { reqId, recipientUsername, senderUsername } = req.body || {}
+    const recipient = (recipientUsername || '').trim().toLowerCase()
+    const sender = (senderUsername || '').trim().toLowerCase()
+
+    if (reqId) {
+      await ConnectionRequest.findByIdAndUpdate(reqId, { status: 'rejected' })
+    }
+    if (recipient && sender) {
+      await ConnectionRequest.deleteMany({
+        $or: [
+          { senderUsername: sender, targetUsername: recipient },
+          { senderUsername: recipient, targetUsername: sender }
+        ]
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Usuario bloqueado exitosamente.'
+    })
+  } catch (error) {
+    console.error('Error en /api/chats/block:', error.message)
+    return res.status(500).json({
+      success: false,
+      message: 'Error al bloquear usuario.'
+    })
+  }
+})
+
 export default router

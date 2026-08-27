@@ -23,11 +23,13 @@ function ChatHome({ onOpenSettings }) {
     selectChat,
     sendMessage,
     sendRequest,
+    cancelRequest,
     isTyping,
     presenceStatus,
     incomingRequests,
     acceptRequest,
     rejectRequest,
+    blockUser,
     deleteConversation,
     clearCurrentChat
   } = useChat()
@@ -137,6 +139,13 @@ function ChatHome({ onOpenSettings }) {
     setMobileView('chat')
   }
 
+  // Cancelar solicitud enviada
+  const handleCancelRequest = (targetUsername) => {
+    cancelRequest(targetUsername)
+    triggerToast(`Solicitud a @${targetUsername} cancelada`)
+    setMobileView('list')
+  }
+
   // Aceptar solicitud
   const handleAcceptRequest = (req) => {
     acceptRequest(req)
@@ -148,6 +157,12 @@ function ChatHome({ onOpenSettings }) {
   const handleRejectRequest = (reqId) => {
     rejectRequest(reqId)
     triggerToast('Solicitud descartada')
+  }
+
+  // Bloquear usuario
+  const handleBlockUser = (req) => {
+    blockUser(req)
+    triggerToast(`Usuario ${req.fromUser.handle} bloqueado`)
   }
 
   // Eliminar conversación
@@ -190,6 +205,7 @@ function ChatHome({ onOpenSettings }) {
         incomingRequests={incomingRequests}
         onAcceptRequest={handleAcceptRequest}
         onRejectRequest={handleRejectRequest}
+        onBlockUser={handleBlockUser}
         filteredChats={filteredChats}
         activeChatId={activeChat?.id}
         onSelectChat={handleSelectChat}
@@ -211,6 +227,7 @@ function ChatHome({ onOpenSettings }) {
           onCopyMessage={handleCopyMessage}
           onInsertCodeSnippet={() => setInputText((prev) => prev + 'const nexu = true;')}
           onTriggerToast={triggerToast}
+          onCancelRequest={handleCancelRequest}
           messagesEndRef={messagesEndRef}
         />
       ) : (
