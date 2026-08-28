@@ -62,6 +62,11 @@ export const api = {
     return request('/public/network-stats')
   },
 
+  // 4. Búsqueda de usuarios en tiempo real
+  async searchUsers(query, currentUsername) {
+    return request(`/user/search?q=${encodeURIComponent(query)}&currentUsername=${encodeURIComponent(currentUsername || '')}`)
+  },
+
   // 4. Métodos genéricos
   get(endpoint) {
     return request(endpoint, { method: 'GET' })

@@ -182,37 +182,29 @@ export const chatService = {
     return { updatedChats: updated, botMessage }
   },
 
-  // Buscar usuario por alias consultando tanto la lista local como MongoDB Atlas
+  // Buscar usuario por alias consultando MongoDB Atlas (Coincidencia exacta y sugerencias)
   async searchUser(cleanAlias, currentUsername) {
     const clean = (cleanAlias || '').trim().replace(/^@/, '').toLowerCase()
-    if (!clean) return { user: null, error: '' }
+    if (!clean) return { user: null, suggestions: [], error: '' }
     if (clean === (currentUsername || '').toLowerCase()) {
-      return { user: null, error: 'No puedes enviarte una solicitud a ti mismo.' }
+      return { user: null, suggestions: [], error: 'No puedes enviarte una solicitud a ti mismo.' }
     }
 
-    // 1. Consultar MongoDB Atlas mediante la API REST
     try {
-      const res = await api.checkAlias(clean)
-      if (res && res.available === false) {
-        const display = res.formatted || `@${clean}`
+      const res = await api.searchUsers(clean, currentUsername)
+      if (res && res.success && res.data) {
+        const { exactMatch, suggestions } = res.data
         return {
-          user: {
-            username: clean,
-            name: display,
-            handle: `@${clean}`,
-            role: 'Usuario Nexu',
-            avatar: clean.slice(0, 2).toUpperCase(),
-            status: 'offline',
-            statusText: 'Usuario Registrado'
-          },
-          error: ''
+          user: exactMatch,
+          suggestions: suggestions || [],
+          error: !exactMatch && (!suggestions || suggestions.length === 0) ? `El usuario @${clean} no fue encontrado.` : ''
         }
       }
     } catch {
-      // Fallback si la API no está disponible
+      // Fallback local
     }
 
-    // 2. Buscar en almacenamiento local o mock
+    // Backup local
     const registered = storage.get('nexu_registered_accounts_db', []).map((u) => ({
       username: u.username.toLowerCase(),
       name: u.displayName || `@${u.username}`,
@@ -224,17 +216,12 @@ export const chatService = {
     }))
 
     const allUsers = [...MOCK_KNOWN_USERS.map(u => ({ ...u, username: u.username.toLowerCase() })), ...registered]
-    const found = allUsers.find((u) => u.username === clean)
+      .filter((u) => u.username !== (currentUsername || '').toLowerCase())
 
-    if (found) {
-      return { user: found, error: '' }
-    }
+    const exactMatch = allUsers.find((u) => u.username === clean) || null
+    const suggestions = allUsers.filter((u) => u.username !== clean && u.username.includes(clean))
 
-    if (clean.length >= 3) {
-      return { user: null, error: `El usuario @${clean} no fue encontrado.` }
-    }
-
-    return { user: null, error: '' }
+    return { user: exactMatch, suggestions, error: !exactMatch && suggestions.length === 0 ? `El usuario @${clean} no fue encontrado.` : '' }
   },
 
   // Obtener solicitudes entrantes de un usuario desde MongoDB Atlas

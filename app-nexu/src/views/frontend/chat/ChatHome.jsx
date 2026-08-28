@@ -47,6 +47,7 @@ function ChatHome({ onOpenSettings }) {
   const [searchAlias, setSearchAlias] = useState('')
   const [searchError, setSearchError] = useState('')
   const [searchedUser, setSearchedUser] = useState(null)
+  const [userSuggestions, setUserSuggestions] = useState([])
   const [sentRequests, setSentRequests] = useState([])
 
   const messagesEndRef = useRef(null)
@@ -119,11 +120,13 @@ function ChatHome({ onOpenSettings }) {
     setSearchAlias(clean)
     if (!clean) {
       setSearchedUser(null)
+      setUserSuggestions([])
       setSearchError('')
       return
     }
-    const { user: found, error } = await chatService.searchUser(clean, user?.username || 'adminUser')
+    const { user: found, suggestions, error } = await chatService.searchUser(clean, user?.username || 'adminUser')
     setSearchedUser(found)
+    setUserSuggestions(suggestions || [])
     setSearchError(error)
   }
 
@@ -136,6 +139,7 @@ function ChatHome({ onOpenSettings }) {
     setShowConnectModal(false)
     setSearchAlias('')
     setSearchedUser(null)
+    setUserSuggestions([])
     setMobileView('chat')
   }
 
@@ -257,12 +261,14 @@ function ChatHome({ onOpenSettings }) {
           setShowConnectModal(false)
           setSearchAlias('')
           setSearchedUser(null)
+          setUserSuggestions([])
           setSearchError('')
         }}
         searchAlias={searchAlias}
         onSearchChange={handleSearchUser}
         searchError={searchError}
         searchedUser={searchedUser}
+        userSuggestions={userSuggestions}
         sentRequests={sentRequests}
         onSendRequest={handleSendConnectionRequest}
       />
