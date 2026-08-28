@@ -64,10 +64,42 @@ export function ChatProvider({ children }) {
         })
       }
 
-      // 2. Actualizar chats si alguna solicitud pendiente fue aceptada en MongoDB Atlas
+      // 2. Actualizar o crear chats aceptados en MongoDB Atlas
       setChats((prevChats) => {
         let hasChanges = false
-        const nextChats = prevChats.map((c) => {
+        let nextChats = [...prevChats]
+
+        // A. Crear tarjetas de chats para contactos aceptados que NO existan localmente (en un nuevo dispositivo o navegador)
+        if (acceptedUsers && Array.isArray(acceptedUsers)) {
+          for (const targetUser of acceptedUsers) {
+            const cleanTarget = targetUser.toLowerCase()
+            const chatId = `chat_${cleanTarget}`
+            const exists = nextChats.some((c) => c.id === chatId)
+
+            if (!exists) {
+              hasChanges = true
+              const constructedChat = {
+                id: chatId,
+                name: `@${cleanTarget}`,
+                handle: `@${cleanTarget}`,
+                avatar: cleanTarget.slice(0, 2).toUpperCase(),
+                isBot: false,
+                status: 'online',
+                statusText: 'En línea · Conectado',
+                isPending: false,
+                unreadCount: 0,
+                role: 'Contacto Nexu',
+                email: `${cleanTarget}@nexu.app`,
+                bio: 'Conversación privada cifrada 1 a 1.',
+                messages: []
+              }
+              nextChats = [constructedChat, ...nextChats]
+            }
+          }
+        }
+
+        // B. Actualizar chats existentes (sincronizar aceptaciones y mensajes)
+        nextChats = nextChats.map((c) => {
           const target = c.handle ? c.handle.replace(/^@/, '').toLowerCase() : ''
 
           // Si el chat estaba pendiente y ahora fue aceptado por el receptor en la nube:
