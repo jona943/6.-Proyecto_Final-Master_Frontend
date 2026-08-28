@@ -460,5 +460,22 @@ export const chatService = {
     const updatedReqs = pendingReqs.filter((r) => r.id !== req.id)
     storage.set(reqKey, updatedReqs)
     return updatedReqs
+  },
+
+  // Marcar mensajes recibidos como leídos (Visto / ✓✓ Azul) en MongoDB Atlas
+  async markMessagesAsRead(readerUsername, senderUsername) {
+    const reader = (readerUsername || '').trim().toLowerCase()
+    const sender = (senderUsername || '').trim().toLowerCase()
+
+    if (!reader || !sender) return
+
+    try {
+      await api.post('/chats/read', {
+        readerUsername: reader,
+        senderUsername: sender
+      })
+    } catch {
+      // Fallback local
+    }
   }
 }

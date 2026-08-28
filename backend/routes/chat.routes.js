@@ -324,7 +324,7 @@ router.post('/message', async (req, res) => {
       recipientUsername: recipient,
       text: text.trim(),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: 'read'
+      status: 'delivered'
     })
 
     return res.status(201).json({
@@ -337,6 +337,36 @@ router.post('/message', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Error al enviar mensaje 1 a 1.'
+    })
+  }
+})
+
+/**
+ * POST /api/chats/read
+ * Marcar mensajes recibidos como leídos (Visto / ✓✓ Azul) en MongoDB Atlas
+ */
+router.post('/read', async (req, res) => {
+  try {
+    const { readerUsername, senderUsername } = req.body || {}
+    const reader = (readerUsername || '').trim().toLowerCase()
+    const sender = (senderUsername || '').trim().toLowerCase()
+
+    if (reader && sender) {
+      await ChatMessage.updateMany(
+        { senderUsername: sender, recipientUsername: reader, status: { $ne: 'read' } },
+        { status: 'read' }
+      )
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Mensajes marcados como leídos.'
+    })
+  } catch (error) {
+    console.error('Error en /api/chats/read:', error.message)
+    return res.status(500).json({
+      success: false,
+      message: 'Error al marcar mensajes como leídos.'
     })
   }
 })

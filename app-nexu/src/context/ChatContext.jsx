@@ -93,7 +93,7 @@ export function ChatProvider({ children }) {
             }
           }
 
-          // Sincronizar mensajes 1 a 1 en tiempo real (evitando duplicados)
+          // Sincronizar mensajes 1 a 1 en tiempo real (evitando duplicados y actualizando el visto)
           if (serverMsgs && Array.isArray(serverMsgs)) {
             const relMsgs = serverMsgs.filter(
               (m) =>
@@ -105,15 +105,33 @@ export function ChatProvider({ children }) {
               const existingIds = new Set(c.messages.map((m) => m.id))
               const existingSignatures = new Set(c.messages.map((m) => `${m.sender}:${m.text.trim()}`))
 
+              // Map de estados desde el servidor (ej. status: 'read')
+              const serverStatusMap = new Map(relMsgs.map((m) => [m.id, m.status]))
+
+              let updatedMessages = c.messages.map((m) => {
+                if (serverStatusMap.has(m.id) && m.status !== serverStatusMap.get(m.id)) {
+                  hasChanges = true
+                  return { ...m, status: serverStatusMap.get(m.id) }
+                }
+                return m
+              })
+
               const newMsgsToAdd = relMsgs.filter(
                 (m) => !existingIds.has(m.id) && !existingSignatures.has(`${m.sender}:${m.text.trim()}`)
               )
 
               if (newMsgsToAdd.length > 0) {
                 hasChanges = true
+                updatedMessages = [...updatedMessages, ...newMsgsToAdd]
+                if (c.id === selectedChatId) {
+                  chatService.markMessagesAsRead(currentUsername, target)
+                }
+              }
+
+              if (hasChanges) {
                 return {
                   ...c,
-                  messages: [...c.messages, ...newMsgsToAdd]
+                  messages: updatedMessages
                 }
               }
             }
@@ -161,8 +179,20 @@ export function ChatProvider({ children }) {
 
   const selectChat = (chatId) => {
     setSelectedChatId(chatId)
+    const targetChat = chats.find((c) => c.id === chatId)
+    if (targetChat && targetChat.handle && !targetChat.isBot) {
+      const partner = targetChat.handle.replace(/^@/, '').toLowerCase()
+      chatService.markMessagesAsRead(currentUsername, partner)
+    }
+
     setChats((prev) =>
-      prev.map((c) => (c.id === chatId ? { ...c, unreadCount: 0 } : c))
+      prev.map((c) => {
+        if (c.id === chatId) {
+          const readMsgs = c.messages.map((m) => (m.sender === 'them' ? { ...m, status: 'read' } : m))
+          return { ...c, unreadCount: 0, messages: readMsgs }
+        }
+        return c
+      })
     )
   }
 
