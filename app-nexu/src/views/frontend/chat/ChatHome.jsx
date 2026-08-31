@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import './Chat.css'
 import { useAuth } from '../../../context/AuthContext'
 import { useChat } from '../../../context/ChatContext'
@@ -59,28 +59,30 @@ function ChatHome({ onOpenSettings }) {
   }, [activeChat?.messages, isTyping])
 
   // Toast temporal
-  const triggerToast = (text) => {
+  const triggerToast = useCallback((text) => {
     setToastMessage(text)
     setTimeout(() => setToastMessage(''), 2200)
-  }
+  }, [])
 
-  // Filtrado de contactos
-  const filteredChats = chats.filter((chat) => {
-    const matchesSearch =
-      chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      chat.handle.toLowerCase().includes(searchQuery.toLowerCase())
+  // Optimización con useMemo: Filtrado de contactos (evita re-filtrar en renderizados ajenos)
+  const filteredChats = useMemo(() => {
+    return chats.filter((chat) => {
+      const matchesSearch =
+        chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        chat.handle.toLowerCase().includes(searchQuery.toLowerCase())
 
-    if (!matchesSearch) return false
-    if (activeFilter === 'unread') return chat.unreadCount > 0
-    if (activeFilter === 'online') return chat.status === 'online'
-    return true
-  })
+      if (!matchesSearch) return false
+      if (activeFilter === 'unread') return chat.unreadCount > 0
+      if (activeFilter === 'online') return chat.status === 'online'
+      return true
+    })
+  }, [chats, searchQuery, activeFilter])
 
-  // Seleccionar chat
-  const handleSelectChat = (chatId) => {
+  // Optimización con useCallback para evitar recrear manejadores de eventos en cada render
+  const handleSelectChat = useCallback((chatId) => {
     selectChat(chatId)
     setMobileView('chat')
-  }
+  }, [selectChat])
 
   // Enviar mensaje
   const handleSendMessage = (e) => {
