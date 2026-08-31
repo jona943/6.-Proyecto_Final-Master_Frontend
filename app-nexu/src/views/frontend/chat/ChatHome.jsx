@@ -4,6 +4,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { useChat } from '../../../context/ChatContext'
 import { chatService } from '../../../services/chatService'
 import { sanitizeAlias } from '../../../utils/validators'
+import { aliasSchema, validateWithSchema } from '../../../utils/schemas'
 import { formatHandle } from '../../../utils/formatters'
 
 import ChatSidebar from './components/ChatSidebar'
@@ -114,7 +115,7 @@ function ChatHome({ onOpenSettings }) {
     }
   }
 
-  // Búsqueda de usuario conectando con MongoDB Atlas y la API REST
+  // Búsqueda de usuario conectando con MongoDB Atlas y la API REST (Validación con Zod)
   const handleSearchUser = async (val) => {
     const clean = sanitizeAlias(val)
     setSearchAlias(clean)
@@ -124,10 +125,18 @@ function ChatHome({ onOpenSettings }) {
       setSearchError('')
       return
     }
+
+    const validation = validateWithSchema(aliasSchema, clean)
+    if (!validation.isValid && validation.errors.username) {
+      setSearchError(validation.errors.username)
+    } else {
+      setSearchError('')
+    }
+
     const { user: found, suggestions, error } = await chatService.searchUser(clean, user?.username || 'adminUser')
     setSearchedUser(found)
     setUserSuggestions(suggestions || [])
-    setSearchError(error)
+    if (error) setSearchError(error)
   }
 
   // Enviar solicitud de conexión

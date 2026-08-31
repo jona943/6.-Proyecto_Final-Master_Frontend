@@ -84,30 +84,28 @@ export function getPasswordStrength(password) {
   return { level: 3, label: 'Fuerte', class: 'strong' }
 }
 
+import { loginSchema, validateWithSchema } from './schemas'
+
 /**
- * Valida los campos requeridos para iniciar sesión.
+ * Valida los campos requeridos para iniciar sesión utilizando Zod.
  * @param {string} username
  * @param {string} password
  * @returns {{ isValid: boolean, errors: Record<string, string> }}
  */
 export function validateLoginForm(username, password) {
-  const errors = {}
   const cleanUsername = (username || '').trim().replace(/^@/, '')
+  const result = validateWithSchema(loginSchema, {
+    username: cleanUsername,
+    password
+  })
 
-  if (!cleanUsername) {
-    errors.loginUsername = 'Introduce tu nombre de usuario.'
-  } else if (cleanUsername.length < 3) {
-    errors.loginUsername = 'El usuario debe tener al menos 3 caracteres.'
-  }
-
-  if (!password) {
-    errors.loginPassword = 'Introduce tu contraseña.'
-  } else if (password.length < 8) {
-    errors.loginPassword = 'La contraseña debe tener al menos 8 caracteres.'
-  }
+  // Mapear llaves para mantener compatibilidad exacta con los nombres de campos del formulario
+  const mappedErrors = {}
+  if (result.errors.username) mappedErrors.loginUsername = result.errors.username
+  if (result.errors.password) mappedErrors.loginPassword = result.errors.password
 
   return {
-    isValid: Object.keys(errors).length === 0,
-    errors
+    isValid: result.isValid,
+    errors: mappedErrors
   }
 }

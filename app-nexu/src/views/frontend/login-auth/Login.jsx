@@ -8,6 +8,7 @@ import {
   validateLoginForm,
   getPasswordStrength
 } from '../../../utils/validators'
+import { registerSchema, connectUserSchema, validateWithSchema } from '../../../utils/schemas'
 
 import {
   IconUser,
@@ -118,41 +119,23 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     }
   }
 
-  // 2. Manejar Registro conectando con authService / backend
+  // 2. Manejar Registro conectando con authService / backend (Validación con Zod)
   const handleRegisterSubmit = async (e) => {
     e.preventDefault()
 
-    const errors = {}
     const cleanUsername = sanitizeAlias(regUsername)
+    const result = validateWithSchema(registerSchema, {
+      username: cleanUsername,
+      password: regPassword,
+      confirmPassword: regConfirmPassword
+    })
 
-    if (!cleanUsername) {
-      errors.regUsername = 'Introduce tu nombre de usuario.'
-    } else if (cleanUsername.length < 3) {
-      errors.regUsername = 'El usuario debe tener al menos 3 caracteres.'
-    }
-
-    if (!regPassword) {
-      errors.regPassword = 'Introduce una contraseña.'
-    } else if (regPassword.length < 8) {
-      errors.regPassword = 'La contraseña debe tener al menos 8 caracteres.'
-    } else if (!/[A-Z]/.test(regPassword)) {
-      errors.regPassword = 'Debe incluir al menos una letra mayúscula.'
-    } else if (!/[a-z]/.test(regPassword)) {
-      errors.regPassword = 'Debe incluir al menos una letra minúscula.'
-    } else if (!/[0-9]/.test(regPassword)) {
-      errors.regPassword = 'Debe incluir al menos un número.'
-    } else if (!/[^a-zA-Z0-9]/.test(regPassword)) {
-      errors.regPassword = 'Debe incluir al menos un símbolo (+, -, *, etc.).'
-    }
-
-    if (!regConfirmPassword) {
-      errors.regConfirmPassword = 'Confirma tu contraseña.'
-    } else if (regPassword !== regConfirmPassword) {
-      errors.regConfirmPassword = 'Las contraseñas no coinciden.'
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors)
+    if (!result.isValid) {
+      const mappedErrors = {}
+      if (result.errors.username) mappedErrors.regUsername = result.errors.username
+      if (result.errors.password) mappedErrors.regPassword = result.errors.password
+      if (result.errors.confirmPassword) mappedErrors.regConfirmPassword = result.errors.confirmPassword
+      setFormErrors(mappedErrors)
       return
     }
 
