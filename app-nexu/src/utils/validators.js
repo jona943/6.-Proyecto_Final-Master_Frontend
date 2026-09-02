@@ -2,6 +2,8 @@
 // REGLAS DE NEGOCIO Y VALIDACIONES PURAS (100% Testeables con Vitest/Jest)
 // ============================================================================
 
+import { z } from 'zod'
+
 /**
  * Sanitiza una cadena para convertirla en un alias válido de Nexu:
  * Solo caracteres alfanuméricos y guión bajo, con longitud máxima de 10 caracteres.
@@ -103,3 +105,58 @@ export function validateLoginForm(username, password) {
     errors
   }
 }
+
+// ============================================================================
+// ESQUEMAS ZOD PARA EL MÓDULO DE CHAT & CONEXIÓN
+// ============================================================================
+
+/**
+ * Esquema Zod para validar el alias al buscar y enviar solicitudes de conexión en el chat:
+ * - Limpia espacios en blanco.
+ * - Transforma eliminando '@' si viene incluido.
+ * - Exige mínimo 3 y máximo 10 caracteres.
+ * - Solo caracteres alfanuméricos y guión bajo (_).
+ */
+export const connectionAliasSchema = z
+  .string({ required_error: 'Debes ingresar un alias para buscar.' })
+  .trim()
+  .transform((val) => val.replace(/^@/, ''))
+  .pipe(
+    z
+      .string()
+      .min(3, { message: 'El alias debe tener al menos 3 caracteres.' })
+      .max(10, { message: 'El alias no puede superar los 10 caracteres.' })
+      .regex(/^[a-zA-Z0-9_]+$/, { message: 'Solo se permiten letras, números y guión bajo (_).' })
+  )
+
+/**
+ * Validador de alias de conexión basado en Zod para el modal de chat.
+ * @param {string} aliasInput
+ * @returns {{ isValid: boolean, cleanAlias: string, error: string | null }}
+ */
+export function validateConnectionAlias(aliasInput) {
+  if (!aliasInput || !aliasInput.trim()) {
+    return {
+      isValid: false,
+      cleanAlias: '',
+      error: 'Ingresa un alias para iniciar la búsqueda.'
+    }
+  }
+
+  const result = connectionAliasSchema.safeParse(aliasInput)
+
+  if (!result.success) {
+    return {
+      isValid: false,
+      cleanAlias: aliasInput.trim().replace(/^@/, ''),
+      error: result.error.issues[0].message
+    }
+  }
+
+  return {
+    isValid: true,
+    cleanAlias: result.data.toLowerCase(),
+    error: null
+  }
+}
+
