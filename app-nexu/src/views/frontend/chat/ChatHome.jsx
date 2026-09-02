@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import './Chat.css'
 import { useAuth } from '../../../context/AuthContext'
 import { useChat } from '../../../context/ChatContext'
@@ -53,41 +53,51 @@ function ChatHome({ onOpenSettings }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [activeChat?.messages, isTyping])
 
-  // Toast temporal
-  const triggerToast = (text) => {
+  // Toast temporal (memoizado)
+  const triggerToast = useCallback((text) => {
     setToastMessage(text)
     setTimeout(() => setToastMessage(''), 2200)
-  }
+  }, [])
 
-  // Filtrado de contactos
-  const filteredChats = chats.filter((chat) => {
-    const matchesSearch =
-      chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      chat.handle.toLowerCase().includes(searchQuery.toLowerCase())
+  // 1. Filtrado de contactos memoizado (evita recálculos al teclear en el input)
+  const filteredChats = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim()
+    return chats.filter((chat) => {
+      const matchesSearch =
+        !query ||
+        chat.name.toLowerCase().includes(query) ||
+        chat.handle.toLowerCase().includes(query)
 
-    if (!matchesSearch) return false
-    if (activeFilter === 'unread') return chat.unreadCount > 0
-    if (activeFilter === 'online') return chat.status === 'online'
-    return true
-  })
+      if (!matchesSearch) return false
+      if (activeFilter === 'unread') return chat.unreadCount > 0
+      if (activeFilter === 'online') return chat.status === 'online'
+      return true
+    })
+  }, [chats, searchQuery, activeFilter])
 
-  // Seleccionar chat
-  const handleSelectChat = (chatId) => {
+  // 2. Objeto de usuario actual memoizado (estabilidad de referencia para React.memo)
+  const currentUser = useMemo(() => ({
+    name: user?.displayName || 'Usuario',
+    handle: formatHandle(user?.username || 'adminUser'),
+    avatar: user?.avatarType ? undefined : 'NX',
+    avatarType: user?.avatarType || 'male'
+  }), [user?.displayName, user?.username, user?.avatarType])
+
+  // 3. Handlers de acción memoizados con useCallback
+  const handleSelectChat = useCallback((chatId) => {
     selectChat(chatId)
     setMobileView('chat')
-  }
+  }, [selectChat])
 
-  // Enviar mensaje
-  const handleSendMessage = (e) => {
+  const handleSendMessage = useCallback((e) => {
     if (e) e.preventDefault()
     if (!inputText.trim() || !activeChat) return
 
     sendMessage(inputText)
     setInputText('')
-  }
+  }, [inputText, activeChat, sendMessage])
 
-  // Cambiar presencia de forma interactiva
-  const handleSelectPresence = (newStatus) => {
+  const handleSelectPresence = useCallback((newStatus) => {
     setCustomPresence(newStatus)
     const labels = {
       online: 'En línea',
@@ -95,10 +105,9 @@ function ChatHome({ onOpenSettings }) {
       dnd: 'No molestar'
     }
     triggerToast(`Estado actualizado: ${labels[newStatus] || newStatus}`)
-  }
+  }, [triggerToast])
 
-  // Copiar enlace de invitación con formateador
-  const handleCopyInviteLink = () => {
+  const handleCopyInviteLink = useCallback(() => {
     const handle = formatHandle(user?.username || 'adminUser')
     const inviteUrl = `https://nexu.app/c/${handle.replace(/^@/, '')}`
     if (navigator.clipboard?.writeText) {
@@ -108,10 +117,9 @@ function ChatHome({ onOpenSettings }) {
     } else {
       triggerToast(`Enlace listo: ${inviteUrl}`)
     }
-  }
+  }, [user?.username, triggerToast])
 
-  // Búsqueda de usuario con esquema Zod
-  const handleSearchUser = (val) => {
+  const handleSearchUser = useCallback((val) => {
     const clean = sanitizeAlias(val)
     setSearchAlias(clean)
 
@@ -132,10 +140,9 @@ function ChatHome({ onOpenSettings }) {
     const { user: found, error: serviceError } = chatService.searchUser(cleanAlias || clean, user?.username || 'adminUser')
     setSearchedUser(found)
     setSearchError(serviceError || (found ? '' : zodError || ''))
-  }
+  }, [user?.username])
 
-  // Enviar solicitud de conexión
-  const handleSendConnectionRequest = (target) => {
+  const handleSendConnectionRequest = useCallback((target) => {
     if (!target) return
     if (sentRequests.includes(target.username)) {
       triggerToast(`Ya enviaste una solicitud a ${target.handle}`)
@@ -146,52 +153,72 @@ function ChatHome({ onOpenSettings }) {
     setShowConnectModal(false)
     setSearchAlias('')
     setSearchedUser(null)
-  }
+  }, [sentRequests, triggerToast])
 
-  // Aceptar solicitud
-  const handleAcceptRequest = (req) => {
+  const handleAcceptRequest = useCallback((req) => {
     acceptRequest(req)
     setMobileView('chat')
     triggerToast(`Conexión establecida con ${req.fromUser.handle}`)
-  }
+  }, [acceptRequest, triggerToast])
 
-  // Rechazar solicitud
-  const handleRejectRequest = (reqId) => {
+  const handleRejectRequest = useCallback((reqId) => {
     rejectRequest(reqId)
     triggerToast('Solicitud descartada')
-  }
+  }, [rejectRequest, triggerToast])
 
-  // Eliminar conversación
-  const handleDeleteConversation = (chatId) => {
+  const handleDeleteConversation = useCallback((chatId) => {
     deleteConversation(chatId)
     setShowDetailsPanel(false)
     triggerToast('Conversación eliminada')
-  }
+  }, [deleteConversation, triggerToast])
 
-  // Copiar texto
-  const handleCopyMessage = (text) => {
+  const handleClearCurrentChat = useCallback(() => {
+    clearCurrentChat()
+    triggerToast('Historial reiniciado')
+  }, [clearCurrentChat, triggerToast])
+
+  const handleCopyMessage = useCallback((text) => {
     navigator.clipboard?.writeText(text)
     triggerToast('Texto copiado al portapapeles')
-  }
+  }, [triggerToast])
+
+  const handleOpenConnectModal = useCallback(() => setShowConnectModal(true), [])
+  const handleCloseConnectModal = useCallback(() => {
+    setShowConnectModal(false)
+    setSearchAlias('')
+    setSearchedUser(null)
+    setSearchError('')
+  }, [])
+
+  const handleToggleDetailsPanel = useCallback(() => {
+    setShowDetailsPanel((prev) => !prev)
+  }, [])
+
+  const handleCloseDetailsPanel = useCallback(() => {
+    setShowDetailsPanel(false)
+  }, [])
+
+  const handleBackToList = useCallback(() => {
+    setMobileView('list')
+  }, [])
+
+  const handleInsertCodeSnippet = useCallback(() => {
+    setInputText((prev) => prev + 'const nexu = true;')
+  }, [])
 
   return (
     <div className="chat-app-layout">
       {toastMessage && <div className="toast-feedback">{toastMessage}</div>}
 
-      {/* 1. Sidebar */}
+      {/* 1. Sidebar con React.memo */}
       <ChatSidebar
         mobileView={mobileView}
-        currentUser={{
-          name: user?.displayName || 'Usuario',
-          handle: formatHandle(user?.username || 'adminUser'),
-          avatar: user?.avatarType ? undefined : 'NX',
-          avatarType: user?.avatarType || 'male'
-        }}
+        currentUser={currentUser}
         presenceStatus={customPresence || presenceStatus}
         onSelectPresence={handleSelectPresence}
         onOpenSettings={onOpenSettings}
-        onOpenConnectModal={() => setShowConnectModal(true)}
-        onToggleDetailsPanel={() => setShowDetailsPanel(!showDetailsPanel)}
+        onOpenConnectModal={handleOpenConnectModal}
+        onToggleDetailsPanel={handleToggleDetailsPanel}
         showDetailsPanel={showDetailsPanel}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -217,17 +244,17 @@ function ChatHome({ onOpenSettings }) {
           inputText={inputText}
           onInputTextChange={setInputText}
           onSendMessage={handleSendMessage}
-          onBackToList={() => setMobileView('list')}
-          onToggleDetails={() => setShowDetailsPanel(!showDetailsPanel)}
+          onBackToList={handleBackToList}
+          onToggleDetails={handleToggleDetailsPanel}
           onCopyMessage={handleCopyMessage}
-          onInsertCodeSnippet={() => setInputText((prev) => prev + 'const nexu = true;')}
+          onInsertCodeSnippet={handleInsertCodeSnippet}
           onTriggerToast={triggerToast}
           messagesEndRef={messagesEndRef}
         />
       ) : (
         <ChatEmptyState
           mobileView={mobileView}
-          onBackToList={() => setMobileView('list')}
+          onBackToList={handleBackToList}
         />
       )}
 
@@ -235,11 +262,8 @@ function ChatHome({ onOpenSettings }) {
       {showDetailsPanel && activeChat && (
         <ContactDetailsPanel
           activeChat={activeChat}
-          onClose={() => setShowDetailsPanel(false)}
-          onClearChat={() => {
-            clearCurrentChat()
-            triggerToast('Historial reiniciado')
-          }}
+          onClose={handleCloseDetailsPanel}
+          onClearChat={handleClearCurrentChat}
           onDeleteConversation={handleDeleteConversation}
         />
       )}
@@ -247,12 +271,7 @@ function ChatHome({ onOpenSettings }) {
       {/* 4. Modal Conectar */}
       <ConnectUserModal
         isOpen={showConnectModal}
-        onClose={() => {
-          setShowConnectModal(false)
-          setSearchAlias('')
-          setSearchedUser(null)
-          setSearchError('')
-        }}
+        onClose={handleCloseConnectModal}
         searchAlias={searchAlias}
         onSearchChange={handleSearchUser}
         searchError={searchError}

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
 import {
   IconSearch,
   IconUserPlus,
@@ -373,4 +373,4 @@ function ChatSidebar({
   )
 }
 
-export default ChatSidebar
+export default memo(ChatSidebar)

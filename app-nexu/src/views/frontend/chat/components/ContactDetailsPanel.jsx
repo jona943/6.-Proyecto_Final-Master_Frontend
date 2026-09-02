@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import {
   IconX,
   IconUser,
@@ -228,4 +228,4 @@ function ContactDetailsPanel({
   )
 }
 
-export default ContactDetailsPanel
+export default memo(ContactDetailsPanel)

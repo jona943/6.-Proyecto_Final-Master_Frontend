@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react'
 import {
   IconArrowLeft,
   IconInfo,
@@ -46,15 +46,15 @@ function ActiveChatPanel({
 
   if (!activeChat) return null
 
-  // Calcular número de coincidencias en la conversación activa
-  const matchCount = searchQuery.trim()
-    ? activeChat.messages.filter((m) =>
-        m.text.toLowerCase().includes(searchQuery.toLowerCase().trim())
-      ).length
-    : 0
+  // Calcular número de coincidencias en la conversación activa de forma memoizada
+  const matchCount = useMemo(() => {
+    if (!searchQuery.trim()) return 0
+    const query = searchQuery.toLowerCase().trim()
+    return activeChat.messages.filter((m) => m.text.toLowerCase().includes(query)).length
+  }, [searchQuery, activeChat?.messages])
 
   // Renderizar icono de estado del mensaje
-  const renderStatusIcon = (status) => {
+  const renderStatusIcon = useCallback((status) => {
     if (status === 'read') {
       return <span className="msg-status-icon read" title="Leído"><IconCheckCheck size={15} /></span>
     }
@@ -62,10 +62,10 @@ function ActiveChatPanel({
       return <span className="msg-status-icon delivered" title="Entregado"><IconCheckCheck size={15} /></span>
     }
     return <span className="msg-status-icon sent" title="Enviado"><IconCheck size={14} /></span>
-  }
+  }, [])
 
   // Función para resaltar las coincidencias de texto
-  const renderHighlightedText = (text, query) => {
+  const renderHighlightedText = useCallback((text, query) => {
     if (!query || !query.trim()) return text
 
     const cleanQuery = query.trim()
@@ -81,7 +81,7 @@ function ActiveChatPanel({
         part
       )
     )
-  }
+  }, [])
 
   return (
     <main className={`chat-main-panel ${mobileView === 'list' ? 'hidden-mobile' : ''}`}>
@@ -336,4 +336,4 @@ function ActiveChatPanel({
   )
 }
 
-export default ActiveChatPanel
+export default memo(ActiveChatPanel)

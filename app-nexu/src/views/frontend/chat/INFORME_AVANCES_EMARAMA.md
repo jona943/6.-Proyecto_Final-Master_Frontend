@@ -72,6 +72,16 @@ El módulo cumple al 100% con los lineamientos visuales del proyecto (**Obsidian
   * Mensajes de error personalizados en español devueltos de forma segura con `safeParse()`.
 * **Integración:** Consumido en el modal de búsqueda de usuarios del chat (`ChatHome.jsx`).
 
+### ⚡ G. Optimización de Rendimiento (React.memo, useMemo y useCallback)
+* **Objetivo:** Garantizar 60 FPS estables y cero re-renderizados innecesarios al teclear en el campo de texto del chat.
+* **Técnicas implementadas:**
+  * **`React.memo`:** Aplicado en `ChatSidebar`, `ContactDetailsPanel`, `ActiveChatPanel` y `ChatEmptyState`. Evita que la barra de contactos o el panel de detalles se vuelvan a pintar mientras el usuario redacta mensajes.
+  * **`useMemo`:**
+    * `filteredChats`: El filtrado de contactos solo se ejecuta cuando cambian los datos o el filtro, no al teclear en el chat.
+    * `currentUser`: Estabilización de la referencia del objeto de usuario para que `ChatSidebar` no rompa su memoización.
+    * `matchCount`: El cálculo de coincidencias en la búsqueda interna se memoiza por historial de mensajes.
+  * **`useCallback`:** Estabilización de todos los manejadores de eventos (`handleSendMessage`, `handleSelectChat`, `handleSelectPresence`, `handleCopyMessage`, etc.) evitando que generen nuevas referencias en cada render.
+
 ---
 
 ## 3. Avances en Backend (`backend/routes/chat.routes.js`)

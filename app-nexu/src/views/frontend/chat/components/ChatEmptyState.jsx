@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { IconShield, IconArrowLeft } from '../../../../components/icons/Icons'
 
 function ChatEmptyState({ mobileView, onBackToList }) {
@@ -20,4 +21,4 @@ function ChatEmptyState({ mobileView, onBackToList }) {
   )
 }
 
-export default ChatEmptyState
+export default memo(ChatEmptyState)
