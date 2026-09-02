@@ -67,30 +67,17 @@ El módulo cumple al 100% con los lineamientos visuales del proyecto (**Obsidian
 
 ## 3. Avances en Backend (`backend/routes/chat.routes.js`)
 
-Se prepararon y estructuraron los endpoints dedicados para el módulo de chat en la API REST de Express:
+Se prepararon y estructuraron los endpoints dedicados para el módulo de chat en la API REST de Express, incorporando validación de tokens Bearer y prevención de suplantación de remitente:
 
-| Método | Ruta | Descripción | Estado |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/chats` | Obtiene el listado de conversaciones del usuario | Implementado (Ruta base) |
-| `POST` | `/api/chats/message` | Envía y despacha un nuevo mensaje | Implementado (Ruta base) |
-| `PUT` | `/api/chats/:chatId/read` | **Confirmación de lectura (*Read Receipts*):** Marca mensajes como leídos y reinicia el contador de no leídos | **Nuevo Endpoint Implementado** |
+| Método | Ruta | Descripción | Seguridad / Auth | Estado |
+| :--- | :--- | :--- | :--- | :--- |
+| `GET` | `/api/chats` | Obtiene el listado de conversaciones del usuario autenticado | Bearer Token Requerido | Implementado |
+| `POST` | `/api/chats/message` | Envío seguro de mensajes: el emisor se extrae del token, impidiendo suplantación | Bearer Token Requerido | **Seguridad Anti-Spoofing** |
+| `PUT` | `/api/chats/:chatId/read` | Confirmación de lectura (*Read Receipts*): marca mensajes como leídos | Bearer Token Requerido | **Nuevo Endpoint** |
 
-#### Detalle del Endpoint de Lectura (`PUT /api/chats/:chatId/read`):
-* **Parámetros:** `chatId` en la URL.
-* **Validación:** Verifica que el `chatId` sea proporcionado; en caso contrario, responde `400 Bad Request`.
-* **Respuesta (`200 OK`):**
-```json
-{
-  "success": true,
-  "message": "Mensajes del chat chat_jona marcados como leídos exitosamente.",
-  "data": {
-    "chatId": "chat_jona",
-    "status": "read",
-    "unreadCount": 0,
-    "readAt": "2026-09-01T20:40:00.000Z"
-  }
-}
-```
+#### Detalle de Seguridad JWT y Prevención de Suplantación:
+* **Problema resuelto:** Anteriormente, el remitente (`sender`) se recibía en el `body` del request JSON, lo que permitía a un atacante enviar mensajes haciéndose pasar por otro usuario.
+* **Solución implementada:** Se integró el middleware `requireAuth` que valida la cabecera `Authorization: Bearer <token>`. El remitente ahora se **extrae directamente de la sesión verificada por el token**, haciéndolo 100% infalsificable. Si no se envía un token válido, el servidor responde inmediatamente con `401 Unauthorized`.
 
 ---
 
