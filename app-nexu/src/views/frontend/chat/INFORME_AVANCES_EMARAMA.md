@@ -63,6 +63,15 @@ El módulo cumple al 100% con los lineamientos visuales del proyecto (**Obsidian
 * **Herramientas:** Botones SVG para adjuntar imágenes, adjuntar documentos e insertar snippets de código (`const nexu = true;`) rápidamente en el input.
 * Soporte para envío con clic en el botón vectorizado o al presionar la tecla `Enter`.
 
+### 📐 F. Validación de Esquemas con Zod (`src/utils/validators.js`)
+* **Esquema implementado:** `connectionAliasSchema` y función `validateConnectionAlias(aliasInput)`.
+* **Función:** Valida estrictamente la búsqueda de usuarios para solicitudes de conexión de chat:
+  * Eliminación automática del carácter `@` inicial.
+  * Longitud acotada entre 3 y 10 caracteres.
+  * Regla estricta alfanumérica y guión bajo (`^[a-zA-Z0-9_]+$`).
+  * Mensajes de error personalizados en español devueltos de forma segura con `safeParse()`.
+* **Integración:** Consumido en el modal de búsqueda de usuarios del chat (`ChatHome.jsx`).
+
 ---
 
 ## 3. Avances en Backend (`backend/routes/chat.routes.js`)

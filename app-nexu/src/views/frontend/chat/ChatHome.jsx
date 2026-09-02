@@ -3,7 +3,7 @@ import './Chat.css'
 import { useAuth } from '../../../context/AuthContext'
 import { useChat } from '../../../context/ChatContext'
 import { chatService } from '../../../services/chatService'
-import { sanitizeAlias } from '../../../utils/validators'
+import { sanitizeAlias, validateConnectionAlias } from '../../../utils/validators'
 import { formatHandle } from '../../../utils/formatters'
 
 import ChatSidebar from './components/ChatSidebar'
@@ -110,13 +110,28 @@ function ChatHome({ onOpenSettings }) {
     }
   }
 
-  // Búsqueda de usuario con sanitizador puro
+  // Búsqueda de usuario con esquema Zod
   const handleSearchUser = (val) => {
     const clean = sanitizeAlias(val)
     setSearchAlias(clean)
-    const { user: found, error } = chatService.searchUser(clean, user?.username || 'adminUser')
+
+    if (!clean) {
+      setSearchedUser(null)
+      setSearchError('')
+      return
+    }
+
+    const { isValid, cleanAlias, error: zodError } = validateConnectionAlias(clean)
+
+    if (!isValid && clean.length >= 3) {
+      setSearchedUser(null)
+      setSearchError(zodError)
+      return
+    }
+
+    const { user: found, error: serviceError } = chatService.searchUser(cleanAlias || clean, user?.username || 'adminUser')
     setSearchedUser(found)
-    setSearchError(error)
+    setSearchError(serviceError || (found ? '' : zodError || ''))
   }
 
   // Enviar solicitud de conexión
