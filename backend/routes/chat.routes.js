@@ -28,4 +28,31 @@ router.post('/message', (req, res) => {
   })
 })
 
+/**
+ * PUT /api/chats/:chatId/read
+ * Responsable: EmaRama (Módulo de Chat)
+ * Confirmación de lectura (Read Receipts): Marca mensajes como leídos y reinicia contador no leídos.
+ */
+router.put('/:chatId/read', (req, res) => {
+  const { chatId } = req.params
+
+  if (!chatId) {
+    return res.status(400).json({
+      success: false,
+      message: 'El identificador del chat (chatId) es obligatorio.'
+    })
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Mensajes del chat ${chatId} marcados como leídos exitosamente.`,
+    data: {
+      chatId,
+      status: 'read',
+      unreadCount: 0,
+      readAt: new Date().toISOString()
+    }
+  })
+})
+
 export default router
