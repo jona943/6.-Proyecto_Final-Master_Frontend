@@ -173,7 +173,6 @@ export function ChatProvider({ children }) {
         })
 
         if (hasChanges) {
-          chatService.saveChats(nextChats, currentUsername)
           return nextChats
         }
 
@@ -287,7 +286,6 @@ export function ChatProvider({ children }) {
   const deleteConversation = (chatId) => {
     const updated = chats.filter((c) => c.id !== chatId)
     setChats(updated)
-    chatService.saveChats(updated, currentUsername)
     if (selectedChatId === chatId) {
       setSelectedChatId(null)
     }
@@ -299,7 +297,6 @@ export function ChatProvider({ children }) {
       c.id === activeChat.id ? { ...c, messages: [] } : c
     )
     setChats(updated)
-    chatService.saveChats(updated, currentUsername)
   }
 
   const value = {
