@@ -7,6 +7,7 @@ import publicRoutes from './routes/public.routes.js'
 import authRoutes from './routes/auth.routes.js'
 import chatRoutes from './routes/chat.routes.js'
 import userRoutes from './routes/user.routes.js'
+import assistantRoutes from './routes/assistant.routes.js'
 
 // Importar Conexión a Base de Datos
 import { connectDB } from './config/db.js'
@@ -44,6 +45,7 @@ app.use('/api', publicRoutes)        // /api/health, /api/public/check-alias, et
 app.use('/api/auth', authRoutes)     // /api/auth/login, /api/auth/register
 app.use('/api/chats', chatRoutes)    // /api/chats, /api/chats/message
 app.use('/api/user', userRoutes)     // /api/user/profile
+app.use('/api/assistant', assistantRoutes) // /api/assistant/ask
 
 // Ruta Raíz Informativa
 app.get('/', (req, res) => {

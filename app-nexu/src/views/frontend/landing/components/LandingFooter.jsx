@@ -1,3 +1,5 @@
+import './LandingFooter.css'
+
 function LandingFooter({ onScrollToManifiesto }) {
   return (
     <footer className="footer-clean">
@@ -5,9 +7,9 @@ function LandingFooter({ onScrollToManifiesto }) {
         <div className="footer-brand-row">
           <div className="footer-logo">
             <div className="logo-tiny">N</div>
-            <span>Nexu</span>
+            <span>NexuHub</span>
           </div>
-          <span className="footer-pill">Protocol v1.0</span>
+          <span className="footer-pill">nexuhub.me</span>
         </div>
 
         <div className="footer-links">
@@ -25,7 +27,7 @@ function LandingFooter({ onScrollToManifiesto }) {
         </div>
 
         <p className="footer-copy">
-          © 2026 Nexu. Protocolo de mensajería directa punto a punto. Cero rastreo, cero publicidad.
+          © 2026 NexuHub (nexuhub.me). Protocolo de mensajería directa punto a punto. Cero rastreo, cero publicidad.
         </p>
       </div>
     </footer>

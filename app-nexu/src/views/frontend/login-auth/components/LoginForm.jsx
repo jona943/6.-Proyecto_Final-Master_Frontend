@@ -3,8 +3,7 @@ import {
   IconEye,
   IconEyeOff,
   IconArrowRight,
-  IconAlertCircle,
-  IconKey
+  IconAlertCircle
 } from '../../../../components/icons/Icons'
 
 function LoginForm({
@@ -19,13 +18,12 @@ function LoginForm({
   formErrors,
   isLoading,
   onSubmit,
-  onForgotPasswordClick,
-  onLoadDemoUser
+  onForgotPasswordClick
 }) {
   return (
     <form className="auth-form" onSubmit={onSubmit} noValidate>
       <div className="auth-form-header">
-        <h2 className="auth-form-title">Bienvenido(a) a Nexu</h2>
+        <h2 className="auth-form-title">Bienvenido(a) a NexuHub</h2>
         <p className="auth-form-desc">
           Ingresa tu usuario único y contraseña para acceder.
         </p>
@@ -127,39 +125,11 @@ function LoginForm({
           </>
         ) : (
           <>
-            <span>Entrar a Nexu</span>
+            <span>Entrar a NexuHub</span>
             <IconArrowRight />
           </>
         )}
       </button>
-
-      {/* Separador y Acceso Demo Rápido */}
-      <div className="auth-divider">CUENTAS DE PRUEBA</div>
-
-      <div className="demo-credentials-box">
-        <span className="demo-title">Acceso para Testing</span>
-        <p className="demo-text">
-          1. <strong>@adminUser</strong> (clave: 12345678)
-          <br />
-          2. <strong>@rosi_master</strong> (clave: Nexu2026Pass!)
-        </p>
-        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="demo-chip-btn"
-            onClick={() => onLoadDemoUser('adminUser')}
-          >
-            <IconKey /> Cargar @adminUser
-          </button>
-          <button
-            type="button"
-            className="demo-chip-btn"
-            onClick={() => onLoadDemoUser('rosi_master')}
-          >
-            <IconKey /> Cargar @rosi_master
-          </button>
-        </div>
-      </div>
     </form>
   )
 }

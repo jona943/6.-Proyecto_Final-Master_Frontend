@@ -1,0 +1,116 @@
+/* ==========================================================================
+   NEXU PROFILE & SETTINGS — AVATAR SELECTOR MODAL
+   Diálogo emergente para selección de estilos de avatar vectorial
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1.5rem;
+}
+
+.modal-dialog-box {
+  background-color: var(--bg-surface-glass, rgba(16, 18, 22, 0.95));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg, 16px);
+  max-width: 520px;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  animation: modalScaleUp 0.25s ease-out;
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header-row h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  color: var(--text-primary);
+}
+
+.avatar-vector-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.avatar-vector-option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.2rem 0.8rem;
+  background-color: var(--bg-surface-elevated, #16191f);
+  border: 1px solid var(--border-subtle, #1c2028);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.avatar-vector-option-card:hover {
+  background-color: var(--bg-surface-hover, #1e222a);
+  border-color: var(--border-active, #2a303d);
+  transform: translateY(-2px);
+}
+
+.avatar-vector-option-card.selected {
+  border-color: var(--accent-acid, #d4ff00);
+  background-color: rgba(212, 255, 0, 0.08);
+  box-shadow: 0 0 16px rgba(212, 255, 0, 0.2);
+}
+
+.avatar-option-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary, #f4f5f7);
+  text-align: center;
+}

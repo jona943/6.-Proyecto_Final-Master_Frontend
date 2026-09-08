@@ -17,9 +17,9 @@ Desarrollar la interfaz de usuario interactiva y navegable (UI/UX Mock) para la 
 ### A. Barra Lateral (Sidebar de Conversaciones)
 - **Perfil de Usuario & Selector Rápido de Presencia:**
   - Avatar monograma interactivo que despliega un menú flotante con 3 estados:
-    - 🟢 **En línea:** Disponible y activo para recibir mensajes.
-    - 🟡 **Ausente:** Inactivo temporalmente o en descanso.
-    - 🔴 **No molestar:** Silenciar alertas y avisos.
+    -  **En línea:** Disponible y activo para recibir mensajes.
+    -  **Ausente:** Inactivo temporalmente o en descanso.
+    -  **No molestar:** Silenciar alertas y avisos.
   - Feedback visual inmediato con notificación toast y punto de presencia con resplandor (*glow*).
 - **Buscador de Contactos:** Filtro reactivo para buscar contactos por nombre o por handle en toda la bandeja.
 - **Filtros Rápidos:** Pestañas para conmutar entre *Todos*, *No leídos* y *En línea*.
@@ -34,7 +34,7 @@ Desarrollar la interfaz de usuario interactiva y navegable (UI/UX Mock) para la 
   - Banner informativo cuando no se encuentran coincidencias.
 - **Feed de Mensajes con Burbujas:**
   - Burbujas alineadas a la izquierda (contacto) y a la derecha (usuario activo).
-  - Indicadores de entrega: Enviado (`✓`), Entregado (`✓✓`) y Leído (`✓✓` resaltado con Acid Lime).
+  - Indicadores de entrega: Enviado (``), Entregado (``) y Leído (`` resaltado con Acid Lime).
   - Divisores de fecha / sesión.
   - Auto-scroll suave (*smooth scroll*) al recibir o enviar nuevos mensajes.
   - **Acciones en Hover:** Botón para copiar el texto del mensaje al portapapeles con notificación toast no intrusiva.

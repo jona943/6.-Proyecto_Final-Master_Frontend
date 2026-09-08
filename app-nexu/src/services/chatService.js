@@ -1,5 +1,4 @@
 import api from './api'
-import { storage, STORAGE_KEYS } from './storageService'
 
 export const MOCK_KNOWN_USERS = [
   {
@@ -29,54 +28,24 @@ export const BOT_RESPONSES = [
   'Entendido. La sincronización se realizó de manera privada.'
 ]
 
-const INITIAL_CHATS_DEFAULT = [
-  {
-    id: 'chat_bot',
-    name: 'Nexu Assistant',
-    handle: '@nexu_assistant',
-    avatar: 'NX',
-    isBot: true,
-    status: 'online',
-    statusText: 'Asistente de Protocolo · En línea',
-    unreadCount: 0,
-    isPending: false,
-    role: 'Asistente de Privacidad',
-    email: 'assistant@nexu.app',
-    bio: 'Bot automatizado para verificar el funcionamiento de la mensajería punto a punto.',
-    messages: [
-      {
-        id: 'msg_01',
-        sender: 'them',
-        text: 'Bienvenido al santuario de comunicación privada de Nexu. Todas tus conversaciones son directas y anónimas.',
-        time: '10:00 AM',
-        status: 'read'
-      },
-      {
-        id: 'msg_02',
-        sender: 'them',
-        text: 'Escribe un mensaje para probar la simulación de respuesta automática.',
-        time: '10:01 AM',
-        status: 'read'
-      }
-    ]
-  }
-]
-
 export const chatService = {
-  // Obtener lista de chats aislada por usuario
+  // Obtener lista de chats (sólo backend, sin persistencia en localStorage)
   async getChats(username = 'guest') {
-    await new Promise((resolve) => setTimeout(resolve, 80))
-    const key = STORAGE_KEYS.userChatsKey(username)
-    return storage.get(key, INITIAL_CHATS_DEFAULT)
+    const clean = (username || '').trim().toLowerCase()
+    if (!clean) return []
+
+    try {
+      const res = await api.get(`/chats/sync?username=${encodeURIComponent(clean)}`)
+      if (res && res.success && res.data?.sync) {
+        return res.data.sync
+      }
+    } catch {
+      // Backend inaccesible
+    }
+    return []
   },
 
-  // Guardar estado de chats aislado por usuario
-  saveChats(chats, username = 'guest') {
-    const key = STORAGE_KEYS.userChatsKey(username)
-    storage.set(key, chats)
-  },
-
-  // Enviar mensaje 1 a 1 a MongoDB Atlas
+  // Enviar mensaje 1 a 1
   async sendMessage(chats, chatId, text, sender = 'me', username = 'guest') {
     const now = new Date()
     const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -93,7 +62,6 @@ export const chatService = {
       status: sender === 'me' ? 'delivered' : 'read'
     }
 
-    // Guardar en backend si es conversación 1 a 1 con otro usuario
     if (targetUsername && !targetChat?.isBot) {
       try {
         const res = await api.post('/chats/message', {
@@ -106,10 +74,11 @@ export const chatService = {
           newMessage.id = realId.toString()
         }
       } catch {
-        // Fallback local
+        // En un entorno de producción, aquí se manejaría una cola de reintentos
       }
     }
 
+    // Actualización optimista en memoria
     const updated = chats.map((c) => {
       if (c.id === chatId) {
         return {
@@ -120,11 +89,10 @@ export const chatService = {
       return c
     })
 
-    this.saveChats(updated, cleanUser)
     return { updatedChats: updated, newMessage }
   },
 
-  // Sincronizar en tiempo real solicitudes, aceptaciones y mensajes desde MongoDB Atlas
+  // Sincronizar en tiempo real
   async syncUserSession(username) {
     const clean = (username || '').trim().toLowerCase()
     if (!clean) return null
@@ -135,23 +103,26 @@ export const chatService = {
         return res.data.sync
       }
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
     return null
   },
 
-  // Simular respuesta automática (Bot o contacto simulado)
-  async getAutoReply(chats, chatId, userMessage, username = 'guest') {
-    await new Promise((resolve) => setTimeout(resolve, 1100))
-
+  // Auto-respuesta
+  async getAutoReply(chats, chatId, userMessageOrAnswer) {
     const targetChat = chats.find((c) => c.id === chatId)
     let replyText = ''
 
     if (targetChat?.isBot) {
-      const randomIndex = Math.floor(Math.random() * BOT_RESPONSES.length)
-      replyText = BOT_RESPONSES[randomIndex]
+      // Si nos pasan una respuesta directa (ej. de Gemini API), úsala
+      if (userMessageOrAnswer && userMessageOrAnswer.length > 0) {
+        replyText = userMessageOrAnswer
+      } else {
+        const randomIndex = Math.floor(Math.random() * BOT_RESPONSES.length)
+        replyText = BOT_RESPONSES[randomIndex]
+      }
     } else {
-      replyText = `Recibido: "${userMessage}". Respuesta registrada en el hilo privado.`
+      replyText = `Recibido: "${userMessageOrAnswer}". Respuesta registrada en el hilo privado.`
     }
 
     const now = new Date()
@@ -178,11 +149,9 @@ export const chatService = {
       return c
     })
 
-    this.saveChats(updated, username)
     return { updatedChats: updated, botMessage }
   },
 
-  // Buscar usuario por alias consultando MongoDB Atlas (Coincidencia exacta y sugerencias)
   async searchUser(cleanAlias, currentUsername) {
     const clean = (cleanAlias || '').trim().replace(/^@/, '').toLowerCase()
     if (!clean) return { user: null, suggestions: [], error: '' }
@@ -201,21 +170,11 @@ export const chatService = {
         }
       }
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
 
-    // Backup local
-    const registered = storage.get('nexu_registered_accounts_db', []).map((u) => ({
-      username: u.username.toLowerCase(),
-      name: u.displayName || `@${u.username}`,
-      handle: `@${u.username}`,
-      role: u.role || 'Usuario Nexu',
-      avatar: (u.displayName || u.username).replace(/^@/, '').slice(0, 2).toUpperCase(),
-      status: 'offline',
-      statusText: 'Usuario Nexu'
-    }))
-
-    const allUsers = [...MOCK_KNOWN_USERS.map(u => ({ ...u, username: u.username.toLowerCase() })), ...registered]
+    // Backup básico en memoria para MOCK
+    const allUsers = MOCK_KNOWN_USERS.map(u => ({ ...u, username: u.username.toLowerCase() }))
       .filter((u) => u.username !== (currentUsername || '').toLowerCase())
 
     const exactMatch = allUsers.find((u) => u.username === clean) || null
@@ -224,7 +183,6 @@ export const chatService = {
     return { user: exactMatch, suggestions, error: !exactMatch && suggestions.length === 0 ? `El usuario @${clean} no fue encontrado.` : '' }
   },
 
-  // Obtener solicitudes entrantes de un usuario desde MongoDB Atlas
   async getIncomingRequests(username) {
     const clean = (username || '').trim().toLowerCase()
     if (!clean) return []
@@ -235,48 +193,25 @@ export const chatService = {
         return res.data.requests
       }
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
 
-    const key = STORAGE_KEYS.userRequestsKey(clean)
-    return storage.get(key, [])
+    return []
   },
 
-  // Enviar solicitud de conexión a MongoDB Atlas
   async sendConnectionRequest(senderUsername, targetUser, currentSenderChats) {
     const senderClean = senderUsername.toLowerCase()
     const targetClean = targetUser.username.toLowerCase()
 
-    // 1. Notificar al backend Express / MongoDB Atlas
     try {
       await api.post('/chats/request', {
         senderUsername: senderClean,
         targetUsername: targetClean
       })
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
 
-    // 2. Guardar solicitud local de respaldo
-    const recipientRequestsKey = STORAGE_KEYS.userRequestsKey(targetClean)
-    const existingIncoming = storage.get(recipientRequestsKey, [])
-    const newIncomingReq = {
-      id: `req_${Date.now()}`,
-      fromUser: {
-        username: senderClean,
-        name: `@${senderClean}`,
-        handle: `@${senderClean}`,
-        avatar: senderClean.slice(0, 2).toUpperCase()
-      },
-      time: 'Reciente',
-      status: 'pending'
-    }
-
-    if (!existingIncoming.some((r) => r.fromUser.username.toLowerCase() === senderClean)) {
-      storage.set(recipientRequestsKey, [newIncomingReq, ...existingIncoming])
-    }
-
-    // 3. Agregar chat en estado "Pendiente (En espera)" a la lista del emisor
     const chatId = `chat_${targetClean}`
     const pendingChat = {
       id: chatId,
@@ -303,16 +238,13 @@ export const chatService = {
     }
 
     const updatedChats = [pendingChat, ...currentSenderChats.filter((c) => c.id !== chatId)]
-    this.saveChats(updatedChats, senderClean)
     return { updatedChats, newChatId: chatId }
   },
 
-  // Aceptar solicitud de conexión en MongoDB Atlas
   async acceptConnectionRequest(req, recipientUsername, currentRecipientChats) {
     const recipientClean = recipientUsername.toLowerCase()
     const senderClean = req.fromUser.username.toLowerCase()
 
-    // 1. Notificar al backend Express / MongoDB Atlas
     try {
       await api.post('/chats/accept', {
         reqId: req.id,
@@ -320,10 +252,9 @@ export const chatService = {
         senderUsername: senderClean
       })
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
 
-    // 2. Agregar conversación activa a la lista del destinatario (quien acepta)
     const newChatForRecipient = {
       id: `chat_${senderClean}`,
       name: req.fromUser.name || `@${senderClean}`,
@@ -349,59 +280,20 @@ export const chatService = {
     }
 
     const updatedRecipientChats = [newChatForRecipient, ...currentRecipientChats.filter((c) => c.id !== newChatForRecipient.id)]
-    this.saveChats(updatedRecipientChats, recipientClean)
-
-    // 3. Actualizar la conversación en la cuenta del emisor
-    const senderChatsKey = STORAGE_KEYS.userChatsKey(senderClean)
-    const senderChats = storage.get(senderChatsKey, INITIAL_CHATS_DEFAULT)
-    const updatedSenderChats = senderChats.map((c) => {
-      if (c.id === `chat_${recipientClean}`) {
-        return {
-          ...c,
-          status: 'online',
-          statusText: 'En línea · Conectado',
-          isPending: false,
-          messages: [
-            ...c.messages,
-            {
-              id: `msg_accepted_notify_${Date.now()}`,
-              sender: 'them',
-              text: `@${recipientClean} aceptó tu solicitud de conexión. ¡Ya pueden chatear!`,
-              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              status: 'read'
-            }
-          ]
-        }
-      }
-      return c
-    })
-    storage.set(senderChatsKey, updatedSenderChats)
-
-    // 4. Eliminar la solicitud de la lista de pendientes del destinatario
-    const reqKey = STORAGE_KEYS.userRequestsKey(recipientClean)
-    const pendingReqs = storage.get(reqKey, [])
-    const updatedReqs = pendingReqs.filter((r) => r.id !== req.id)
-    storage.set(reqKey, updatedReqs)
-
-    return { updatedRecipientChats, updatedReqs, newChatId: newChatForRecipient.id }
+    
+    // Retornamos también updatedReqs vacío simulando que se eliminó localmente de la lista actual del contexto
+    return { updatedRecipientChats, updatedReqs: [], newChatId: newChatForRecipient.id }
   },
 
-  // Rechazar solicitud de conexión
   async rejectConnectionRequest(reqId, recipientUsername) {
-    const recipientClean = recipientUsername.toLowerCase()
     try {
       await api.post('/chats/reject', { reqId })
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
-    const reqKey = STORAGE_KEYS.userRequestsKey(recipientClean)
-    const pendingReqs = storage.get(reqKey, [])
-    const updatedReqs = pendingReqs.filter((r) => r.id !== reqId)
-    storage.set(reqKey, updatedReqs)
-    return updatedReqs
+    return [] // Retornar vacío obliga al contexto a limpiar o actualizar en base a la RAM
   },
 
-  // Cancelar solicitud de conexión enviada por el emisor
   async cancelConnectionRequest(senderUsername, targetUsername, currentSenderChats) {
     const senderClean = senderUsername.toLowerCase()
     const targetClean = targetUsername.toLowerCase()
@@ -412,22 +304,13 @@ export const chatService = {
         targetUsername: targetClean
       })
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
 
     const chatId = `chat_${targetClean}`
-    const updatedChats = currentSenderChats.filter((c) => c.id !== chatId)
-    this.saveChats(updatedChats, senderClean)
-
-    // Eliminar la solicitud de la bandeja del destinatario si estaba local
-    const recipientKey = STORAGE_KEYS.userRequestsKey(targetClean)
-    const pendingReqs = storage.get(recipientKey, [])
-    storage.set(recipientKey, pendingReqs.filter((r) => r.fromUser.username.toLowerCase() !== senderClean))
-
-    return updatedChats
+    return currentSenderChats.filter((c) => c.id !== chatId)
   },
 
-  // Bloquear usuario desde una solicitud recibida
   async blockUserRequest(req, recipientUsername) {
     const recipientClean = recipientUsername.toLowerCase()
     const senderClean = req.fromUser.username.toLowerCase()
@@ -439,21 +322,14 @@ export const chatService = {
         senderUsername: senderClean
       })
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
-
-    const reqKey = STORAGE_KEYS.userRequestsKey(recipientClean)
-    const pendingReqs = storage.get(reqKey, [])
-    const updatedReqs = pendingReqs.filter((r) => r.id !== req.id)
-    storage.set(reqKey, updatedReqs)
-    return updatedReqs
+    return []
   },
 
-  // Marcar mensajes recibidos como leídos (Visto / ✓✓ Azul) en MongoDB Atlas
   async markMessagesAsRead(readerUsername, senderUsername) {
     const reader = (readerUsername || '').trim().toLowerCase()
     const sender = (senderUsername || '').trim().toLowerCase()
-
     if (!reader || !sender) return
 
     try {
@@ -462,7 +338,7 @@ export const chatService = {
         senderUsername: sender
       })
     } catch {
-      // Fallback local
+      // Backend inaccesible
     }
   }
 }

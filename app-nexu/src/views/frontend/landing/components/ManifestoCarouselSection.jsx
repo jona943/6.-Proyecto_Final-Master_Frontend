@@ -3,6 +3,7 @@ import sovereignIdentityImg from '../assets/sovereign-identity.jpg'
 import invisibleNetworkImg from '../assets/invisible-network.jpg'
 import pureSilenceImg from '../assets/pure-silence.jpg'
 import { IconLock, IconChevronLeft, IconChevronRight } from '../../../../components/icons/Icons'
+import './ManifestoCarouselSection.css'
 
 export const MANIFESTO_LAWS = [
   {
@@ -12,10 +13,10 @@ export const MANIFESTO_LAWS = [
     tag: 'LEY 01 · IDENTIDAD SOBERANA',
     title: 'Tu privacidad no le pertenece a una tarjeta SIM',
     contrast: 'Las grandes aplicaciones atan tu cuenta a tu chip móvil, exponiendo tus contactos y operadora.',
-    solution: 'En Nexu, tu @alias único es tu sola credencial. Cero números telefónicos, cero metadatos atados.',
+    solution: 'En NexuHub, tu @alias único es tu sola credencial. Cero números telefónicos, cero metadatos atados.',
     badge: '0% Números Telefónicos',
     image: sovereignIdentityImg,
-    imageAlt: 'Arte conceptual de Identidad Soberana Nexu'
+    imageAlt: 'Arte conceptual de Identidad Soberana NexuHub'
   },
   {
     id: 'law-02',
@@ -27,7 +28,7 @@ export const MANIFESTO_LAWS = [
     solution: 'Bandeja ciega absoluta: nadie sabe que estás en la red a menos que tú le compartas tu @alias.',
     badge: 'Bandeja Ciega · Cero Rastreo',
     image: invisibleNetworkImg,
-    imageAlt: 'Arte conceptual de Red Invisible Nexu'
+    imageAlt: 'Arte conceptual de Red Invisible NexuHub'
   },
   {
     id: 'law-03',
@@ -39,7 +40,7 @@ export const MANIFESTO_LAWS = [
     solution: 'Canales directos persona a persona, con cifrado estricto y total ausencia de algoritmos.',
     badge: '100% Mensajería Directa',
     image: pureSilenceImg,
-    imageAlt: 'Arte conceptual de Silencio y Comunicación Pura Nexu'
+    imageAlt: 'Arte conceptual de Silencio y Comunicación Pura NexuHub'
   }
 ]
 
@@ -147,7 +148,7 @@ function ManifestoCarouselSection({
                 <p className="comp-text">{currentLaw.contrast}</p>
               </div>
               <div className="comp-row comp-solution">
-                <span className="comp-badge comp-badge-sovereign">El estándar Nexu</span>
+                <span className="comp-badge comp-badge-sovereign">El estándar NexuHub</span>
                 <p className="comp-text">{currentLaw.solution}</p>
               </div>
             </div>

@@ -274,6 +274,20 @@ export const IconChevronDown = ({ size = 18 }) => (
   </svg>
 )
 
+export const IconRefresh = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21.5 2v6h-6"></path>
+    <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+  </svg>
+)
+
+export const IconClock = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <polyline points="12 6 12 12 16 14"></polyline>
+  </svg>
+)
+
 // ============================================================================
 // AVATARES VECTORIALES NATIVOS DE IDENTIDAD
 // ============================================================================

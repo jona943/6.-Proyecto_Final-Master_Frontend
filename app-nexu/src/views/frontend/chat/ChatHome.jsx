@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Chat.css'
-import { useAuth } from '../../../context/AuthContext'
-import { useChat } from '../../../context/ChatContext'
+import { useAuthStore } from '../../../store/useAuthStore'
+import { useChats } from '../../../hooks/useChats'
 import { chatService } from '../../../services/chatService'
 import { sanitizeAlias } from '../../../utils/validators'
 import { aliasSchema, validateWithSchema } from '../../../utils/schemas'
@@ -16,8 +17,10 @@ import ChatEmptyState from './components/ChatEmptyState'
 // ============================================================================
 // COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR + CONTEXT + UTILS)
 // ============================================================================
-function ChatHome({ onOpenSettings }) {
-  const { user } = useAuth()
+function ChatHome() {
+  const navigate = useNavigate()
+  const { user } = useAuthStore()
+  
   const {
     chats,
     activeChat,
@@ -33,7 +36,7 @@ function ChatHome({ onOpenSettings }) {
     blockUser,
     deleteConversation,
     clearCurrentChat
-  } = useChat()
+  } = useChats(user?.username || 'guest')
 
   const [inputText, setInputText] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
@@ -208,7 +211,7 @@ function ChatHome({ onOpenSettings }) {
         }}
         presenceStatus={customPresence || presenceStatus}
         onSelectPresence={handleSelectPresence}
-        onOpenSettings={onOpenSettings}
+        onOpenSettings={() => navigate('/settings')}
         onOpenConnectModal={() => setShowConnectModal(true)}
         onToggleDetailsPanel={() => setShowDetailsPanel(!showDetailsPanel)}
         showDetailsPanel={showDetailsPanel}

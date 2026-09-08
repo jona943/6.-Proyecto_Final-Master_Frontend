@@ -1,4 +1,5 @@
 import { IconVolume2 } from '../../../../components/icons/Icons'
+import './PreferencesTab.css'
 
 function PreferencesTab({
   themeMode,

@@ -1,0 +1,67 @@
+/* ==========================================================================
+   NEXU PROFILE & SETTINGS — PRIVACY & SECURITY TAB
+   Control de privacidad, cambio de credenciales y sesiones activas
+   ========================================================================== */
+
+.security-session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.session-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  gap: 1rem;
+}
+
+.session-device-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.device-icon-box {
+  width: 42px;
+  height: 42px;
+  background-color: var(--bg-surface-hover);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-acid);
+}
+
+.device-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.device-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-current-session {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #27c93f;
+  background-color: rgba(39, 201, 63, 0.1);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(39, 201, 63, 0.3);
+}
+
+.device-location {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}

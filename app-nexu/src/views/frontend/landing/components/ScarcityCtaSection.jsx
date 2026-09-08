@@ -1,6 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import { IconUserPlus } from '../../../../components/icons/Icons'
+import './ScarcityCtaSection.css'
 
-function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
+function ScarcityCtaSection({ onScrollToManifiesto }) {
+  const navigate = useNavigate()
   return (
     <section id="escasez" className="scarcity-cta-section">
       {/* Horizonte de luz de transición desde el Manifiesto */}
@@ -20,7 +23,7 @@ function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
           </h2>
 
           <p className="scarcity-desc">
-            El protocolo Nexu restringe los identificadores a combinaciones alfanuméricas estrictas. Sin números aleatorios obligatorios (#0042), sin sufijos comerciales y sin reventa de identificadores. Tu @alias es tu soberanía digital a perpetuidad.
+            El protocolo NexuHub (nexuhub.me) restringe los identificadores a combinaciones alfanuméricas estrictas. Sin números aleatorios obligatorios (#0042), sin sufijos comerciales y sin reventa de identificadores. Tu nexuhub.me/@alias es tu soberanía digital a perpetuidad.
           </p>
 
           <div className="scarcity-metrics-row">
@@ -42,7 +45,7 @@ function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
             <button
               type="button"
               className="btn-final-primary"
-              onClick={() => onNavigate && onNavigate('register')}
+              onClick={() => navigate('/register')}
             >
               <IconUserPlus />
               <span>Reclamar mi Alias</span>
@@ -50,7 +53,7 @@ function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
             <button
               type="button"
               className="btn-final-secondary"
-              onClick={() => onNavigate && onNavigate('login')}
+              onClick={() => navigate('/login')}
             >
               <span>Iniciar sesión</span>
             </button>
@@ -62,8 +65,8 @@ function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
       <div className="scarcity-footer-bar">
         <div className="scarcity-footer-brand">
           <span className="logo-tiny">N</span>
-          <span>Nexu</span>
-          <span className="footer-pill">v1.0</span>
+          <span>NexuHub</span>
+          <span className="footer-pill">nexuhub.me</span>
         </div>
 
         <div className="scarcity-footer-links">
@@ -81,7 +84,7 @@ function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
         </div>
 
         <p className="scarcity-footer-copy">
-          © 2026 Nexu · Cero rastreo, cero publicidad.
+          © 2026 NexuHub (nexuhub.me) · Cero rastreo, cero publicidad.
         </p>
       </div>
     </section>

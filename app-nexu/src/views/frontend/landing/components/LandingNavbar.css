@@ -1,0 +1,183 @@
+/* ==========================================================================
+   NAVBAR FLOTANTE DE CRISTAL (LandingNavbar Component)
+   ========================================================================== */
+.landing-navbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background-color: rgba(8, 9, 11, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s ease;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brand-logo-box {
+  width: 32px;
+  height: 32px;
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  box-shadow: 0 0 16px rgba(212, 255, 0, 0.35);
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.brand-badge-pill {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.08);
+  border: 1px solid rgba(212, 255, 0, 0.2);
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.nav-link-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease;
+}
+
+.nav-link-btn:hover {
+  color: var(--text-primary);
+}
+
+.nav-btn-secondary {
+  background-color: rgba(22, 25, 31, 0.85);
+  color: var(--text-primary);
+  border: 1px solid var(--border-active);
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 0.48rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-btn-secondary:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--text-secondary);
+}
+
+.nav-btn-primary {
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  font-weight: 700;
+  padding: 0.5rem 1.05rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  box-shadow: 0 2px 14px rgba(212, 255, 0, 0.25);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-btn-primary:hover {
+  background-color: var(--accent-acid-hover);
+  box-shadow: 0 4px 20px rgba(212, 255, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Adaptación Responsiva */
+@media (max-width: 768px) {
+  .nav-link-btn {
+    display: none;
+  }
+
+  .navbar-container {
+    padding: 0.75rem 1rem;
+  }
+
+  .navbar-actions {
+    gap: 0.5rem;
+  }
+
+  .nav-btn-secondary {
+    padding: 0.42rem 0.8rem;
+    font-size: 0.82rem;
+  }
+
+  .nav-btn-primary {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-badge-pill {
+    display: none;
+  }
+
+  .brand-title {
+    font-size: 1rem;
+  }
+
+  .navbar-actions {
+    gap: 0.4rem;
+  }
+
+  .nav-btn-secondary {
+    padding: 0.38rem 0.65rem;
+    font-size: 0.78rem;
+  }
+
+  .nav-btn-primary {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.78rem;
+  }
+}

@@ -1,13 +1,16 @@
+import { useNavigate } from 'react-router-dom'
 import { IconUserPlus } from '../../../../components/icons/Icons'
+import './LandingNavbar.css'
 
-function LandingNavbar({ onNavigate, onScrollToManifiesto }) {
+function LandingNavbar({ onScrollToManifiesto }) {
+  const navigate = useNavigate()
   return (
     <header className="landing-navbar">
       <div className="navbar-container">
         <div className="navbar-brand">
           <div className="brand-logo-box">N</div>
-          <span className="brand-title">Nexu</span>
-          <span className="brand-badge-pill">v1.0</span>
+          <span className="brand-title">NexuHub</span>
+          <span className="brand-badge-pill">nexuhub.me</span>
         </div>
 
         <nav className="navbar-actions">
@@ -21,14 +24,14 @@ function LandingNavbar({ onNavigate, onScrollToManifiesto }) {
           <button
             className="nav-btn-secondary"
             type="button"
-            onClick={() => onNavigate && onNavigate('login')}
+            onClick={() => navigate('/login')}
           >
             Iniciar sesión
           </button>
           <button
             className="nav-btn-primary"
             type="button"
-            onClick={() => onNavigate && onNavigate('register')}
+            onClick={() => navigate('/register')}
           >
             <IconUserPlus />
             <span>Reclamar Alias</span>

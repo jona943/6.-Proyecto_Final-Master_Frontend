@@ -125,7 +125,7 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-canvas);
+  background-color: #08090b;
   color: var(--text-primary);
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
@@ -137,6 +137,24 @@ body {
   padding-bottom: var(--safe-bottom);
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(8, 9, 11, 0.75) 0%, rgba(8, 9, 11, 0.92) 100%),
+    url('/nexuhubFondo2.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Herencia Tipográfica Global (Cambias el token en :root y cambia en toda la app) */

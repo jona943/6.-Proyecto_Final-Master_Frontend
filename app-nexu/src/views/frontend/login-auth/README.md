@@ -24,7 +24,7 @@ El sistema está diseñado bajo una premisa de privacidad y rapidez (sin requeri
 
 ### B. Inicio de Sesión (Login)
 - **Campos:** Usuario único y Contraseña (8+ caracteres).
-- **Mostrar/Ocultar contraseña:** Toggle visual interactivo (👁️).
+- **Mostrar/Ocultar contraseña:** Toggle visual interactivo (️).
 - **Recordar sesión:** Switch / checkbox de persistencia.
 - **Acceso rápido Demo:** Botón para autocompletar credenciales de prueba (`@rosi_master` / `Nexu2026Pass!`).
 

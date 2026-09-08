@@ -244,7 +244,11 @@ export const authService = {
           gender: sessionData.gender
         })
 
-        storage.set(STORAGE_KEYS.ACTIVE_USER, sessionData)
+        storage.set(STORAGE_KEYS.ACTIVE_USER, {
+          id: sessionData.id,
+          username: sessionData.username,
+          token: sessionData.token
+        })
         return sessionData
       }
 
@@ -280,7 +284,11 @@ export const authService = {
       token: `nexu_token_local_${Date.now()}`
     }
 
-    storage.set(STORAGE_KEYS.ACTIVE_USER, sessionData)
+    storage.set(STORAGE_KEYS.ACTIVE_USER, {
+      id: sessionData.id,
+      username: sessionData.username,
+      token: sessionData.token
+    })
     return sessionData
   },
 
@@ -337,7 +345,11 @@ export const authService = {
           gender: sessionData.gender
         })
 
-        storage.set(STORAGE_KEYS.ACTIVE_USER, sessionData)
+        storage.set(STORAGE_KEYS.ACTIVE_USER, {
+          id: sessionData.id,
+          username: sessionData.username,
+          token: sessionData.token
+        })
         return sessionData
       }
 
@@ -372,7 +384,11 @@ export const authService = {
       token: `nexu_token_local_${Date.now()}`
     }
 
-    storage.set(STORAGE_KEYS.ACTIVE_USER, sessionData)
+    storage.set(STORAGE_KEYS.ACTIVE_USER, {
+      id: sessionData.id,
+      username: sessionData.username,
+      token: sessionData.token
+    })
     return sessionData
   },
 

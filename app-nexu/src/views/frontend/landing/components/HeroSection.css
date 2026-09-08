@@ -1,0 +1,360 @@
+/* ==========================================================================
+   HERO CINEMATOGRÁFICO (HeroSection Component)
+   ========================================================================== */
+.hero-cinematic-section {
+  position: relative;
+  z-index: 1;
+  height: calc(100dvh - 65px);
+  min-height: calc(100dvh - 65px);
+  max-height: calc(100dvh - 65px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1.75rem 1.5rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: transparent;
+  scroll-snap-align: start;
+  scroll-margin-top: 65px;
+}
+
+.hero-ambient-glow {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 680px);
+  height: 380px;
+  background: radial-gradient(circle, rgba(212, 255, 0, 0.055) 0%, rgba(212, 255, 0, 0.012) 45%, transparent 70%);
+  filter: blur(75px);
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientGlowPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes ambientGlowPulse {
+  0% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+.hero-content-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 880px;
+  width: 100%;
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  animation: heroCinematicFade 0.6s ease-out;
+}
+
+@keyframes heroCinematicFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(22, 25, 31, 0.7);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent-acid);
+  box-shadow: 0 0 16px rgba(212, 255, 0, 0.08);
+  max-width: 100%;
+}
+
+.hero-cinematic-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  margin: 0;
+}
+
+.hero-glow-highlight {
+  color: var(--accent-acid);
+  text-shadow: 0 0 35px rgba(212, 255, 0, 0.28);
+}
+
+.hero-cinematic-desc {
+  font-size: clamp(0.96rem, 1.8vw, 1.15rem);
+  color: var(--text-secondary);
+  max-width: 580px;
+  line-height: 1.65;
+  text-wrap: balance;
+  margin: 0;
+}
+
+/* Widget de Reclamar Alias */
+.hero-claim-box {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.hero-claim-form {
+  display: flex;
+  align-items: stretch;
+  background-color: rgba(16, 18, 22, 0.92);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-md);
+  padding: 0.35rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+}
+
+.hero-claim-form:focus-within {
+  border-color: var(--accent-acid);
+  box-shadow: 0 0 24px rgba(212, 255, 0, 0.2);
+}
+
+.claim-input-group {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding-left: 0.85rem;
+  min-width: 0;
+}
+
+.claim-prefix {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-acid);
+  user-select: none;
+}
+
+.claim-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 0.6rem 0.5rem;
+}
+
+.claim-input::placeholder {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.btn-claim-submit {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-sm);
+  cursor: not-allowed;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+.btn-claim-submit.is-valid {
+  background-color: var(--accent-acid);
+  color: var(--accent-acid-contrast);
+  border-color: var(--accent-acid);
+  cursor: pointer;
+  opacity: 1;
+  box-shadow: 0 0 20px rgba(212, 255, 0, 0.35);
+}
+
+.btn-claim-submit.is-valid:hover {
+  background-color: var(--accent-acid-hover);
+  box-shadow: 0 0 28px rgba(212, 255, 0, 0.5);
+  transform: translateY(-1px);
+}
+
+.claim-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.status-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-idle {
+  color: var(--text-tertiary);
+}
+.status-idle .status-indicator-dot {
+  background-color: var(--text-tertiary);
+}
+
+.status-warning {
+  color: #facc15;
+  background-color: rgba(250, 204, 21, 0.08);
+}
+.status-warning .status-indicator-dot {
+  background-color: #facc15;
+  box-shadow: 0 0 8px #facc15;
+  animation: statusPulse 1s infinite alternate;
+}
+
+.status-valid {
+  color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.08);
+}
+.status-valid .status-indicator-dot {
+  background-color: var(--accent-acid);
+  box-shadow: 0 0 8px var(--accent-acid);
+}
+
+.status-error {
+  color: #f87171;
+  background-color: rgba(248, 113, 113, 0.08);
+}
+.status-error .status-indicator-dot {
+  background-color: #f87171;
+  box-shadow: 0 0 8px #f87171;
+}
+
+@keyframes statusPulse {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+/* Scroll Mouse Pill */
+.hero-scroll-wrapper {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.scroll-mouse-pill {
+  width: 26px;
+  height: 42px;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+  cursor: pointer;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+  box-sizing: border-box;
+}
+
+.scroll-mouse-pill:hover {
+  border-color: var(--accent-acid);
+  transform: translateY(-2px);
+}
+
+.scroll-dot-wheel {
+  width: 4px;
+  height: 8px;
+  background-color: var(--accent-acid);
+  border-radius: 999px;
+  animation: mouseWheelScroll 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes mouseWheelScroll {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  60% {
+    opacity: 0.2;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* Adaptación Responsiva Hero */
+@media (max-width: 768px) {
+  .hero-cinematic-section {
+    padding: 1rem 1rem 1.25rem 1rem;
+    height: calc(100dvh - 58px);
+    min-height: calc(100dvh - 58px);
+    max-height: calc(100dvh - 58px);
+    justify-content: center;
+    scroll-margin-top: 58px;
+  }
+
+  .hero-scroll-wrapper {
+    display: none;
+  }
+
+  .hero-pill-badge {
+    font-size: 0.66rem;
+    padding: 0.3rem 0.75rem;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-claim-form {
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.45rem;
+  }
+
+  .claim-input-group {
+    padding-left: 0.4rem;
+  }
+
+  .claim-input {
+    font-size: 0.92rem;
+    padding: 0.5rem 0.3rem;
+  }
+
+  .btn-claim-submit {
+    width: 100%;
+    justify-content: center;
+    padding: 0.65rem;
+    font-size: 0.86rem;
+  }
+}

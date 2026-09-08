@@ -2,6 +2,7 @@ import {
   IconSmartphone,
   IconLaptop
 } from '../../../../components/icons/Icons'
+import './PrivacySecurityTab.css'
 
 function PrivacySecurityTab({
   privacy,

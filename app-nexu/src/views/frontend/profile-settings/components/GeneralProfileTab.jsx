@@ -6,6 +6,7 @@ import {
   AvatarMale,
   renderAvatarBadge
 } from '../../../../components/icons/Icons'
+import './GeneralProfileTab.css'
 
 function GeneralProfileTab({
   profile,
