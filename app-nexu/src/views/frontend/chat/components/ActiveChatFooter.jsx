@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { IconClock, IconImage, IconPaperclip, IconCode, IconSend } from '../../../../components/icons/Icons'
 
 function ActiveChatFooter({
@@ -9,6 +10,111 @@ function ActiveChatFooter({
   onInsertCodeSnippet,
   onCancelRequest
 }) {
+  const fileInputRef = useRef(null)
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (event) => {
+        const img = new Image()
+        img.src = event.target.result
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX_WIDTH = 1200
+          const MAX_HEIGHT = 1200
+          let width = img.width
+          let height = img.height
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width
+              width = MAX_WIDTH
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height
+              height = MAX_HEIGHT
+            }
+          }
+          canvas.width = width
+          canvas.height = height
+
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, width, height)
+          
+          // Compresión al 70% calidad JPEG
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
+          resolve(dataUrl)
+        }
+      }
+    })
+  }
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Limite de 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      onTriggerToast('El archivo supera los 5MB permitidos.')
+      return
+    }
+
+    const isImage = file.type.startsWith('image/')
+    
+    // Generamos un ID único para guardar en LocalStorage temporalmente
+    const fileId = `file_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+    
+    try {
+      let dataUrl = ''
+      
+      if (isImage) {
+        onTriggerToast('Comprimiendo imagen...')
+        dataUrl = await compressImage(file)
+      } else {
+        onTriggerToast('Procesando archivo local...')
+        dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader()
+          reader.readAsDataURL(file)
+          reader.onload = () => resolve(reader.result)
+        })
+      }
+
+      // Guardar en el almacenamiento local del dispositivo emisor
+      localStorage.setItem(fileId, dataUrl)
+
+      // Tamaño formateado
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(2)
+      
+      const attachment = {
+        fileId,
+        name: file.name,
+        type: isImage ? 'image' : 'document',
+        size: `${sizeMb} MB`
+      }
+
+      // Enviar el mensaje adjuntando el archivo
+      onSendMessage(null, attachment)
+      
+    } catch (error) {
+      console.error(error)
+      onTriggerToast('Error al procesar el archivo.')
+    } finally {
+      // Limpiar el input
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSendMessage(e)
+  }
+
   if (activeChat.isPending) {
     return (
       <footer className="chat-input-footer" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '1.2rem 1.5rem', background: 'rgba(15, 23, 42, 0.6)', gap: '0.8rem' }}>
@@ -34,21 +140,19 @@ function ActiveChatFooter({
 
   return (
     <footer className="chat-input-footer">
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
       <div className="chat-toolbar">
         <div className="toolbar-group">
           <button
             type="button"
             className="btn-tool-icon"
-            title="Adjuntar imagen"
-            onClick={() => onTriggerToast('Simulación: Adjuntar imagen disponible')}
-          >
-            <IconImage size={16} />
-          </button>
-          <button
-            type="button"
-            className="btn-tool-icon"
-            title="Adjuntar archivo"
-            onClick={() => onTriggerToast('Simulación: Adjuntar documento disponible')}
+            title="Adjuntar archivo o imagen"
+            onClick={handleFileClick}
           >
             <IconPaperclip size={16} />
           </button>
@@ -65,7 +169,7 @@ function ActiveChatFooter({
         <span className="toolbar-hint">Presiona Enter para enviar</span>
       </div>
 
-      <form className="input-controls-row" onSubmit={onSendMessage}>
+      <form className="input-controls-row" onSubmit={handleSubmit}>
         <input
           type="text"
           className="message-text-input"

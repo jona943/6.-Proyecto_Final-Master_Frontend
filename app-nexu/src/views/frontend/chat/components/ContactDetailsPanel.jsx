@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import './ContactDetailsPanel.css'
 import {
   IconX,
@@ -9,52 +9,8 @@ import {
   IconPaperclip,
   IconImage,
   IconCode,
-  IconLink,
-  IconCheck
+  IconLink
 } from '../../../../components/icons/Icons'
-
-// Datos simulados de archivos y enlaces compartidos en la conversación
-const MOCK_SHARED_FILES = [
-  {
-    id: 'f1',
-    name: 'especificaciones_chat_v1.pdf',
-    size: '1.2 MB',
-    date: 'Hoy, 09:30 AM',
-    type: 'pdf',
-    icon: <IconPaperclip size={15} />
-  },
-  {
-    id: 'f2',
-    name: 'obsidian_palette_tokens.json',
-    size: '42 KB',
-    date: 'Ayer, 04:15 PM',
-    type: 'code',
-    icon: <IconCode size={15} />
-  },
-  {
-    id: 'f3',
-    name: 'architecture_diagram.png',
-    size: '780 KB',
-    date: '18 Ago, 11:20 AM',
-    type: 'image',
-    icon: <IconImage size={15} />
-  }
-]
-
-const MOCK_SHARED_LINKS = [
-  {
-    id: 'l1',
-    title: 'Repositorio GitHub del Proyecto Final',
-    url: 'https://github.com/jona943/6.-Proyecto_Final-Master_Frontend',
-    domain: 'github.com'
-  },
-  {
-    id: 'l2',
-    title: 'Guía de Arquitectura React & WebSockets',
-    url: 'https://nexu.app/docs/architecture',
-    domain: 'nexu.app'
-  }
-]
 
 function ContactDetailsPanel({
   activeChat,
@@ -63,6 +19,44 @@ function ContactDetailsPanel({
   onDeleteConversation
 }) {
   const [activeTab, setActiveTab] = useState('info') // 'info' | 'media'
+
+  // Extraer enlaces de los mensajes en tiempo real
+  const sharedLinks = useMemo(() => {
+    if (!activeChat?.messages) return []
+    const links = []
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+
+    activeChat.messages.forEach((msg) => {
+      if (msg.text) {
+        const matches = msg.text.match(urlRegex)
+        if (matches) {
+          matches.forEach((url) => {
+            try {
+              const domain = new URL(url).hostname
+              links.push({
+                id: `${msg.id}-${url}`,
+                url,
+                domain,
+                title: url.length > 40 ? url.substring(0, 40) + '...' : url
+              })
+            } catch (e) {
+              // Ignore invalid URLs
+            }
+          })
+        }
+      }
+    })
+    return links
+  }, [activeChat?.messages])
+
+  // Extraer archivos adjuntos (preparado para la nueva funcionalidad)
+  const sharedFiles = useMemo(() => {
+    if (!activeChat?.messages) return []
+    // Buscamos mensajes que tengan la propiedad 'attachment'
+    return activeChat.messages
+      .filter((msg) => msg.attachment)
+      .map((msg) => msg.attachment)
+  }, [activeChat?.messages])
 
   if (!activeChat) return null
 
@@ -91,7 +85,7 @@ function ContactDetailsPanel({
         <span className="details-role-pill">{activeChat.role}</span>
       </div>
 
-      {/* 3. Pestañas de Navegación del Panel (Info vs Archivos & Enlaces) */}
+      {/* 3. Pestañas de Navegación */}
       <div className="details-nav-tabs">
         <button
           className={`details-tab-btn ${activeTab === 'info' ? 'active' : ''}`}
@@ -109,7 +103,7 @@ function ContactDetailsPanel({
         </button>
       </div>
 
-      {/* 4. Contenido según pestaña activa */}
+      {/* 4. Contenido según pestaña */}
       {activeTab === 'info' ? (
         <>
           <div className="details-section">
@@ -119,13 +113,6 @@ function ContactDetailsPanel({
               <div className="details-info-text">
                 <strong>Nombre</strong>
                 <span>{activeChat.name}</span>
-              </div>
-            </div>
-            <div className="details-info-row">
-              <IconMail size={15} />
-              <div className="details-info-text">
-                <strong>Correo</strong>
-                <span>{activeChat.email}</span>
               </div>
             </div>
           </div>
@@ -170,56 +157,65 @@ function ContactDetailsPanel({
       ) : (
         /* Pestaña: Archivos y Enlaces Compartidos */
         <div className="details-media-tab-content">
+          
           {/* Sección de Documentos y Archivos */}
           <div className="details-section">
-            <span className="details-section-title">Documentos y Archivos ({MOCK_SHARED_FILES.length})</span>
-            <div className="shared-files-list">
-              {MOCK_SHARED_FILES.map((file) => (
-                <div key={file.id} className="shared-file-item" title={`Archivo: ${file.name}`}>
-                  <div className="shared-file-icon">
-                    {file.icon}
+            <span className="details-section-title">Documentos y Archivos ({sharedFiles.length})</span>
+            {sharedFiles.length === 0 ? (
+              <div className="empty-media-msg" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No hay archivos compartidos.</div>
+            ) : (
+              <div className="shared-files-list">
+                {sharedFiles.map((file) => (
+                  <div key={file.id} className="shared-file-item" title={`Archivo: ${file.name}`}>
+                    <div className="shared-file-icon">
+                      {file.type === 'image' ? <IconImage size={15} /> : <IconPaperclip size={15} />}
+                    </div>
+                    <div className="shared-file-info">
+                      <span className="shared-file-name">{file.name}</span>
+                      <span className="shared-file-meta">{file.size} · Local</span>
+                    </div>
                   </div>
-                  <div className="shared-file-info">
-                    <span className="shared-file-name">{file.name}</span>
-                    <span className="shared-file-meta">{file.size} · {file.date}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Sección de Enlaces Compartidos */}
           <div className="details-section">
-            <span className="details-section-title">Enlaces Compartidos ({MOCK_SHARED_LINKS.length})</span>
-            <div className="shared-links-list">
-              {MOCK_SHARED_LINKS.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="shared-link-item"
-                  title={link.url}
-                >
-                  <div className="shared-link-icon">
-                    <IconLink size={15} />
-                  </div>
-                  <div className="shared-link-info">
-                    <span className="shared-link-title">{link.title}</span>
-                    <span className="shared-link-domain">{link.domain}</span>
-                  </div>
-                </a>
-              ))}
-            </div>
+            <span className="details-section-title">Enlaces Compartidos ({sharedLinks.length})</span>
+            {sharedLinks.length === 0 ? (
+              <div className="empty-media-msg" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No hay enlaces compartidos.</div>
+            ) : (
+              <div className="shared-links-list">
+                {sharedLinks.map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shared-link-item"
+                    title={link.url}
+                  >
+                    <div className="shared-link-icon">
+                      <IconLink size={15} />
+                    </div>
+                    <div className="shared-link-info">
+                      <span className="shared-link-title">{link.title}</span>
+                      <span className="shared-link-domain">{link.domain}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="details-section" style={{ marginTop: 'auto', borderBottom: 'none' }}>
             <div className="sidebar-privacy-box">
               <span className="sidebar-privacy-tag">
-                <IconShield size={14} /> Almacenamiento Seguro
+                <IconShield size={14} /> Almacenamiento Local
               </span>
               <p className="sidebar-privacy-text">
-                Los archivos compartidos en esta sesión están disponibles exclusivamente para este hilo directo.
+                Los archivos se guardan únicamente en el almacenamiento local de este dispositivo.
               </p>
             </div>
           </div>

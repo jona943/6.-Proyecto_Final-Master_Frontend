@@ -82,12 +82,16 @@ export function useChats(currentUsername) {
 
       // A. Crear tarjetas de chats aceptados
       if (acceptedUsers && Array.isArray(acceptedUsers)) {
-        for (const targetUser of acceptedUsers) {
-          const cleanTarget = targetUser.toLowerCase()
+        for (const targetUserObj of acceptedUsers) {
+          // Backward compatibility check inside the map:
+          const targetUsername = typeof targetUserObj === 'string' ? targetUserObj : targetUserObj.username
+          const isTargetOnline = typeof targetUserObj === 'string' ? true : targetUserObj.isOnline
+          
+          const cleanTarget = targetUsername.toLowerCase()
           const chatId = `chat_${cleanTarget}`
-          const exists = nextChats.some((c) => c.id === chatId)
+          const existingChatIndex = nextChats.findIndex((c) => c.id === chatId)
 
-          if (!exists) {
+          if (existingChatIndex === -1) {
             hasChanges = true
             nextChats = [
               {
@@ -96,8 +100,8 @@ export function useChats(currentUsername) {
                 handle: `@${cleanTarget}`,
                 avatar: cleanTarget.slice(0, 2).toUpperCase(),
                 isBot: false,
-                status: 'online',
-                statusText: 'En línea · Conectado',
+                status: isTargetOnline ? 'online' : 'offline',
+                statusText: isTargetOnline ? 'En línea' : 'Desconectado',
                 isPending: false,
                 unreadCount: 0,
                 role: 'Contacto Nexu',
@@ -107,6 +111,18 @@ export function useChats(currentUsername) {
               },
               ...nextChats
             ]
+          } else {
+            // Update presence if changed
+            const existingChat = nextChats[existingChatIndex]
+            const newStatus = isTargetOnline ? 'online' : 'offline'
+            if (existingChat.status !== newStatus) {
+              hasChanges = true
+              nextChats[existingChatIndex] = {
+                ...existingChat,
+                status: newStatus,
+                statusText: isTargetOnline ? 'En línea' : 'Desconectado'
+              }
+            }
           }
         }
       }
@@ -114,14 +130,15 @@ export function useChats(currentUsername) {
       // B. Sincronizar mensajes en chats existentes
       nextChats = nextChats.map((c) => {
         const target = c.handle ? c.handle.replace(/^@/, '').toLowerCase() : ''
+        const acceptedObj = acceptedUsers?.find(u => (typeof u === 'string' ? u : u.username) === target)
 
-        if (c.isPending && acceptedUsers?.includes(target)) {
+        if (c.isPending && acceptedObj) {
           hasChanges = true
           return {
             ...c,
             isPending: false,
-            status: 'online',
-            statusText: 'En línea · Conectado',
+            status: typeof acceptedObj === 'string' ? 'online' : (acceptedObj.isOnline ? 'online' : 'offline'),
+            statusText: typeof acceptedObj === 'string' ? 'En línea' : (acceptedObj.isOnline ? 'En línea' : 'Desconectado'),
             messages: c.messages.some((m) => m.id.includes('accepted'))
               ? c.messages
               : [
@@ -176,6 +193,15 @@ export function useChats(currentUsername) {
       })
 
       if (hasChanges) {
+        nextChats.sort((a, b) => {
+          const aLast = a.messages.length > 0 ? a.messages[a.messages.length - 1] : null
+          const bLast = b.messages.length > 0 ? b.messages[b.messages.length - 1] : null
+          
+          const aTime = aLast?.createdAt ? new Date(aLast.createdAt).getTime() : (aLast?.id ? parseInt(aLast.id.split('_').pop()) || 0 : 0)
+          const bTime = bLast?.createdAt ? new Date(bLast.createdAt).getTime() : (bLast?.id ? parseInt(bLast.id.split('_').pop()) || 0 : 0)
+          
+          return bTime - aTime
+        })
         queryClient.setQueryData(['chats', currentUsername], nextChats)
       }
 
@@ -231,10 +257,10 @@ export function useChats(currentUsername) {
     )
   }
 
-  const sendMessage = async (text) => {
-    if (!text.trim() || !activeChat || activeChat.isPending) return
+  const sendMessage = async (text, attachment = null) => {
+    if ((!text.trim() && !attachment) || !activeChat || activeChat.isPending) return
 
-    const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername)
+    const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername, attachment)
     queryClient.setQueryData(['chats', currentUsername], updatedChats)
 
     if (activeChat.isBot) {

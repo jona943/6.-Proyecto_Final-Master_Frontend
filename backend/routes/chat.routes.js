@@ -21,6 +21,9 @@ router.get('/sync', async (req, res) => {
       })
     }
 
+    // 0. Actualizar última actividad del usuario actual
+    await User.findOneAndUpdate({ username: clean }, { lastActive: new Date() })
+
     // 1. Solicitudes de conexión entrantes pendientes
     const pendingDocs = await ConnectionRequest.find({
       targetUsername: clean,
@@ -45,9 +48,23 @@ router.get('/sync', async (req, res) => {
       $or: [{ senderUsername: clean }, { targetUsername: clean }]
     })
 
-    const acceptedUsers = acceptedDocs.map((doc) =>
+    const acceptedUsernames = acceptedDocs.map((doc) =>
       doc.senderUsername === clean ? doc.targetUsername : doc.senderUsername
     )
+
+    // Consultar el estado "online" de los usuarios aceptados (activos en los últimos 2 minutos)
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000)
+    const activeUsers = await User.find({
+      username: { $in: acceptedUsernames },
+      lastActive: { $gte: twoMinutesAgo }
+    }).select('username lastActive')
+
+    const onlineSet = new Set(activeUsers.map(u => u.username))
+
+    const acceptedUsers = acceptedUsernames.map(username => ({
+      username,
+      isOnline: onlineSet.has(username)
+    }))
 
     // 3. Mensajes recientes 1 a 1
     const messagesDocs = await ChatMessage.find({
@@ -61,7 +78,9 @@ router.get('/sync', async (req, res) => {
       sender: msg.senderUsername === clean ? 'me' : 'them',
       text: msg.text,
       time: msg.time,
-      status: msg.status
+      status: msg.status,
+      ...(msg.attachment && { attachment: msg.attachment }),
+      createdAt: msg.createdAt
     }))
 
     return res.status(200).json({
@@ -308,36 +327,34 @@ router.post('/block', async (req, res) => {
  */
 router.post('/message', async (req, res) => {
   try {
-    const { senderUsername, recipientUsername, text } = req.body || {}
+    const { senderUsername, recipientUsername, text, attachment } = req.body || {}
     const sender = (senderUsername || '').trim().toLowerCase()
     const recipient = (recipientUsername || '').trim().toLowerCase()
 
-    if (!sender || !recipient || !text || !text.trim()) {
+    if (!sender || !recipient || (!text?.trim() && !attachment)) {
       return res.status(400).json({
         success: false,
-        message: 'senderUsername, recipientUsername y text son requeridos.'
+        message: 'senderUsername, recipientUsername, y (text o attachment) son requeridos.'
       })
     }
 
-    const newMsg = await ChatMessage.create({
+    const newMessage = new ChatMessage({
       senderUsername: sender,
       recipientUsername: recipient,
-      text: text.trim(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: 'delivered'
+      text: text?.trim() || '',
+      attachment: attachment || null
     })
 
-    return res.status(201).json({
+    await newMessage.save()
+
+    res.status(201).json({
       success: true,
-      message: 'Mensaje enviado exitosamente.',
-      data: newMsg
+      message: 'Mensaje guardado exitosamente.',
+      data: newMessage
     })
   } catch (error) {
-    console.error('Error en /api/chats/message:', error.message)
-    return res.status(500).json({
-      success: false,
-      message: 'Error al enviar mensaje 1 a 1.'
-    })
+    console.error('Error POST /chats/message:', error.message)
+    res.status(500).json({ success: false, message: 'Error interno.' })
   }
 })
 
