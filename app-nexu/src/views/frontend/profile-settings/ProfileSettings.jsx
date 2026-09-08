@@ -90,16 +90,7 @@ function ProfileSettings() {
   }
 
   // Contactos Bloqueados
-  const [blockedUsers, setBlockedUsers] = useState([
-    {
-      id: 'usr-b1',
-      name: 'Spam Bot Publicidad',
-      handle: '@crypto_promo_99',
-      avatarType: 'neutral',
-      initials: 'SP',
-      date: '14 Feb 2026'
-    }
-  ])
+  const [blockedUsers, setBlockedUsers] = useState([])
 
   // Modales y Toasts
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false)
