@@ -15,7 +15,7 @@ function HeroSection({
         {/* Badge superior de protocolo */}
         <div className="hero-pill-badge">
           <IconShield />
-          <span>PROTOCOLO DIRECTO · SIN NÚMEROS DE TELÉFONO</span>
+          <span>NEXUHUB.ME · PROTOCOLO DIRECTO</span>
         </div>
 
         {/* Titular Principal */}
@@ -34,7 +34,7 @@ function HeroSection({
         <div className="hero-claim-box">
           <form className="hero-claim-form" onSubmit={onClaimSubmit}>
             <div className="claim-input-group">
-              <span className="claim-prefix">@</span>
+              <span className="claim-prefix">nexuhub.me/@</span>
               <input
                 type="text"
                 className="claim-input"
@@ -72,7 +72,7 @@ function HeroSection({
           className="scroll-mouse-pill"
           onClick={onScrollToManifiesto}
           type="button"
-          aria-label="Desplazarse al Manifiesto de Nexu"
+          aria-label="Desplazarse al Manifiesto de NexuHub"
         >
           <span className="scroll-dot-wheel" aria-hidden="true" />
         </button>

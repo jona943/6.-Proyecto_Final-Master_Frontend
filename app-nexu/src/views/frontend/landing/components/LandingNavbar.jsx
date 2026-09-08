@@ -6,8 +6,8 @@ function LandingNavbar({ onNavigate, onScrollToManifiesto }) {
       <div className="navbar-container">
         <div className="navbar-brand">
           <div className="brand-logo-box">N</div>
-          <span className="brand-title">Nexu</span>
-          <span className="brand-badge-pill">v1.0</span>
+          <span className="brand-title">NexuHub</span>
+          <span className="brand-badge-pill">nexuhub.me</span>
         </div>
 
         <nav className="navbar-actions">
