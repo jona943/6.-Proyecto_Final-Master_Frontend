@@ -45,6 +45,7 @@ app.use('/api', publicRoutes)        // /api/health, /api/public/check-alias, et
 app.use('/api/auth', authRoutes)     // /api/auth/login, /api/auth/register
 app.use('/api/chats', chatRoutes)    // /api/chats, /api/chats/message
 app.use('/api/user', userRoutes)     // /api/user/profile
+app.use('/api/assistant', assistantRoutes) // /api/assistant/ask
 
 // Ruta Raíz Informativa
 app.get('/', (req, res) => {

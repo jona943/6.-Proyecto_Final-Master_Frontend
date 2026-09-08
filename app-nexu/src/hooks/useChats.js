@@ -240,16 +240,17 @@ export function useChats(currentUsername) {
     if (activeChat.isBot) {
       setIsTyping(true)
       try {
-        const data = await api.post('/assistant/ask', {
+        const response = await api.post('/assistant/ask', {
           text,
           history: activeChat.messages
         })
-        
-        if (data.success && data.answer) {
-          const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, data.answer)
+
+        // El cliente api.js envuelve la respuesta en { success: true, data: { ... } }
+        if (response.success && response.data && response.data.answer) {
+          const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, response.data.answer)
           queryClient.setQueryData(['chats', currentUsername], replyChats)
         } else {
-          console.error('Error del bot:', data.message)
+          console.error('Error del bot:', response.error || response.data?.message || 'Respuesta inválida')
         }
       } catch (err) {
         console.error('Error de red al llamar al bot:', err)

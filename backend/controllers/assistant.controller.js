@@ -17,7 +17,6 @@ export const askAssistant = async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY
 
     if (!apiKey) {
-      console.warn('Falta GEMINI_API_KEY. Usando respuesta mock local.')
       return res.status(200).json({
         success: true,
         answer: 'Mensaje verificado (Mock). Por favor, configura GEMINI_API_KEY en las variables de entorno de tu servidor para activar Gemini.'
@@ -25,7 +24,6 @@ export const askAssistant = async (req, res) => {
     }
 
     // Formatear el historial para la API REST directa de Gemini
-    // Formato: { role: 'user' | 'model', parts: [{ text: '...' }] }
     const formattedContents = []
     
     if (Array.isArray(history)) {
@@ -43,8 +41,7 @@ export const askAssistant = async (req, res) => {
       parts: [{ text }]
     })
 
-    // Usar Node.js nativo fetch (bypass de NPM y paquetes problemáticos)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`
     
     const response = await fetch(url, {
       method: 'POST',

@@ -108,18 +108,21 @@ export const chatService = {
     return null
   },
 
-  // Auto-respuesta simulada en memoria
-  async getAutoReply(chats, chatId, userMessage) {
-    await new Promise((resolve) => setTimeout(resolve, 1100))
-
+  // Auto-respuesta
+  async getAutoReply(chats, chatId, userMessageOrAnswer) {
     const targetChat = chats.find((c) => c.id === chatId)
     let replyText = ''
 
     if (targetChat?.isBot) {
-      const randomIndex = Math.floor(Math.random() * BOT_RESPONSES.length)
-      replyText = BOT_RESPONSES[randomIndex]
+      // Si nos pasan una respuesta directa (ej. de Gemini API), úsala
+      if (userMessageOrAnswer && userMessageOrAnswer.length > 0) {
+        replyText = userMessageOrAnswer
+      } else {
+        const randomIndex = Math.floor(Math.random() * BOT_RESPONSES.length)
+        replyText = BOT_RESPONSES[randomIndex]
+      }
     } else {
-      replyText = `Recibido: "${userMessage}". Respuesta registrada en el hilo privado.`
+      replyText = `Recibido: "${userMessageOrAnswer}". Respuesta registrada en el hilo privado.`
     }
 
     const now = new Date()
