@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { chatService } from '../services/chatService'
 import { useChatUIStore } from '../store/useChatUIStore'
+import api from '../services/api'
 
 const INITIAL_CHATS_DEFAULT = [
   {
@@ -238,11 +239,23 @@ export function useChats(currentUsername) {
 
     if (activeChat.isBot) {
       setIsTyping(true)
-      setTimeout(async () => {
-        const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, text)
-        queryClient.setQueryData(['chats', currentUsername], replyChats)
+      try {
+        const data = await api.post('/assistant/ask', {
+          text,
+          history: activeChat.messages
+        })
+        
+        if (data.success && data.answer) {
+          const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, data.answer)
+          queryClient.setQueryData(['chats', currentUsername], replyChats)
+        } else {
+          console.error('Error del bot:', data.message)
+        }
+      } catch (err) {
+        console.error('Error de red al llamar al bot:', err)
+      } finally {
         setIsTyping(false)
-      }, 1100)
+      }
     }
   }
 

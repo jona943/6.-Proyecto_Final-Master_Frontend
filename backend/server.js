@@ -7,6 +7,7 @@ import publicRoutes from './routes/public.routes.js'
 import authRoutes from './routes/auth.routes.js'
 import chatRoutes from './routes/chat.routes.js'
 import userRoutes from './routes/user.routes.js'
+import assistantRoutes from './routes/assistant.routes.js'
 
 // Importar Conexión a Base de Datos
 import { connectDB } from './config/db.js'
