@@ -115,13 +115,6 @@ function ContactDetailsPanel({
                 <span>{activeChat.name}</span>
               </div>
             </div>
-            <div className="details-info-row">
-              <IconMail size={15} />
-              <div className="details-info-text">
-                <strong>Correo</strong>
-                <span>{activeChat.email}</span>
-              </div>
-            </div>
           </div>
 
           <div className="details-section">

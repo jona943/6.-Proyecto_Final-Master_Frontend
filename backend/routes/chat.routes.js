@@ -21,6 +21,9 @@ router.get('/sync', async (req, res) => {
       })
     }
 
+    // 0. Actualizar última actividad del usuario actual
+    await User.findOneAndUpdate({ username: clean }, { lastActive: new Date() })
+
     // 1. Solicitudes de conexión entrantes pendientes
     const pendingDocs = await ConnectionRequest.find({
       targetUsername: clean,
@@ -45,9 +48,23 @@ router.get('/sync', async (req, res) => {
       $or: [{ senderUsername: clean }, { targetUsername: clean }]
     })
 
-    const acceptedUsers = acceptedDocs.map((doc) =>
+    const acceptedUsernames = acceptedDocs.map((doc) =>
       doc.senderUsername === clean ? doc.targetUsername : doc.senderUsername
     )
+
+    // Consultar el estado "online" de los usuarios aceptados (activos en los últimos 2 minutos)
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000)
+    const activeUsers = await User.find({
+      username: { $in: acceptedUsernames },
+      lastActive: { $gte: twoMinutesAgo }
+    }).select('username lastActive')
+
+    const onlineSet = new Set(activeUsers.map(u => u.username))
+
+    const acceptedUsers = acceptedUsernames.map(username => ({
+      username,
+      isOnline: onlineSet.has(username)
+    }))
 
     // 3. Mensajes recientes 1 a 1
     const messagesDocs = await ChatMessage.find({

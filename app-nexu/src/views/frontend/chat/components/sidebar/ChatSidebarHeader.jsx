@@ -62,14 +62,6 @@ const ChatSidebarHeader = ({
         >
           <IconMenu />
         </button>
-        <button
-          className={`btn-icon-subtle ${showDetailsPanel ? 'active' : ''}`}
-          title="Detalles de usuario"
-          onClick={onToggleDetailsPanel}
-          type="button"
-        >
-          <IconInfo />
-        </button>
       </div>
     </header>
   )

@@ -58,8 +58,7 @@ function ActiveChatHeader({
             title="Buscar mensajes en esta conversación"
             type="button"
           >
-            <IconSearch size={15} />
-            <span>Buscar</span>
+            <IconSearch size={16} />
           </button>
 
           {/* Botón Detalles del Contacto */}
@@ -70,7 +69,6 @@ function ActiveChatHeader({
             type="button"
           >
             <IconInfo size={16} />
-            <span>Detalles</span>
           </button>
         </div>
       </header>
