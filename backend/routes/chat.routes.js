@@ -52,19 +52,23 @@ router.get('/sync', async (req, res) => {
       doc.senderUsername === clean ? doc.targetUsername : doc.senderUsername
     )
 
-    // Consultar el estado "online" de los usuarios aceptados (activos en los últimos 2 minutos)
+    // Consultar el estado "online" y datos adicionales de los usuarios aceptados
     const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000)
     const activeUsers = await User.find({
-      username: { $in: acceptedUsernames },
-      lastActive: { $gte: twoMinutesAgo }
-    }).select('username lastActive')
+      username: { $in: acceptedUsernames }
+    }).select('username lastActive avatarUrl displayName')
 
-    const onlineSet = new Set(activeUsers.map(u => u.username))
+    const onlineSet = new Set(activeUsers.filter(u => u.lastActive >= twoMinutesAgo).map(u => u.username))
 
-    const acceptedUsers = acceptedUsernames.map(username => ({
-      username,
-      isOnline: onlineSet.has(username)
-    }))
+    const acceptedUsers = acceptedUsernames.map(username => {
+      const dbUser = activeUsers.find(u => u.username === username)
+      return {
+        username,
+        isOnline: onlineSet.has(username),
+        avatarUrl: dbUser?.avatarUrl || null,
+        displayName: dbUser?.displayName || null
+      }
+    })
 
     // 3. Mensajes recientes 1 a 1
     const messagesDocs = await ChatMessage.find({

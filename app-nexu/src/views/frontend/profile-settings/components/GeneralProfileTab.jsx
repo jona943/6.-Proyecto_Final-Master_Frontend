@@ -1,3 +1,4 @@
+import React, { useRef } from 'react'
 import {
   IconCamera,
   IconCheck,
@@ -19,24 +20,71 @@ function GeneralProfileTab({
   onUsernameChange,
   onSaveProfile
 }) {
+  const fileInputRef = useRef(null)
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const MAX_SIZE = 150
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width
+            width = MAX_SIZE
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height
+            height = MAX_SIZE
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
+        onProfileChange({ target: { name: 'avatarUrl', value: compressedBase64 } })
+      }
+      img.src = event.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+
   return (
     <div className="tab-content-area">
       <section className="settings-section-card">
         <div className="section-card-header">
           <div className="section-title-group">
             <h3>Identidad de Usuario</h3>
-            <p>Configura tu icono vectorial, nombre visible, sexo y estado de presencia.</p>
+            <p>Sube tu fotografía real o configura tu icono vectorial, nombre y presencia.</p>
           </div>
         </div>
 
         {/* Fila Hero del Perfil con Avatar Vectorial y Datos Rápidos */}
         <div className="profile-hero-row">
           <div className="avatar-edit-container">
-            {renderAvatarBadge(profile.avatarType, userInitials, 100)}
+            {renderAvatarBadge(profile.avatarType, userInitials, 100, profile.avatarUrl)}
+            <input 
+              type="file" 
+              accept="image/*" 
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
             <button
               className="avatar-change-badge"
-              onClick={onOpenAvatarModal}
-              title="Cambiar estilo de avatar"
+              onClick={() => fileInputRef.current?.click()}
+              title="Cambiar fotografía"
               type="button"
             >
               <IconCamera />
@@ -54,105 +102,39 @@ function GeneralProfileTab({
 
         {/* Selector de Sexo / Identidad de Género */}
         <div className="form-group">
-          <label className="form-label">
+          <label className="form-label" htmlFor="genderSelect">
             <span>Identidad de Género / Sexo</span>
             <span className="form-label-hint">Asigna tu icono representativo</span>
           </label>
-          <div className="gender-selector-grid">
-            <button
-              type="button"
-              className={`gender-option-btn ${profile.gender === 'neutral' ? 'active' : ''}`}
-              onClick={() => onGenderChange('neutral')}
-            >
-              <AvatarNeutral size={18} />
-              <div className="gender-btn-meta">
-                <span className="gender-btn-title">Prefiero no especificar</span>
-                <span className="gender-btn-sub">Icono neutral o iniciales</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className={`gender-option-btn ${profile.gender === 'female' ? 'active' : ''}`}
-              onClick={() => onGenderChange('female')}
-            >
-              <AvatarFemale size={18} />
-              <div className="gender-btn-meta">
-                <span className="gender-btn-title">Femenino</span>
-                <span className="gender-btn-sub">Icono femenino</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className={`gender-option-btn ${profile.gender === 'male' ? 'active' : ''}`}
-              onClick={() => onGenderChange('male')}
-            >
-              <AvatarMale size={18} />
-              <div className="gender-btn-meta">
-                <span className="gender-btn-title">Masculino</span>
-                <span className="gender-btn-sub">Icono masculino</span>
-              </div>
-            </button>
-          </div>
+          <select
+            id="genderSelect"
+            className="form-input"
+            value={profile.gender || 'neutral'}
+            onChange={(e) => onGenderChange(e.target.value)}
+          >
+            <option value="neutral">Prefiero no especificar</option>
+            <option value="female">Femenino</option>
+            <option value="male">Masculino</option>
+          </select>
         </div>
 
         {/* Selector de Estado de Presencia */}
         <div className="form-group">
-          <label className="form-label">
+          <label className="form-label" htmlFor="presenceSelect">
             <span>Estado de Presencia</span>
             <span className="form-label-hint">Visible para tus contactos</span>
           </label>
-
-          <div className="presence-selector-grid">
-            <button
-              type="button"
-              className={`presence-option-btn ${profile.presence === 'online' ? 'active' : ''}`}
-              onClick={() => onPresenceChange('online')}
-            >
-              <span className="status-dot online"></span>
-              <div className="presence-text">
-                <span className="presence-label">En línea</span>
-                <span className="presence-desc">Recibe alertas y mensajes al instante</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className={`presence-option-btn ${profile.presence === 'away' ? 'active' : ''}`}
-              onClick={() => onPresenceChange('away')}
-            >
-              <span className="status-dot away"></span>
-              <div className="presence-text">
-                <span className="presence-label">Ausente</span>
-                <span className="presence-desc">Temporalmente inactivo</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className={`presence-option-btn ${profile.presence === 'dnd' ? 'active' : ''}`}
-              onClick={() => onPresenceChange('dnd')}
-            >
-              <span className="status-dot dnd"></span>
-              <div className="presence-text">
-                <span className="presence-label">No molestar</span>
-                <span className="presence-desc">Sin notificaciones de sonido</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className={`presence-option-btn ${profile.presence === 'offline' ? 'active' : ''}`}
-              onClick={() => onPresenceChange('offline')}
-            >
-              <span className="status-dot offline"></span>
-              <div className="presence-text">
-                <span className="presence-label">Desconectado</span>
-                <span className="presence-desc">Ocultar estado activo</span>
-              </div>
-            </button>
-          </div>
+          <select
+            id="presenceSelect"
+            className="form-input"
+            value={profile.presence || 'online'}
+            onChange={(e) => onPresenceChange(e.target.value)}
+          >
+            <option value="online">En línea (Alerta y mensajes al instante)</option>
+            <option value="away">Ausente (Temporalmente inactivo)</option>
+            <option value="dnd">No molestar (Sin notificaciones sonoras)</option>
+            <option value="offline">Desconectado (Ocultar estado activo)</option>
+          </select>
         </div>
 
         {/* Formulario de Datos */}

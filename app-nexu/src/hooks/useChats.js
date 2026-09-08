@@ -86,6 +86,8 @@ export function useChats(currentUsername) {
           // Backward compatibility check inside the map:
           const targetUsername = typeof targetUserObj === 'string' ? targetUserObj : targetUserObj.username
           const isTargetOnline = typeof targetUserObj === 'string' ? true : targetUserObj.isOnline
+          const targetAvatarUrl = typeof targetUserObj === 'string' ? null : targetUserObj.avatarUrl
+          const targetDisplayName = typeof targetUserObj === 'string' ? null : targetUserObj.displayName
           
           const cleanTarget = targetUsername.toLowerCase()
           const chatId = `chat_${cleanTarget}`
@@ -96,9 +98,10 @@ export function useChats(currentUsername) {
             nextChats = [
               {
                 id: chatId,
-                name: `@${cleanTarget}`,
+                name: targetDisplayName || `@${cleanTarget}`,
                 handle: `@${cleanTarget}`,
                 avatar: cleanTarget.slice(0, 2).toUpperCase(),
+                avatarUrl: targetAvatarUrl,
                 isBot: false,
                 status: isTargetOnline ? 'online' : 'offline',
                 statusText: isTargetOnline ? 'En línea' : 'Desconectado',
@@ -112,15 +115,21 @@ export function useChats(currentUsername) {
               ...nextChats
             ]
           } else {
-            // Update presence if changed
-            const existingChat = nextChats[existingChatIndex]
-            const newStatus = isTargetOnline ? 'online' : 'offline'
-            if (existingChat.status !== newStatus) {
+            // Actualizar el estado si es necesario
+            const currentStatus = isTargetOnline ? 'online' : 'offline'
+            const currentChat = nextChats[existingChatIndex]
+            if (
+              currentChat.status !== currentStatus || 
+              currentChat.avatarUrl !== targetAvatarUrl ||
+              currentChat.name !== (targetDisplayName || `@${cleanTarget}`)
+            ) {
               hasChanges = true
               nextChats[existingChatIndex] = {
-                ...existingChat,
-                status: newStatus,
-                statusText: isTargetOnline ? 'En línea' : 'Desconectado'
+                ...currentChat,
+                status: currentStatus,
+                statusText: isTargetOnline ? 'En línea' : 'Desconectado',
+                avatarUrl: targetAvatarUrl,
+                name: targetDisplayName || `@${cleanTarget}`
               }
             }
           }

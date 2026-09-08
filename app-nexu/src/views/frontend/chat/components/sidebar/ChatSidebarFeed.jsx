@@ -122,9 +122,15 @@ const ChatSidebarFeed = ({
               onClick={() => onSelectChat(chat.id)}
             >
               <div className="avatar-wrapper">
-                <div className={`avatar-badge ${chat.isBot ? 'system-avatar' : ''}`}>
-                  {chat.avatar}
-                </div>
+                {chat.avatarUrl ? (
+                  <div className="avatar-badge" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+                    <img src={chat.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ) : (
+                  <div className={`avatar-badge ${chat.isBot ? 'system-avatar' : ''}`}>
+                    {chat.avatar}
+                  </div>
+                )}
                 <span className={`user-status-dot ${chat.status}`}></span>
               </div>
 
