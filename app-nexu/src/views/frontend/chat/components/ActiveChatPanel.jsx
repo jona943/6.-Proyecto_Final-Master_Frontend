@@ -11,7 +11,8 @@ import {
   IconCode,
   IconSend,
   IconSearch,
-  IconX
+  IconX,
+  IconClock
 } from '../../../../components/icons/Icons'
 
 function ActiveChatPanel({
@@ -286,7 +287,7 @@ function ActiveChatPanel({
       {activeChat.isPending ? (
         <footer className="chat-input-footer" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '1.2rem 1.5rem', background: 'rgba(15, 23, 42, 0.6)', gap: '0.8rem' }}>
           <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
-            <span>⏳</span>
+            <IconClock size={16} />
             <span>
               <strong>Solicitud de conexión enviada.</strong> Podrás entablar una conversación 1 a 1 cuando <strong>{activeChat.name}</strong> acepte tu solicitud.
             </span>

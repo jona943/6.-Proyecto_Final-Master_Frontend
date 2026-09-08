@@ -1,27 +1,27 @@
-# 🔐 Módulo de Autenticación (NexuHub - Auth)
+#  Módulo de Autenticación (NexuHub - Auth)
 
 Este directorio contiene los subcomponentes y hooks que componen el flujo de autenticación, creación de usuario y recuperación de acceso de **NexuHub** (`nexuhub.me`).
 
 ---
 
-## 📐 Arquitectura Modular y Custom Hooks
+##  Arquitectura Modular y Custom Hooks
 
 ```
 login-auth/
-├── Login.jsx                        # 🌟 Componente coordinador visual principal
-├── Login.css                        # 🎨 Estilos globales del módulo de autenticación
+├── Login.jsx                        #  Componente coordinador visual principal
+├── Login.css                        #  Estilos globales del módulo de autenticación
 ├── hooks/
-│   └── useAuthForm.js               # ⚡ Custom Hook: Lógica de formularios, Zod y API
+│   └── useAuthForm.js               #  Custom Hook: Lógica de formularios, Zod y API
 ├── components/
-│   ├── README.md                    # 📖 Guía de componentes de autenticación
-│   ├── LoginForm.jsx                # 🔑 Subcomponente Formulario de Inicio de Sesión
-│   ├── RegisterForm.jsx             # 📝 Subcomponente Formulario de Registro / Reclamo de Alias
-│   └── ForgotPasswordForm.jsx       # 🛡️ Subcomponente Formulario de Recuperación de Acceso
+│   ├── README.md                    #  Guía de componentes de autenticación
+│   ├── LoginForm.jsx                #  Subcomponente Formulario de Inicio de Sesión
+│   ├── RegisterForm.jsx             #  Subcomponente Formulario de Registro / Reclamo de Alias
+│   └── ForgotPasswordForm.jsx       # ️ Subcomponente Formulario de Recuperación de Acceso
 ```
 
 ---
 
-## 🔍 Responsabilidades del Módulo
+##  Responsabilidades del Módulo
 
 ### 1. `useAuthForm.js` (Custom Hook)
 * Encapsula los estados reactivos de los inputs de Login, Registro y Recuperación.

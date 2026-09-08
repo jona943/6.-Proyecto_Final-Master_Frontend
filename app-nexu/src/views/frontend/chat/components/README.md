@@ -1,17 +1,17 @@
-# 💬 Módulo de Chat y Mensajería (NexuHub)
+#  Módulo de Chat y Mensajería (NexuHub)
 
 Este directorio contiene los **subcomponentes modulares** que conforman el cliente de chat de tiempo real de **NexuHub** (`nexuhub.me`).
 
 ---
 
-## 📐 Arquitectura de Componentes y Estilos CSS
+##  Arquitectura de Componentes y Estilos CSS
 
 ```
 chat/
-├── ChatHome.jsx                   # 🌟 Coordinador del Estado General del Chat
-├── Chat.css                       # 🎨 Estilos globales del layout contenedor (.chat-app-layout)
+├── ChatHome.jsx                   #  Coordinador del Estado General del Chat
+├── Chat.css                       #  Estilos globales del layout contenedor (.chat-app-layout)
 └── components/
-    ├── README.md                  # 📖 Guía técnica de subcomponentes de chat
+    ├── README.md                  #  Guía técnica de subcomponentes de chat
     ├── ChatSidebar.jsx            # 1. Lista de conversaciones, buscador y sugerencias
     ├── ChatSidebar.css            #    - Estilos y desdibujado glassmorphism del Sidebar
     ├── ActiveChatPanel.jsx        # 2. Ventana activa de conversación, feed e inputs
@@ -26,7 +26,7 @@ chat/
 
 ---
 
-## 🔍 Responsabilidades del Módulo
+##  Responsabilidades del Módulo
 
 ### 1. `ChatSidebar` (`ChatSidebar.jsx` + `ChatSidebar.css`)
 * Renderiza el encabezado del usuario autenticado, selector de estado de presencia (En línea, Ausente, Ocupado) y barra de búsqueda.

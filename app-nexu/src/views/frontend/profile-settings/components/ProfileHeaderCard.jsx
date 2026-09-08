@@ -1,4 +1,5 @@
 import { IconArrowLeft, IconLogOut, renderAvatarBadge } from '../../../../components/icons/Icons'
+import './ProfileHeaderCard.css'
 
 function ProfileHeaderCard({
   profile,

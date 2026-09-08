@@ -1,16 +1,16 @@
-# 🧩 Componentes de la Landing Page (NexuHub)
+#  Componentes de la Landing Page (NexuHub)
 
 Este directorio contiene la suite de **subcomponentes modulares** que conforman la vista principal de la Landing Page de **NexuHub** (`nexuhub.me`).
 
 ---
 
-## 📐 Arquitectura y Modularización CSS
+##  Arquitectura y Modularización CSS
 
 Cada subcomponente cuenta con su propio archivo CSS dedicado para garantizar la **encapsulacion, mantenibilidad y reusabilidad**:
 
 ```
 components/
-├── README.md                      # 📖 Guía de componentes y estructura
+├── README.md                      #  Guía de componentes y estructura
 ├── LandingNavbar.jsx              # 0. Navbar superior flotante de cristal
 ├── LandingNavbar.css              #    - Estilos y responsivo del Navbar
 ├── HeroSection.jsx                # 1. Sección Hero cinematográfica y buscador de alias
@@ -25,7 +25,7 @@ components/
 
 ---
 
-## 🔍 Mapa de Subcomponentes y Responsabilidades
+##  Mapa de Subcomponentes y Responsabilidades
 
 ### 0. `LandingNavbar` (`LandingNavbar.jsx` + `LandingNavbar.css`)
 * **Propósito:** Navegación flotante persistente con efecto de cristal (`backdrop-filter: blur`).
@@ -55,7 +55,7 @@ components/
 
 ---
 
-## 🛠️ Convenciones de Desarrollo
+## ️ Convenciones de Desarrollo
 1. **Modificación de Estilos:** Si requieres ajustar el diseño de una sección específica, edita directamente su archivo `.css` hermano (ej. `HeroSection.css`).
 2. **Animaciones:** Las animaciones globales de pulso ambiental (`ambientGlowPulse`) se definen y reutilizan en los componentes que lo requieren.
 3. **Build:** Vite empaqueta automáticamente todos los archivos CSS importados en un único bundle optimizado durante la compilación de producción.

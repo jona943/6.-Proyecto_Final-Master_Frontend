@@ -1,4 +1,5 @@
 import { IconShield, renderAvatarBadge } from '../../../../components/icons/Icons'
+import './BlockedUsersTab.css'
 
 function BlockedUsersTab({ blockedUsers, onUnblockUser }) {
   return (

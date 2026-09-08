@@ -3,6 +3,7 @@ import {
   AVATAR_TYPES,
   renderAvatarBadge
 } from '../../../../components/icons/Icons'
+import './AvatarSelectorModal.css'
 
 function AvatarSelectorModal({
   isOpen,

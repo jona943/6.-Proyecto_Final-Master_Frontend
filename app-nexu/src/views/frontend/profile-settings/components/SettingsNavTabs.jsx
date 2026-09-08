@@ -4,6 +4,7 @@ import {
   IconShield,
   IconUserX
 } from '../../../../components/icons/Icons'
+import './SettingsNavTabs.css'
 
 function SettingsNavTabs({ activeTab, onSelectTab, blockedCount }) {
   return (
