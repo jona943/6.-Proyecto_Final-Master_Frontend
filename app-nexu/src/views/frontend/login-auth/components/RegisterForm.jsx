@@ -6,7 +6,6 @@ import {
   IconArrowRight,
   IconAlertCircle,
   IconCheck,
-  IconCheckCircle,
   IconInfo,
   IconAtSign
 } from '../../../../components/icons/Icons'
@@ -34,6 +33,10 @@ function RegisterForm({
     state: 'idle',
     reason: ''
   })
+
+  // Modales/Popovers de información contextual (i)
+  const [showAliasInfo, setShowAliasInfo] = useState(false)
+  const [showPasswordInfo, setShowPasswordInfo] = useState(false)
 
   // Refrescar sugerencias de alias
   const refreshSuggestions = () => {
@@ -69,16 +72,50 @@ function RegisterForm({
       <div className="auth-form-header">
         <h2 className="auth-form-title">Crea tu usuario único</h2>
         <p className="auth-form-desc">
-          Sin correos ni números de teléfono. Tu alias es tu identidad soberana e irrepetible.
+          Sin correos ni números de teléfono. Tu alias es tu identidad soberana en NexuHub.
         </p>
       </div>
 
       {/* 1. CAMPO: USUARIO ÚNICO */}
       <div className="form-group">
         <div className="form-label">
-          <label htmlFor="reg-username">Usuario único (Alias)</label>
-          <span className="input-hint">3 a 10 caracteres alfanuméricos</span>
+          <div className="label-with-info">
+            <label htmlFor="reg-username">Usuario único (Alias)</label>
+            <button
+              type="button"
+              className="btn-info-icon"
+              onClick={() => setShowAliasInfo(!showAliasInfo)}
+              title="Información sobre tu alias único"
+              aria-label="Ver recomendaciones de usuario único"
+            >
+              <IconInfo size={14} />
+            </button>
+          </div>
+          <span className="input-hint">3 a 10 caracteres</span>
         </div>
+
+        {/* Popover flotante de información para Alias (i) */}
+        {showAliasInfo && (
+          <div className="info-popover-box">
+            <div className="popover-header">
+              <IconInfo size={14} />
+              <span>Criterios de usuario único</span>
+              <button
+                type="button"
+                className="popover-close-btn"
+                onClick={() => setShowAliasInfo(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <ul className="popover-list">
+              <li>• <strong>Unicidad:</strong> Tu alias es irrepetible en la red NexuHub.</li>
+              <li>• <strong>Longitud:</strong> Entre 3 y 10 caracteres.</li>
+              <li>• <strong>Caracteres:</strong> Letras (a-z), números (0-9) y guión bajo (_).</li>
+              <li>• <strong>Privacidad:</strong> Evita teléfonos o datos personales.</li>
+            </ul>
+          </div>
+        )}
 
         <div className="input-container">
           <span className="input-prefix-at">@</span>
@@ -134,7 +171,7 @@ function RegisterForm({
         <div className="alias-suggestions-wrapper">
           <div className="alias-suggestions-header">
             <span className="suggestions-title">
-              <IconAtSign size={13} /> Sugerencias disponibles para ti:
+              <IconAtSign size={12} /> Sugerencias:
             </span>
             <button
               type="button"
@@ -160,40 +197,60 @@ function RegisterForm({
             ))}
           </div>
         </div>
-
-        {/* Caja de Recomendaciones para Crear Usuario */}
-        <div className="alias-recommendations-box">
-          <div className="recommendations-header">
-            <IconInfo size={14} />
-            <span>Recomendaciones para tu usuario único:</span>
-          </div>
-          <ul className="recommendations-list">
-            <li>
-              <span className="rec-bullet">•</span>
-              <span><strong>Unicidad absoluta:</strong> No se repiten usuarios. Tu alias es tu dirección irrepetible para que otros puedan buscarte sin confusiones.</span>
-            </li>
-            <li>
-              <span className="rec-bullet">•</span>
-              <span><strong>Longitud:</strong> Debe tener entre <strong>3 y 10 caracteres</strong>.</span>
-            </li>
-            <li>
-              <span className="rec-bullet">•</span>
-              <span><strong>Caracteres permitidos:</strong> Letras (a-z), números (0-9) y guión bajo (_). Sin espacios ni símbolos extraños.</span>
-            </li>
-            <li>
-              <span className="rec-bullet">•</span>
-              <span><strong>Privacidad:</strong> No uses nombres reales ni teléfonos; elige un alias distintivo.</span>
-            </li>
-          </ul>
-        </div>
       </div>
 
       {/* 2. CAMPO: CONTRASEÑA */}
       <div className="form-group">
         <div className="form-label">
-          <label htmlFor="reg-password">Contraseña</label>
+          <div className="label-with-info">
+            <label htmlFor="reg-password">Contraseña</label>
+            <button
+              type="button"
+              className="btn-info-icon"
+              onClick={() => setShowPasswordInfo(!showPasswordInfo)}
+              title="Ver requisitos de contraseña segura"
+              aria-label="Ver requisitos de contraseña"
+            >
+              <IconInfo size={14} />
+            </button>
+          </div>
           <span className="input-hint">Mín. 8 caracteres</span>
         </div>
+
+        {/* Popover flotante de información para Contraseña (i) */}
+        {showPasswordInfo && (
+          <div className="info-popover-box">
+            <div className="popover-header">
+              <IconInfo size={14} />
+              <span>Requisitos de contraseña</span>
+              <button
+                type="button"
+                className="popover-close-btn"
+                onClick={() => setShowPasswordInfo(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <ul className="popover-list">
+              <li className={regPassword.length >= 8 ? 'met' : ''}>
+                {regPassword.length >= 8 ? '✓' : '•'} Mínimo 8 caracteres
+              </li>
+              <li className={/[A-Z]/.test(regPassword) ? 'met' : ''}>
+                {/[A-Z]/.test(regPassword) ? '✓' : '•'} Al menos una mayúscula (A-Z)
+              </li>
+              <li className={/[a-z]/.test(regPassword) ? 'met' : ''}>
+                {/[a-z]/.test(regPassword) ? '✓' : '•'} Al menos una minúscula (a-z)
+              </li>
+              <li className={/[0-9]/.test(regPassword) ? 'met' : ''}>
+                {/[0-9]/.test(regPassword) ? '✓' : '•'} Al menos un número (0-9)
+              </li>
+              <li className={/[^a-zA-Z0-9]/.test(regPassword) ? 'met' : ''}>
+                {/[^a-zA-Z0-9]/.test(regPassword) ? '✓' : '•'} Al menos un símbolo (!, #, $, etc.)
+              </li>
+            </ul>
+          </div>
+        )}
+
         <div className="input-container">
           <span className="input-icon-left">
             <IconLock />
@@ -217,48 +274,19 @@ function RegisterForm({
           </button>
         </div>
 
-        {/* Indicador visual de longitud/seguridad */}
+        {/* Indicador visual compacto de fortaleza de contraseña */}
         {regPassword && (
-          <>
+          <div className="password-strength-compact">
             <div className="password-strength-bar">
               <div className={`strength-segment ${passwordStrength.level >= 1 ? passwordStrength.class : ''}`} />
               <div className={`strength-segment ${passwordStrength.level >= 2 ? passwordStrength.class : ''}`} />
               <div className={`strength-segment ${passwordStrength.level >= 3 ? passwordStrength.class : ''}`} />
             </div>
-            <div className="strength-label">
+            <span className="strength-label">
               Seguridad: <strong>{passwordStrength.label}</strong>
-            </div>
-          </>
+            </span>
+          </div>
         )}
-
-        {/* Requisitos descritos de la contraseña */}
-        <div className="password-requirements-box">
-          <span className="password-requirements-title">
-            Requisitos de la contraseña:
-          </span>
-          <ul className="password-requirements-list">
-            <li className={regPassword.length >= 8 ? 'met' : ''}>
-              <span className="req-bullet">{regPassword.length >= 8 ? <IconCheck size={12} /> : '•'}</span>
-              <span>Mínimo 8 caracteres</span>
-            </li>
-            <li className={/[A-Z]/.test(regPassword) ? 'met' : ''}>
-              <span className="req-bullet">{/[A-Z]/.test(regPassword) ? <IconCheck size={12} /> : '•'}</span>
-              <span>Al menos una mayúscula (A-Z)</span>
-            </li>
-            <li className={/[a-z]/.test(regPassword) ? 'met' : ''}>
-              <span className="req-bullet">{/[a-z]/.test(regPassword) ? <IconCheck size={12} /> : '•'}</span>
-              <span>Al menos una minúscula (a-z)</span>
-            </li>
-            <li className={/[0-9]/.test(regPassword) ? 'met' : ''}>
-              <span className="req-bullet">{/[0-9]/.test(regPassword) ? <IconCheck size={12} /> : '•'}</span>
-              <span>Al menos un número (0-9)</span>
-            </li>
-            <li className={/[^a-zA-Z0-9]/.test(regPassword) ? 'met' : ''}>
-              <span className="req-bullet">{/[^a-zA-Z0-9]/.test(regPassword) ? <IconCheck size={12} /> : '•'}</span>
-              <span>Al menos un símbolo (+, -, *, !, etc.)</span>
-            </li>
-          </ul>
-        </div>
 
         {formErrors.regPassword && (
           <span className="input-error-msg">
