@@ -1,14 +1,5 @@
-import { useState } from 'react'
+import useAuthForm from './hooks/useAuthForm'
 import './Login.css'
-import { useAuth } from '../../../context/AuthContext'
-import { session, STORAGE_KEYS } from '../../../services/storageService'
-import { authService } from '../../../services/authService'
-import {
-  sanitizeAlias,
-  validateLoginForm,
-  getPasswordStrength
-} from '../../../utils/validators'
-import { registerSchema, connectUserSchema, validateWithSchema } from '../../../utils/schemas'
 
 import {
   IconUser,
@@ -22,185 +13,41 @@ import RegisterForm from './components/RegisterForm'
 import ForgotPasswordForm from './components/ForgotPasswordForm'
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (COORDINADOR + STORAGE + UTILS)
+// COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (USANDO CUSTOM HOOK useAuthForm)
 // ============================================================================
 function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
-  const { login, setUser } = useAuth()
-
-  // Pestaña activa: 'login' | 'register' | 'forgot'
-  const [activeTab, setActiveTab] = useState(initialTab)
-
-  // Estados de Login
-  const [loginUsername, setLoginUsername] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
-  const [showLoginPassword, setShowLoginPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(true)
-
-  // Estados de Registro con lectura segura de session
-  const [regUsername, setRegUsername] = useState(() => {
-    const saved = session.get(STORAGE_KEYS.PREFILLED_ALIAS, '')
-    if (saved) {
-      session.remove(STORAGE_KEYS.PREFILLED_ALIAS)
-      return saved
-    }
-    return ''
-  })
-  const [regPassword, setRegPassword] = useState('')
-  const [regConfirmPassword, setRegConfirmPassword] = useState('')
-  const [showRegPassword, setShowRegPassword] = useState(false)
-
-  // Estados de Recuperación
-  const [forgotUsername, setForgotUsername] = useState('')
-
-  // Estados de UI
-  const [isLoading, setIsLoading] = useState(false)
-  const [alertInfo, setAlertInfo] = useState(null)
-  const [formErrors, setFormErrors] = useState({})
-
-  // Cálculo de fortaleza de contraseña puro
-  const passwordStrength = getPasswordStrength(regPassword)
-
-  // Sanitizador de alias puro
-  const handleUsernameInput = (value, setter, errorKey) => {
-    const clean = sanitizeAlias(value)
-    setter(clean)
-    if (formErrors[errorKey]) {
-      setFormErrors((prev) => ({ ...prev, [errorKey]: null }))
-    }
-  }
-
-  // Cargar credenciales de prueba
-  const loadDemoUser = (accountUsername = 'rosi_master') => {
-    setActiveTab('login')
-    if (accountUsername === 'adminUser') {
-      setLoginUsername('adminUser')
-      setLoginPassword('12345678')
-      setAlertInfo({
-        type: 'info',
-        text: 'Credenciales cargadas: @adminUser / 12345678'
-      })
-    } else {
-      setLoginUsername('rosi_master')
-      setLoginPassword('Nexu2026Pass!')
-      setAlertInfo({
-        type: 'info',
-        text: 'Credenciales cargadas: @rosi_master / Nexu2026Pass!'
-      })
-    }
-    setFormErrors({})
-  }
-
-  // 1. Enviar Login con validador puro
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault()
-    const { isValid, errors } = validateLoginForm(loginUsername, loginPassword)
-
-    if (!isValid) {
-      setFormErrors(errors)
-      return
-    }
-
-    setFormErrors({})
-    setIsLoading(true)
-    setAlertInfo(null)
-
-    try {
-      await login(loginUsername, loginPassword)
-      if (onLoginSuccess) {
-        onLoginSuccess()
-      }
-    } catch (err) {
-      setAlertInfo({
-        type: 'error',
-        text: err.message || 'Error al iniciar sesión'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // 2. Manejar Registro conectando con authService / backend (Validación con Zod)
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault()
-
-    const cleanUsername = sanitizeAlias(regUsername)
-    const result = validateWithSchema(registerSchema, {
-      username: cleanUsername,
-      password: regPassword,
-      confirmPassword: regConfirmPassword
-    })
-
-    if (!result.isValid) {
-      const mappedErrors = {}
-      if (result.errors.username) mappedErrors.regUsername = result.errors.username
-      if (result.errors.password) mappedErrors.regPassword = result.errors.password
-      if (result.errors.confirmPassword) mappedErrors.regConfirmPassword = result.errors.confirmPassword
-      setFormErrors(mappedErrors)
-      return
-    }
-
-    setFormErrors({})
-    setIsLoading(true)
-    setAlertInfo(null)
-
-    try {
-      const newUser = await authService.register(cleanUsername, regPassword)
-      if (setUser) {
-        setUser(newUser)
-      }
-      setAlertInfo({
-        type: 'success',
-        text: `¡Usuario @${cleanUsername} registrado exitosamente! Accediendo a Nexu...`
-      })
-      setTimeout(() => {
-        if (onLoginSuccess) {
-          onLoginSuccess(newUser)
-        }
-      }, 700)
-    } catch (err) {
-      setAlertInfo({
-        type: 'error',
-        text: err.message || 'Error al crear la cuenta.'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // 3. Manejar Recuperación conectando con authService / backend
-  const handleForgotSubmit = async (e) => {
-    e.preventDefault()
-    const cleanUsername = sanitizeAlias(forgotUsername).toLowerCase()
-    if (!cleanUsername || cleanUsername.length < 3) {
-      setFormErrors({ forgotUsername: 'Ingresa un usuario válido.' })
-      return
-    }
-
-    setFormErrors({})
-    setIsLoading(true)
-    setAlertInfo(null)
-
-    try {
-      const response = await authService.forgotPassword(cleanUsername)
-      setAlertInfo({
-        type: 'success',
-        text: response.message || `Instrucciones de recuperación generadas para @${cleanUsername}.`
-      })
-    } catch (err) {
-      setAlertInfo({
-        type: 'error',
-        text: err.message || 'Error al procesar la recuperación de acceso.'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const switchTab = (tab) => {
-    setActiveTab(tab)
-    setAlertInfo(null)
-    setFormErrors({})
-  }
+  const {
+    activeTab,
+    switchTab,
+    loginUsername,
+    setLoginUsername,
+    loginPassword,
+    setLoginPassword,
+    showLoginPassword,
+    setShowLoginPassword,
+    rememberMe,
+    setRememberMe,
+    handleLoginSubmit,
+    loadDemoUser,
+    regUsername,
+    setRegUsername,
+    regPassword,
+    setRegPassword,
+    regConfirmPassword,
+    setRegConfirmPassword,
+    showRegPassword,
+    setShowRegPassword,
+    passwordStrength,
+    handleRegisterSubmit,
+    forgotUsername,
+    setForgotUsername,
+    handleForgotSubmit,
+    isLoading,
+    alertInfo,
+    formErrors,
+    setFormErrors,
+    handleUsernameInput
+  } = useAuthForm({ initialTab, onLoginSuccess })
 
   return (
     <div className="auth-view-container">
@@ -213,8 +60,8 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
           title={onNavigateToLanding ? 'Volver a la página principal' : undefined}
         >
           <div className="auth-logo-box">N</div>
-          <span className="auth-brand-name">Nexu</span>
-          <span className="auth-badge-pill">Módulo 02 · Auth</span>
+          <span className="auth-brand-name">NexuHub</span>
+          <span className="auth-badge-pill">nexuhub.me</span>
         </div>
       </header>
 
@@ -322,7 +169,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
       {/* 3. Footer */}
       <footer className="auth-footer">
         <p className="auth-footer-text">
-          Nexu · Módulo de Autenticación desarrollado por <span>Rosa</span>
+          NexuHub (nexuhub.me) · Protocolo de Autenticación Soberana
         </p>
       </footer>
     </div>
