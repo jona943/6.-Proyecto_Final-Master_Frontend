@@ -47,7 +47,7 @@ function GeneralProfileTab({
             <span className="hero-display-name">{profile.displayName}</span>
             <span className="hero-username-handle">@{profile.username}</span>
             <span className="hero-join-date">
-              Cuenta activa: {isRosi ? 'Rosy Master (Frontend Specialist)' : 'Admin User (System Admin)'} · Nexu v1.0
+              Cuenta activa · Nexu v1.0
             </span>
           </div>
         </div>
@@ -177,13 +177,12 @@ function GeneralProfileTab({
               <span className="form-label-hint">Inmutable</span>
             </label>
             <div className="form-input-container">
-              <span className="form-input-prefix">@</span>
               <input
                 id="username"
                 name="username"
                 type="text"
-                className="form-input has-prefix"
-                value={profile.username}
+                className="form-input"
+                value={`@${profile.username}`}
                 readOnly
                 disabled
                 style={{ opacity: 0.75, cursor: 'not-allowed' }}

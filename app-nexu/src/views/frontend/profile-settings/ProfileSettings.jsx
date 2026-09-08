@@ -46,7 +46,7 @@ function ProfileSettings() {
           setProfile((prev) => ({
             ...prev,
             ...data,
-            displayName: user?.displayName || data.displayName || `@${activeHandle}`,
+            displayName: data.displayName || user?.displayName || user?.username || `@${activeHandle}`,
             username: activeHandle
           }))
         }
@@ -60,7 +60,7 @@ function ProfileSettings() {
   const [activeTab, setActiveTab] = useState('profile')
 
   // Preferencias y Tema
-  const [themeMode, setThemeMode] = useState('dark')
+  const [themeMode, setThemeMode] = useState(() => localStorage.getItem('nexu_theme') === 'light' ? 'light' : 'dark')
   const [notifications, setNotifications] = useState({
     desktop: true,
     soundIncoming: true,
@@ -90,16 +90,7 @@ function ProfileSettings() {
   }
 
   // Contactos Bloqueados
-  const [blockedUsers, setBlockedUsers] = useState([
-    {
-      id: 'usr-b1',
-      name: 'Spam Bot Publicidad',
-      handle: '@crypto_promo_99',
-      avatarType: 'neutral',
-      initials: 'SP',
-      date: '14 Feb 2026'
-    }
-  ])
+  const [blockedUsers, setBlockedUsers] = useState([])
 
   // Modales y Toasts
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false)
@@ -226,7 +217,14 @@ function ProfileSettings() {
             themeMode={themeMode}
             onThemeChange={(mode) => {
               setThemeMode(mode)
-              showToast(`Modo ${mode === 'dark' ? 'Oscuro (Obsidian Carbon)' : 'Claro'} activado`)
+              if (mode === 'light') {
+                document.documentElement.classList.add('theme-light')
+                localStorage.setItem('nexu_theme', 'light')
+              } else {
+                document.documentElement.classList.remove('theme-light')
+                localStorage.setItem('nexu_theme', 'dark')
+              }
+              showToast(`Modo ${mode === 'dark' ? 'Oscuro' : 'Claro'} activado`)
             }}
             notifications={notifications}
             onNotificationToggle={(key, val) => setNotifications({ ...notifications, [key]: val })}

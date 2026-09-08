@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/useAuthStore'
 import Landing from './views/frontend/landing/Landing.jsx'
@@ -35,6 +36,13 @@ function AppContent() {
 }
 
 function App() {
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('nexu_theme')
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('theme-light')
+    }
+  }, [])
+
   return (
     <BrowserRouter>
       <AppContent />

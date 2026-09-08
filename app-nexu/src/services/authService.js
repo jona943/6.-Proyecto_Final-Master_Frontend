@@ -36,25 +36,14 @@ const DEFAULT_ACCOUNTS = [
 const DEFAULT_SESSIONS = [
   {
     id: 'sess-curr',
-    deviceName: 'HP EliteBook 840 G5',
-    browser: 'Chrome 122 · Linux x86_64',
-    platform: 'Desktop',
-    ip: '192.168.1.104',
+    deviceName: 'Dispositivo Actual',
+    browser: 'Navegador Web',
+    platform: 'Desktop/Web',
+    ip: 'Oculta (Privado)',
     lastLoginDate: 'Hoy',
-    lastLoginTime: '10:30 AM',
+    lastLoginTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     lastActive: 'Activo ahora',
     isCurrent: true
-  },
-  {
-    id: 'sess-mob-01',
-    deviceName: 'Google Pixel 8 Pro',
-    browser: 'Nexu Android App v1.0',
-    platform: 'Mobile',
-    ip: '189.217.44.12',
-    lastLoginDate: 'Ayer',
-    lastLoginTime: '08:15 PM',
-    lastActive: 'Hace 14 horas',
-    isCurrent: false
   }
 ]
 
