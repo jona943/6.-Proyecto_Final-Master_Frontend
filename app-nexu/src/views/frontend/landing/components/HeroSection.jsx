@@ -1,4 +1,5 @@
 import { IconShield, IconArrowRight } from '../../../../components/icons/Icons'
+import './HeroSection.css'
 
 function HeroSection({
   claimAlias,

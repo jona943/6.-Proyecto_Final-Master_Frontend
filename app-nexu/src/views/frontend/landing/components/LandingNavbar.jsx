@@ -1,4 +1,5 @@
 import { IconUserPlus } from '../../../../components/icons/Icons'
+import './LandingNavbar.css'
 
 function LandingNavbar({ onNavigate, onScrollToManifiesto }) {
   return (

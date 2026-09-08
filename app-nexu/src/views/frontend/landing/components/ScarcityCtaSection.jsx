@@ -1,4 +1,5 @@
 import { IconUserPlus } from '../../../../components/icons/Icons'
+import './ScarcityCtaSection.css'
 
 function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
   return (

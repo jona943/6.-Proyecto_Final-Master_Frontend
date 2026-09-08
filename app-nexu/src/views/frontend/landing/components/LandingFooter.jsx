@@ -1,3 +1,5 @@
+import './LandingFooter.css'
+
 function LandingFooter({ onScrollToManifiesto }) {
   return (
     <footer className="footer-clean">
