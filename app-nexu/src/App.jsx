@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
+import { useAuthStore } from './store/useAuthStore'
 import { ChatProvider } from './context/ChatContext'
 import Landing from './views/frontend/landing/Landing.jsx'
 import Login from './views/frontend/login-auth/Login.jsx'
@@ -7,7 +7,7 @@ import ChatHome from './views/frontend/chat/ChatHome.jsx'
 import ProfileSettings from './views/frontend/profile-settings/ProfileSettings.jsx'
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user } = useAuthStore()
   if (!isAuthenticated || !user?.username) {
     return <Navigate to="/login" replace />
   }
@@ -15,7 +15,7 @@ function ProtectedRoute({ children }) {
 }
 
 function PublicRoute({ children }) {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user } = useAuthStore()
   if (isAuthenticated && user?.username) {
     return <Navigate to="/chat" replace />
   }
@@ -38,11 +38,9 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ChatProvider>
-          <AppContent />
-        </ChatProvider>
-      </AuthProvider>
+      <ChatProvider>
+        <AppContent />
+      </ChatProvider>
     </BrowserRouter>
   )
 }

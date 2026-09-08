@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './ProfileSettings.css'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuthStore } from '../../../store/useAuthStore'
 import { authService } from '../../../services/authService'
 import { cleanHandle, getInitials } from '../../../utils/formatters'
 import { sanitizeAlias } from '../../../utils/validators'
@@ -20,7 +20,7 @@ import AvatarSelectorModal from './components/AvatarSelectorModal'
 // ============================================================================
 function ProfileSettings() {
   const navigate = useNavigate()
-  const { user, updateProfile, changePassword, logout } = useAuth()
+  const { user, updateProfile, changePassword, logout } = useAuthStore()
   const activeHandle = cleanHandle(user?.username || 'adminUser')
   const isRosi = activeHandle === 'rosi_master'
 

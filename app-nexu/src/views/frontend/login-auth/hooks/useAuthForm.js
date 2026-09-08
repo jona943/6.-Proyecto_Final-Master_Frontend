@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from '../../../../context/AuthContext'
+import { useAuthStore } from '../../../../store/useAuthStore'
 import { session, STORAGE_KEYS } from '../../../../services/storageService'
 import { authService } from '../../../../services/authService'
 import {
@@ -15,7 +15,7 @@ import { registerSchema, validateWithSchema } from '../../../../utils/schemas'
  * para las pestañas de Iniciar Sesión, Crear Usuario y Recuperación de Contraseña.
  */
 export function useAuthForm({ initialTab = 'login', onLoginSuccess } = {}) {
-  const { login, setUser } = useAuth()
+  const { login, setUser } = useAuthStore()
 
   // Pestaña activa: 'login' | 'register' | 'forgot'
   const [activeTab, setActiveTab] = useState(initialTab)

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Chat.css'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuthStore } from '../../../store/useAuthStore'
 import { useChat } from '../../../context/ChatContext'
 import { chatService } from '../../../services/chatService'
 import { sanitizeAlias } from '../../../utils/validators'
@@ -19,7 +19,7 @@ import ChatEmptyState from './components/ChatEmptyState'
 // ============================================================================
 function ChatHome() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user } = useAuthStore()
   const {
     chats,
     activeChat,

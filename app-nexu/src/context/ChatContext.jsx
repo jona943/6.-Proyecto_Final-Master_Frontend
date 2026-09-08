@@ -1,11 +1,11 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { chatService, MOCK_KNOWN_USERS } from '../services/chatService'
-import { useAuth } from './AuthContext'
+import { useAuthStore } from '../store/useAuthStore'
 
 const ChatContext = createContext(null)
 
 export function ChatProvider({ children }) {
-  const { user } = useAuth()
+  const { user } = useAuthStore()
   const currentUsername = user?.username || 'guest'
 
   const [chats, setChats] = useState([])
