@@ -14,7 +14,13 @@
   padding: 1.5rem 1.5rem 1.75rem 1.5rem;
   box-sizing: border-box;
   overflow: hidden;
-  background-color: var(--bg-canvas);
+  background-color: #08090b;
+  background-image: 
+    radial-gradient(circle at 50% 45%, rgba(8, 9, 11, 0.78) 0%, rgba(8, 9, 11, 0.95) 100%),
+    url('/nexuhubFondo2.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   scroll-snap-align: start;
   scroll-margin-top: 65px;
 }

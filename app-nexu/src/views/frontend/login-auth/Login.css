@@ -11,11 +11,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-canvas);
+  background-color: #08090b;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(8, 9, 11, 0.76) 0%, rgba(8, 9, 11, 0.94) 100%),
+    url('/nexuhubFondo2.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: var(--text-primary);
   padding: 1.25rem 1rem;
   box-sizing: border-box;
-  background: radial-gradient(circle at 50% 30%, rgba(212, 255, 0, 0.05) 0%, transparent 65%);
   animation: authFadeIn 0.45s ease-out;
 }
 
