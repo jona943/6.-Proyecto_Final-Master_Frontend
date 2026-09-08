@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/useAuthStore'
-import { ChatProvider } from './context/ChatContext'
 import Landing from './views/frontend/landing/Landing.jsx'
 import Login from './views/frontend/login-auth/Login.jsx'
 import ChatHome from './views/frontend/chat/ChatHome.jsx'
@@ -38,9 +37,7 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <ChatProvider>
-        <AppContent />
-      </ChatProvider>
+      <AppContent />
     </BrowserRouter>
   )
 }

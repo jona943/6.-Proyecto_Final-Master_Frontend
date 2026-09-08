@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Chat.css'
 import { useAuthStore } from '../../../store/useAuthStore'
-import { useChat } from '../../../context/ChatContext'
+import { useChats } from '../../../hooks/useChats'
 import { chatService } from '../../../services/chatService'
 import { sanitizeAlias } from '../../../utils/validators'
 import { aliasSchema, validateWithSchema } from '../../../utils/schemas'
@@ -20,6 +20,7 @@ import ChatEmptyState from './components/ChatEmptyState'
 function ChatHome() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
+  
   const {
     chats,
     activeChat,
@@ -35,7 +36,7 @@ function ChatHome() {
     blockUser,
     deleteConversation,
     clearCurrentChat
-  } = useChat()
+  } = useChats(user?.username || 'guest')
 
   const [inputText, setInputText] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
