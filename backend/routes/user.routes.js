@@ -75,12 +75,42 @@ router.get('/profile', (req, res) => {
  * PUT /api/user/profile
  * Actualizar perfil de usuario
  */
-router.put('/profile', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Perfil actualizado con éxito.',
-    updated: req.body
-  })
+router.put('/profile', async (req, res) => {
+  try {
+    const { username, displayName, avatarUrl, avatarType, gender, bio } = req.body
+    if (!username) {
+      return res.status(400).json({ success: false, message: 'username es requerido' })
+    }
+
+    const cleanUsername = username.replace(/^@/, '').toLowerCase()
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username: cleanUsername },
+      { 
+        $set: { 
+          ...(displayName && { displayName }), 
+          ...(avatarUrl !== undefined && { avatarUrl })
+        } 
+      },
+      { new: true }
+    )
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' })
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Perfil actualizado con éxito.',
+      updated: {
+        ...req.body,
+        avatarUrl: updatedUser.avatarUrl
+      }
+    })
+  } catch (error) {
+    console.error('Error actualizando perfil:', error)
+    res.status(500).json({ success: false, message: 'Error interno al actualizar perfil' })
+  }
 })
 
 export default router

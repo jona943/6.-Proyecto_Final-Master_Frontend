@@ -472,14 +472,26 @@ export const authService = {
    * Guardar cambios en el perfil
    */
   async saveProfile(username, profileData) {
-    await new Promise((resolve) => setTimeout(resolve, 200))
     const clean = (username || '').replace(/^@/, '').toLowerCase()
 
+    try {
+      const res = await api.put('/user/profile', {
+        username: clean,
+        ...profileData
+      })
+      if (res && res.success) {
+        storage.set(STORAGE_KEYS.profileKey(clean), res.updated)
+        return res.updated
+      }
+    } catch (e) {
+      console.error('Error saving profile to backend:', e)
+    }
+
+    // Fallback local guardado (para los demás campos o si el backend falla temporalmente)
     storage.set(STORAGE_KEYS.profileKey(clean), profileData)
     if (profileData.username && profileData.username.toLowerCase() !== clean) {
       storage.set(STORAGE_KEYS.profileKey(profileData.username), profileData)
     }
-
     return profileData
   },
 

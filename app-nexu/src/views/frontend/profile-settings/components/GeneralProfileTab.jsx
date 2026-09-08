@@ -1,3 +1,4 @@
+import React, { useRef } from 'react'
 import {
   IconCamera,
   IconCheck,
@@ -19,24 +20,71 @@ function GeneralProfileTab({
   onUsernameChange,
   onSaveProfile
 }) {
+  const fileInputRef = useRef(null)
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const MAX_SIZE = 150
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width
+            width = MAX_SIZE
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height
+            height = MAX_SIZE
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
+        onProfileChange({ target: { name: 'avatarUrl', value: compressedBase64 } })
+      }
+      img.src = event.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+
   return (
     <div className="tab-content-area">
       <section className="settings-section-card">
         <div className="section-card-header">
           <div className="section-title-group">
             <h3>Identidad de Usuario</h3>
-            <p>Configura tu icono vectorial, nombre visible, sexo y estado de presencia.</p>
+            <p>Sube tu fotografía real o configura tu icono vectorial, nombre y presencia.</p>
           </div>
         </div>
 
         {/* Fila Hero del Perfil con Avatar Vectorial y Datos Rápidos */}
         <div className="profile-hero-row">
           <div className="avatar-edit-container">
-            {renderAvatarBadge(profile.avatarType, userInitials, 100)}
+            {renderAvatarBadge(profile.avatarType, userInitials, 100, profile.avatarUrl)}
+            <input 
+              type="file" 
+              accept="image/*" 
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
             <button
               className="avatar-change-badge"
-              onClick={onOpenAvatarModal}
-              title="Cambiar estilo de avatar"
+              onClick={() => fileInputRef.current?.click()}
+              title="Cambiar fotografía"
               type="button"
             >
               <IconCamera />

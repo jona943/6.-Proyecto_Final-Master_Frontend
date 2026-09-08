@@ -18,7 +18,11 @@ const ChatSidebarHeader = ({
         style={{ cursor: 'pointer' }}
       >
         <div className="avatar-wrapper">
-          {currentUser?.avatarType === 'female' ? (
+          {currentUser?.avatarUrl ? (
+            <div className="avatar-badge" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+              <img src={currentUser.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          ) : currentUser?.avatarType === 'female' ? (
             <div className="avatar-badge" style={{ borderColor: '#ff70a6', color: '#ff70a6' }}>
               <AvatarFemale size={18} />
             </div>

@@ -329,7 +329,15 @@ export const AVATAR_TYPES = [
 ]
 
 // Helper para renderizado de avatar badge
-export const renderAvatarBadge = (type, initials, size = 48) => {
+export const renderAvatarBadge = (type, initials, size = 48, avatarUrl = null) => {
+  if (avatarUrl) {
+    return (
+      <div className="avatar-badge-neon custom-image" style={{ width: size, height: size, overflow: 'hidden', borderRadius: 'var(--radius-lg, 12px)' }}>
+        <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+    )
+  }
+
   if (type === 'initials') {
     return (
       <div className="avatar-badge-neon initials" style={{ width: size, height: size, fontSize: size * 0.4 }}>
