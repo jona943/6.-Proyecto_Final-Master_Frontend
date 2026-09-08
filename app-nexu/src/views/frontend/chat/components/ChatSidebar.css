@@ -5,8 +5,8 @@
   width: 360px;
   min-width: 300px;
   background-color: rgba(16, 18, 22, 0.88);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-right: 1px solid var(--border-subtle, #1c2028);
   display: flex;
   flex-direction: column;

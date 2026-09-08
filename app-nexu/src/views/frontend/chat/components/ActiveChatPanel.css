@@ -7,8 +7,8 @@
   flex-direction: column;
   height: 100%;
   background-color: rgba(8, 9, 11, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   position: relative;
   min-width: 0;
 }
