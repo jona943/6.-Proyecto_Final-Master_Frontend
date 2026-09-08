@@ -88,11 +88,12 @@ function ChatHome() {
   }, [selectChat])
 
   // Enviar mensaje
-  const handleSendMessage = (e) => {
+  const handleSendMessage = (e, attachment = null) => {
     if (e) e.preventDefault()
-    if (!inputText.trim() || !activeChat) return
+    if (!inputText.trim() && !attachment) return
+    if (!activeChat) return
 
-    sendMessage(inputText)
+    sendMessage(inputText, attachment)
     setInputText('')
   }
 

@@ -176,6 +176,15 @@ export function useChats(currentUsername) {
       })
 
       if (hasChanges) {
+        nextChats.sort((a, b) => {
+          const aLast = a.messages.length > 0 ? a.messages[a.messages.length - 1] : null
+          const bLast = b.messages.length > 0 ? b.messages[b.messages.length - 1] : null
+          
+          const aTime = aLast?.createdAt ? new Date(aLast.createdAt).getTime() : (aLast?.id ? parseInt(aLast.id.split('_').pop()) || 0 : 0)
+          const bTime = bLast?.createdAt ? new Date(bLast.createdAt).getTime() : (bLast?.id ? parseInt(bLast.id.split('_').pop()) || 0 : 0)
+          
+          return bTime - aTime
+        })
         queryClient.setQueryData(['chats', currentUsername], nextChats)
       }
 
@@ -231,10 +240,10 @@ export function useChats(currentUsername) {
     )
   }
 
-  const sendMessage = async (text) => {
-    if (!text.trim() || !activeChat || activeChat.isPending) return
+  const sendMessage = async (text, attachment = null) => {
+    if ((!text.trim() && !attachment) || !activeChat || activeChat.isPending) return
 
-    const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername)
+    const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername, attachment)
     queryClient.setQueryData(['chats', currentUsername], updatedChats)
 
     if (activeChat.isBot) {

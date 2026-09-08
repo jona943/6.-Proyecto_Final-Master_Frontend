@@ -46,7 +46,7 @@ export const chatService = {
   },
 
   // Enviar mensaje 1 a 1
-  async sendMessage(chats, chatId, text, sender = 'me', username = 'guest') {
+  async sendMessage(chats, chatId, text, sender = 'me', username = 'guest', attachment = null) {
     const now = new Date()
     const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     const cleanUser = (username || 'guest').trim().toLowerCase()
@@ -57,9 +57,10 @@ export const chatService = {
     const newMessage = {
       id: `msg_${Date.now()}`,
       sender,
-      text: text.trim(),
+      text: text?.trim() || '',
       time: timeFormatted,
-      status: sender === 'me' ? 'delivered' : 'read'
+      status: sender === 'me' ? 'delivered' : 'read',
+      ...(attachment && { attachment })
     }
 
     if (targetUsername && !targetChat?.isBot) {
@@ -67,7 +68,8 @@ export const chatService = {
         const res = await api.post('/chats/message', {
           senderUsername: cleanUser,
           recipientUsername: targetUsername,
-          text: text.trim()
+          text: text?.trim() || '',
+          attachment
         })
         const realId = res?.data?._id || res?.data?.data?._id
         if (realId) {
@@ -78,16 +80,18 @@ export const chatService = {
       }
     }
 
-    // Actualización optimista en memoria
-    const updated = chats.map((c) => {
-      if (c.id === chatId) {
-        return {
-          ...c,
-          messages: [...c.messages, newMessage]
-        }
+    // Actualización optimista en memoria (y mover el chat al inicio)
+    const updated = [...chats]
+    const chatIndex = updated.findIndex((c) => c.id === chatId)
+    
+    if (chatIndex > -1) {
+      const updatedChat = {
+        ...updated[chatIndex],
+        messages: [...updated[chatIndex].messages, newMessage]
       }
-      return c
-    })
+      updated.splice(chatIndex, 1)
+      updated.unshift(updatedChat)
+    }
 
     return { updatedChats: updated, newMessage }
   },

@@ -19,7 +19,11 @@ const chatMessageSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true
+      required: false
+    },
+    attachment: {
+      type: mongoose.Schema.Types.Mixed,
+      required: false
     },
     time: {
       type: String,
