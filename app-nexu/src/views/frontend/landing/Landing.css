@@ -8,7 +8,14 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-canvas);
+  background-color: #08090b;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(8, 9, 11, 0.76) 0%, rgba(8, 9, 11, 0.92) 100%),
+    url('/nexuhubFondo2.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   scroll-behavior: smooth;
   scroll-snap-type: y proximity;

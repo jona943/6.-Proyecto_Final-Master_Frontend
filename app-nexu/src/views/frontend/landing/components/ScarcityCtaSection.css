@@ -13,8 +13,10 @@
   align-items: center;
   padding: 1.5rem 1.5rem 1.25rem 1.5rem;
   box-sizing: border-box;
-  background: linear-gradient(180deg, #090a0d 0%, #0d0f14 60%, #060708 100%);
-  box-shadow: 0 -40px 90px rgba(0, 0, 0, 0.95);
+  background: linear-gradient(180deg, rgba(9, 10, 13, 0.4) 0%, rgba(13, 15, 20, 0.6) 60%, rgba(6, 7, 8, 0.75) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 -40px 90px rgba(0, 0, 0, 0.85);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   scroll-snap-align: start;
   scroll-margin-top: 65px;
