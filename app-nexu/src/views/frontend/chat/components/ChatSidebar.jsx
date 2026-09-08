@@ -74,9 +74,6 @@ function ChatSidebar({
             <span className="user-display-name">
               {currentUser.name}
             </span>
-            <span className="user-handle-sub">
-              {currentUser.handle}
-            </span>
           </div>
         </div>
 

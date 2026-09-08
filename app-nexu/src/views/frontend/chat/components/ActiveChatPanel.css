@@ -323,7 +323,7 @@
 .msg-avatar-tiny {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: 50%;
   background-color: var(--bg-surface-elevated, #16191f);
   border: 1px solid var(--border-subtle, #1c2028);
   display: flex;
