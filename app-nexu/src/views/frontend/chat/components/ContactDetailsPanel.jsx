@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import './ContactDetailsPanel.css'
 import {
   IconX,
   IconUser,

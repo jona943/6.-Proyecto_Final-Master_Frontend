@@ -7,7 +7,9 @@ import {
   IconAlertCircle,
   IconCheck,
   IconInfo,
-  IconAtSign
+  IconAtSign,
+  IconX,
+  IconRefresh
 } from '../../../../components/icons/Icons'
 import { authService } from '../../../../services/authService'
 
@@ -45,26 +47,17 @@ function RegisterForm({
 
   // Comprobación de disponibilidad en tiempo real con debounce
   useEffect(() => {
-    if (!regUsername) {
+    if (!regUsername || regUsername.trim().length === 0) {
       setAvailability({ state: 'idle', reason: '' })
       return
     }
 
-    let isMounted = true
-    const timer = setTimeout(async () => {
-      const res = await authService.checkUsernameAvailability(regUsername)
-      if (isMounted) {
-        setAvailability({
-          state: res.state,
-          reason: res.reason
-        })
-      }
-    }, 200)
+    const timer = setTimeout(() => {
+      const check = authService.checkAliasAvailability(regUsername)
+      setAvailability(check)
+    }, 180)
 
-    return () => {
-      isMounted = false
-      clearTimeout(timer)
-    }
+    return () => clearTimeout(timer)
   }, [regUsername])
 
   return (
@@ -76,25 +69,25 @@ function RegisterForm({
         </p>
       </div>
 
-      {/* 1. CAMPO: USUARIO ÚNICO */}
+      {/* 1. CAMPO: ALIAS ÚNICO (USERNAME) */}
       <div className="form-group">
         <div className="form-label">
           <div className="label-with-info">
-            <label htmlFor="reg-username">Usuario único (Alias)</label>
+            <label htmlFor="reg-username">Alias Único NexuHub</label>
             <button
               type="button"
               className="btn-info-icon"
               onClick={() => setShowAliasInfo(!showAliasInfo)}
-              title="Información sobre tu alias único"
-              aria-label="Ver recomendaciones de usuario único"
+              title="¿Por qué necesitas un Alias Único?"
+              aria-label="Ver ayuda sobre Alias Único"
             >
               <IconInfo size={14} />
             </button>
           </div>
-          <span className="input-hint">3 a 10 caracteres</span>
+          <span className="input-hint">3 - 10 caracteres</span>
         </div>
 
-        {/* Popover flotante de información para Alias (i) */}
+        {/* Popover flotante de información para Alias Único (i) */}
         {showAliasInfo && (
           <div className="info-popover-box">
             <div className="popover-header">
@@ -104,8 +97,9 @@ function RegisterForm({
                 type="button"
                 className="popover-close-btn"
                 onClick={() => setShowAliasInfo(false)}
+                aria-label="Cerrar"
               >
-                ✕
+                <IconX size={12} />
               </button>
             </div>
             <ul className="popover-list">
@@ -179,7 +173,7 @@ function RegisterForm({
               onClick={refreshSuggestions}
               title="Generar otras sugerencias de alias"
             >
-              🔄 Otras
+              <IconRefresh size={12} /> Otras
             </button>
           </div>
 
@@ -227,25 +221,26 @@ function RegisterForm({
                 type="button"
                 className="popover-close-btn"
                 onClick={() => setShowPasswordInfo(false)}
+                aria-label="Cerrar"
               >
-                ✕
+                <IconX size={12} />
               </button>
             </div>
             <ul className="popover-list">
               <li className={regPassword.length >= 8 ? 'met' : ''}>
-                {regPassword.length >= 8 ? '✓' : '•'} Mínimo 8 caracteres
+                {regPassword.length >= 8 ? <IconCheck size={12} /> : '•'} Mínimo 8 caracteres
               </li>
               <li className={/[A-Z]/.test(regPassword) ? 'met' : ''}>
-                {/[A-Z]/.test(regPassword) ? '✓' : '•'} Al menos una mayúscula (A-Z)
+                {/[A-Z]/.test(regPassword) ? <IconCheck size={12} /> : '•'} Al menos una mayúscula (A-Z)
               </li>
               <li className={/[a-z]/.test(regPassword) ? 'met' : ''}>
-                {/[a-z]/.test(regPassword) ? '✓' : '•'} Al menos una minúscula (a-z)
+                {/[a-z]/.test(regPassword) ? <IconCheck size={12} /> : '•'} Al menos una minúscula (a-z)
               </li>
               <li className={/[0-9]/.test(regPassword) ? 'met' : ''}>
-                {/[0-9]/.test(regPassword) ? '✓' : '•'} Al menos un número (0-9)
+                {/[0-9]/.test(regPassword) ? <IconCheck size={12} /> : '•'} Al menos un número (0-9)
               </li>
               <li className={/[^a-zA-Z0-9]/.test(regPassword) ? 'met' : ''}>
-                {/[^a-zA-Z0-9]/.test(regPassword) ? '✓' : '•'} Al menos un símbolo (!, #, $, etc.)
+                {/[^a-zA-Z0-9]/.test(regPassword) ? <IconCheck size={12} /> : '•'} Al menos un símbolo (!, #, $, etc.)
               </li>
             </ul>
           </div>

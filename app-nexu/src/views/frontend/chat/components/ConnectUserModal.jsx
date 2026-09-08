@@ -1,4 +1,5 @@
 import { IconUserPlus, IconX } from '../../../../components/icons/Icons'
+import './ConnectUserModal.css'
 
 function ConnectUserModal({
   isOpen,

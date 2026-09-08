@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, memo } from 'react'
+import './ChatSidebar.css'
 import {
   IconSearch,
   IconUserPlus,

@@ -1,0 +1,70 @@
+/* ============================================================================
+   ESTADO VACÍO (ChatEmptyState Component)
+   ============================================================================ */
+.chat-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+  background-color: transparent;
+}
+
+.empty-state-badge {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, rgba(212, 255, 0, 0.1), #101216);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-acid, #d4ff00);
+}
+
+.chat-empty-state h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary, #f4f5f7);
+  letter-spacing: -0.02em;
+}
+
+.chat-empty-state p {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #7e8796);
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+.btn-empty-back-mobile {
+  display: none;
+}
+
+/* Toast al copiar */
+.toast-feedback {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-surface-elevated, #16191f);
+  border: 1px solid var(--accent-acid, #d4ff00);
+  color: var(--accent-acid, #d4ff00);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  animation: fadeInOut 2s ease forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, 10px); }
+  15% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -10px); }
+}
