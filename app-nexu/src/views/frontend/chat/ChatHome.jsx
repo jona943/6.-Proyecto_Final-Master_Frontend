@@ -204,10 +204,10 @@ function ChatHome() {
       <ChatSidebar
         mobileView={mobileView}
         currentUser={{
-          name: user?.displayName || 'Usuario',
+          name: user?.displayName || user?.username || 'Usuario',
           handle: formatHandle(user?.username || 'adminUser'),
-          avatar: user?.avatarType ? undefined : 'NX',
-          avatarType: user?.avatarType || 'male'
+          avatar: user?.avatarType ? undefined : (user?.username ? user.username.slice(0, 2).toUpperCase() : 'NX'),
+          avatarType: user?.avatarType || 'neutral'
         }}
         presenceStatus={customPresence || presenceStatus}
         onSelectPresence={handleSelectPresence}
