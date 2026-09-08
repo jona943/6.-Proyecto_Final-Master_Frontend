@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Landing.css'
 import { validateAlias } from '../../../utils/validators'
 import { session, STORAGE_KEYS } from '../../../services/storageService'
@@ -12,7 +13,8 @@ import ScarcityCtaSection from './components/ScarcityCtaSection'
 // ============================================================================
 // COMPONENTE PRINCIPAL: LANDING PAGE (COORDINADOR + STORAGE + UTILS)
 // ============================================================================
-function Landing({ onNavigate }) {
+function Landing() {
+  const navigate = useNavigate()
   const [claimAlias, setClaimAlias] = useState('')
   const [activeLawIndex, setActiveLawIndex] = useState(0)
 
@@ -98,7 +100,7 @@ function Landing({ onNavigate }) {
     e.preventDefault()
     if (validation.state === 'valid') {
       session.set(STORAGE_KEYS.PREFILLED_ALIAS, validation.value)
-      onNavigate && onNavigate('register')
+      navigate('/register')
     }
   }
 
@@ -106,7 +108,6 @@ function Landing({ onNavigate }) {
     <div className="landing-clean">
       {/* 0. Navbar Superior */}
       <LandingNavbar
-        onNavigate={onNavigate}
         onScrollToManifiesto={scrollToManifiesto}
       />
 
@@ -129,7 +130,6 @@ function Landing({ onNavigate }) {
 
       {/* 3. Carta 3: Escasez Matemática e Invitación Final Integrada (100dvh) */}
       <ScarcityCtaSection
-        onNavigate={onNavigate}
         onScrollToManifiesto={scrollToManifiesto}
       />
     </div>

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import useAuthForm from './hooks/useAuthForm'
 import './Login.css'
 
@@ -15,7 +16,8 @@ import ForgotPasswordForm from './components/ForgotPasswordForm'
 // ============================================================================
 // COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (USANDO CUSTOM HOOK useAuthForm)
 // ============================================================================
-function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
+function Login({ initialTab = 'login' }) {
+  const navigate = useNavigate()
   const {
     activeTab,
     switchTab,
@@ -47,7 +49,7 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
     formErrors,
     setFormErrors,
     handleUsernameInput
-  } = useAuthForm({ initialTab, onLoginSuccess })
+  } = useAuthForm({ initialTab, onLoginSuccess: () => navigate('/chat') })
 
   return (
     <div className="auth-view-container">
@@ -55,9 +57,9 @@ function Login({ initialTab = 'login', onLoginSuccess, onNavigateToLanding }) {
       <header className="auth-header">
         <div
           className="auth-brand-mark"
-          onClick={onNavigateToLanding}
-          style={{ cursor: onNavigateToLanding ? 'pointer' : 'default' }}
-          title={onNavigateToLanding ? 'Volver a la página principal' : undefined}
+          onClick={() => navigate('/')}
+          style={{ cursor: 'pointer' }}
+          title="Volver a la página principal"
         >
           <div className="auth-logo-box">N</div>
           <span className="auth-brand-name">NexuHub</span>

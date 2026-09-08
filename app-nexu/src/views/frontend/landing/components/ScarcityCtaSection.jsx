@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import { IconUserPlus } from '../../../../components/icons/Icons'
 import './ScarcityCtaSection.css'
 
-function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
+function ScarcityCtaSection({ onScrollToManifiesto }) {
+  const navigate = useNavigate()
   return (
     <section id="escasez" className="scarcity-cta-section">
       {/* Horizonte de luz de transición desde el Manifiesto */}
@@ -43,7 +45,7 @@ function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
             <button
               type="button"
               className="btn-final-primary"
-              onClick={() => onNavigate && onNavigate('register')}
+              onClick={() => navigate('/register')}
             >
               <IconUserPlus />
               <span>Reclamar mi Alias</span>
@@ -51,7 +53,7 @@ function ScarcityCtaSection({ onNavigate, onScrollToManifiesto }) {
             <button
               type="button"
               className="btn-final-secondary"
-              onClick={() => onNavigate && onNavigate('login')}
+              onClick={() => navigate('/login')}
             >
               <span>Iniciar sesión</span>
             </button>

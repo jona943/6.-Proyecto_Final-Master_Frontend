@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Chat.css'
 import { useAuth } from '../../../context/AuthContext'
 import { useChat } from '../../../context/ChatContext'
@@ -16,7 +17,8 @@ import ChatEmptyState from './components/ChatEmptyState'
 // ============================================================================
 // COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR + CONTEXT + UTILS)
 // ============================================================================
-function ChatHome({ onOpenSettings }) {
+function ChatHome() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const {
     chats,
@@ -208,7 +210,7 @@ function ChatHome({ onOpenSettings }) {
         }}
         presenceStatus={customPresence || presenceStatus}
         onSelectPresence={handleSelectPresence}
-        onOpenSettings={onOpenSettings}
+        onOpenSettings={() => navigate('/settings')}
         onOpenConnectModal={() => setShowConnectModal(true)}
         onToggleDetailsPanel={() => setShowDetailsPanel(!showDetailsPanel)}
         showDetailsPanel={showDetailsPanel}

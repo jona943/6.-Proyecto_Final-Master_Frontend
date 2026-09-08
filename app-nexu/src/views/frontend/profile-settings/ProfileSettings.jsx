@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './ProfileSettings.css'
 import { useAuth } from '../../../context/AuthContext'
 import { authService } from '../../../services/authService'
@@ -17,10 +18,16 @@ import AvatarSelectorModal from './components/AvatarSelectorModal'
 // ============================================================================
 // COMPONENTE PRINCIPAL: PERFIL Y AJUSTES (COORDINADOR + UTILS)
 // ============================================================================
-function ProfileSettings({ onBackToChat, onLogout }) {
-  const { user, updateProfile, changePassword } = useAuth()
+function ProfileSettings() {
+  const navigate = useNavigate()
+  const { user, updateProfile, changePassword, logout } = useAuth()
   const activeHandle = cleanHandle(user?.username || 'adminUser')
   const isRosi = activeHandle === 'rosi_master'
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/')
+  }
 
   // Perfil del usuario autenticado
   const [profile, setProfile] = useState({
@@ -188,8 +195,8 @@ function ProfileSettings({ onBackToChat, onLogout }) {
         <ProfileHeaderCard
           profile={profile}
           userInitials={userInitials}
-          onBackToChat={onBackToChat}
-          onLogout={onLogout}
+          onBackToChat={() => navigate('/chat')}
+          onLogout={handleLogout}
         />
 
         {/* 2. Tabs */}
