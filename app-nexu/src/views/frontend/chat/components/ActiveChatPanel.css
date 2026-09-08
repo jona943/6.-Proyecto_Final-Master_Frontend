@@ -285,23 +285,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0.75rem 0;
+  margin: 0.9rem 0 0.4rem;
 }
 
 .date-divider span {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-family: var(--font-mono, monospace);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-secondary, #7e8796);
-  background-color: rgba(16, 18, 22, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.3rem 0.9rem;
+  padding: 0.28rem 0.95rem;
   border-radius: 999px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.06em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .message-row {
