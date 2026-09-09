@@ -27,7 +27,7 @@ function ActiveChatHeader({
 
           <div className="avatar-wrapper">
             {activeChat.avatarUrl ? (
-              <div className="avatar-badge" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+              <div className="avatar-badge" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border-subtle)', borderRadius: '50%' }}>
                 <img src={activeChat.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             ) : (

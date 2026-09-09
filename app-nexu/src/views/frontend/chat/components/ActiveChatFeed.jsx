@@ -130,7 +130,7 @@ function ActiveChatFeed({
                 className={`message-row ${isMe ? 'me' : 'them'} ${isMatching ? 'highlighted-row' : ''}`}
               >
                 {!isMe && (
-                  <div className="msg-avatar-tiny" style={{ padding: activeChat.avatarUrl ? 0 : '', overflow: 'hidden' }}>
+                  <div className="msg-avatar-tiny" style={{ padding: activeChat.avatarUrl ? 0 : '', overflow: 'hidden', borderRadius: '50%' }}>
                     {activeChat.avatarUrl ? (
                       <img src={activeChat.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
