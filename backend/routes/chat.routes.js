@@ -11,17 +11,19 @@ const router = Router()
  */
 router.get('/sync', async (req, res) => {
   try {
-    const raw = req.query.username || ''
-    const clean = raw.trim().toLowerCase()
+    const rawUser = req.query.username || ''
+    const clean = rawUser.trim().replace(/^@/, '').toLowerCase()
 
     if (!clean) {
-      return res.status(400).json({
-        success: false,
-        message: 'El parámetro username es requerido.'
-      })
+      return res.status(400).json({ success: false, message: 'username requerido' })
     }
 
-    // 0. Actualizar última actividad del usuario actual
+    // Evitar caché agresivo en navegadores o CDNs (Render/Vercel)
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    res.set('Pragma', 'no-cache')
+    res.set('Expires', '0')
+
+    // Actualizar última conexión (Punto Verde)
     await User.findOneAndUpdate({ username: clean }, { lastActive: new Date() })
 
     // 1. Solicitudes de conexión entrantes pendientes

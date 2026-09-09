@@ -468,9 +468,9 @@ export const authService = {
         username: clean,
         ...profileData
       })
-      if (res && res.success) {
-        storage.set(STORAGE_KEYS.profileKey(clean), res.updated)
-        return res.updated
+      if (res && res.success && res.data) {
+        storage.set(STORAGE_KEYS.profileKey(clean), res.data.updated)
+        return res.data.updated
       }
     } catch (e) {
       console.error('Error saving profile to backend:', e)

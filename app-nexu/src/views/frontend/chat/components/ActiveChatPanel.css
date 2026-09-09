@@ -457,6 +457,24 @@
   display: flex;
 }
 
+.btn-mobile-back {
+  display: flex;
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #f4f5f7);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-mobile-back:hover {
+  background-color: var(--bg-surface-hover, #1e222a);
+  color: var(--accent-acid, #d4ff00);
+}
+
 .btn-msg-hover {
   background: transparent;
   border: none;
