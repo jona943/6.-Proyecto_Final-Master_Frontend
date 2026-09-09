@@ -208,7 +208,8 @@ function ChatHome() {
           name: user?.displayName || user?.username || 'Usuario',
           handle: formatHandle(user?.username || 'adminUser'),
           avatar: user?.avatarType ? undefined : (user?.username ? user.username.slice(0, 2).toUpperCase() : 'NX'),
-          avatarType: user?.avatarType || 'neutral'
+          avatarType: user?.avatarType || 'neutral',
+          avatarUrl: user?.avatarUrl || null
         }}
         presenceStatus={customPresence || presenceStatus}
         onSelectPresence={handleSelectPresence}

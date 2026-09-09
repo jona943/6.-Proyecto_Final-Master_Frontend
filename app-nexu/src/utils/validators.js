@@ -11,7 +11,7 @@
  */
 export function sanitizeAlias(value, maxLength = 10) {
   if (!value) return ''
-  return value.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, maxLength)
+  return value.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase().slice(0, maxLength)
 }
 
 /**
