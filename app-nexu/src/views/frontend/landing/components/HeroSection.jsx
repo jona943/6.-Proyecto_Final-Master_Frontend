@@ -28,7 +28,7 @@ function HeroSection({
         {/* Subtítulo Narrativo */}
         <p className="hero-cinematic-desc">
           Sin números de teléfono, sin directorios públicos que te expongan y sin algoritmos de retención.
-          Tu identidad soberana por alias, directa, privada e instantánea.
+          Tu identidad soberana por alias (único e inmutable), directa, privada e instantánea.
         </p>
 
         {/* Widget de Reclamar Alias en Vivo */}

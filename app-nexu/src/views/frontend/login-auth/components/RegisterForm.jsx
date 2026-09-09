@@ -51,7 +51,7 @@ function RegisterForm({
       <div className="auth-form-header">
         <h2 className="auth-form-title">Crea tu usuario único</h2>
         <p className="auth-form-desc">
-          Sin correos ni números de teléfono. Tu alias es tu identidad soberana en NexuHub.
+          Sin correos ni números de teléfono. Tu alias es inmutable y siempre estará en minúsculas para proteger tu identidad.
         </p>
       </div>
 

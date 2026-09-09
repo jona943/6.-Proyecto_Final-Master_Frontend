@@ -13,7 +13,7 @@ export const MANIFESTO_LAWS = [
     tag: 'LEY 01 · IDENTIDAD SOBERANA',
     title: 'Tu privacidad no le pertenece a una tarjeta SIM',
     contrast: 'Las grandes aplicaciones atan tu cuenta a tu chip móvil, exponiendo tus contactos y operadora.',
-    solution: 'En NexuHub, tu @alias único es tu sola credencial. Cero números telefónicos, cero metadatos atados.',
+    solution: 'En Nexu, tu @alias único es tu sola credencial inmutable (siempre en minúsculas para blindar tu identidad). Cero teléfonos, cero metadatos.',
     badge: '0% Números Telefónicos',
     image: sovereignIdentityImg,
     imageAlt: 'Arte conceptual de Identidad Soberana NexuHub'
