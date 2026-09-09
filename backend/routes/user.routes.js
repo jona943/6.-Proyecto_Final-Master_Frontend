@@ -59,16 +59,32 @@ router.get('/search', async (req, res) => {
  * GET /api/user/profile
  * Perfil de usuario
  */
-router.get('/profile', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Perfil de usuario (Ruta base lista).',
-    profile: {
-      displayName: 'Administrador Nexu',
-      username: 'adminUser',
-      avatarType: 'male'
+router.get('/profile', async (req, res) => {
+  try {
+    const rawUser = req.query.username || ''
+    const cleanUsername = rawUser.replace(/^@/, '').toLowerCase()
+
+    if (!cleanUsername) {
+      return res.status(400).json({ success: false, message: 'username requerido' })
     }
-  })
+
+    const user = await User.findOne({ username: cleanUsername })
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' })
+    }
+
+    res.status(200).json({
+      success: true,
+      profile: {
+        displayName: user.displayName || user.username,
+        username: user.username,
+        avatarUrl: user.avatarUrl || null
+      }
+    })
+  } catch (error) {
+    console.error('Error obteniendo perfil:', error)
+    res.status(500).json({ success: false, message: 'Error interno' })
+  }
 })
 
 /**

@@ -21,7 +21,7 @@ function ProfileHeaderCard({
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
         <div className="header-user-quick">
-          {renderAvatarBadge(profile.avatarType, userInitials, 40)}
+          {renderAvatarBadge(profile.avatarType, userInitials, 40, profile.avatarUrl)}
           <div className="quick-info">
             <span className="quick-name">{profile.displayName}</span>
             <span className="quick-status-label">

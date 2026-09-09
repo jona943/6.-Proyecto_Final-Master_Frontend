@@ -218,6 +218,7 @@ export const authService = {
           role: userData.role || 'Usuario Nexu',
           email: userData.email || `${userData.username || cleanUsername}@nexu.app`,
           avatarType: userData.avatarType || 'neutral',
+          avatarUrl: userData.avatarUrl || null,
           gender: userData.gender || 'neutral',
           token: payload?.token || userData?.token || `nexu_token_${Date.now()}`
         }
@@ -318,6 +319,7 @@ export const authService = {
           role: userData.role || 'Usuario Nexu',
           email: userData.email || `${userData.username || cleanUsername}@nexu.app`,
           avatarType: userData.avatarType || 'neutral',
+          avatarUrl: userData.avatarUrl || null,
           gender: userData.gender || 'neutral',
           token: payload?.token || userData?.token || `nexu_token_${Date.now()}`
         }
@@ -437,24 +439,22 @@ export const authService = {
    * Obtener perfil completo
    */
   async getProfile(username) {
-    await new Promise((resolve) => setTimeout(resolve, 150))
-    const clean = (username || 'adminUser').replace(/^@/, '').toLowerCase()
-    const isRosi = clean === 'rosi_master'
+    const clean = (username || '').replace(/^@/, '').toLowerCase()
 
-    const saved = storage.get(STORAGE_KEYS.profileKey(clean))
-    if (saved) return saved
-
-    return {
-      displayName: isRosi ? 'Rosa Melano' : 'Administrador Nexu',
-      username: isRosi ? 'rosi_master' : 'adminUser',
-      email: isRosi ? 'rosa@nexu.app' : 'admin@nexu.app',
-      bio: isRosi
-        ? 'Especialista en interfaces reactivas y arquitectura frontend de Nexu.'
-        : 'Superadministrador de la plataforma de mensajería privada Nexu.',
-      avatarType: isRosi ? 'female' : 'male',
-      gender: isRosi ? 'female' : 'male',
-      presence: 'online'
+    try {
+      const res = await api.get(`/user/profile?username=${clean}`)
+      if (res && res.success && res.data && res.data.profile) {
+        // Combinar con los datos locales para persistir preferencias locales
+        const local = storage.get(STORAGE_KEYS.profileKey(clean)) || {}
+        const merged = { ...local, ...res.data.profile }
+        storage.set(STORAGE_KEYS.profileKey(clean), merged)
+        return merged
+      }
+    } catch (e) {
+      console.error('Error fetching profile from backend:', e)
     }
+
+    return storage.get(STORAGE_KEYS.profileKey(clean))
   },
 
   /**

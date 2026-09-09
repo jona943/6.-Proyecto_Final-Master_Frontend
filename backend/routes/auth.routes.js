@@ -174,6 +174,7 @@ router.post('/login', async (req, res) => {
         username: user.username,
         displayName: user.displayName || user.username,
         role: user.role || 'user',
+        avatarUrl: user.avatarUrl || null,
         token
       }
     })
