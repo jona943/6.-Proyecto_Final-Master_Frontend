@@ -23,6 +23,12 @@ function PublicRoute({ children }) {
 }
 
 function AppContent() {
+  const { initAuth } = useAuthStore()
+
+  useEffect(() => {
+    initAuth()
+  }, [initAuth])
+
   return (
     <Routes>
       <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />

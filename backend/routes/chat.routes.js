@@ -55,12 +55,12 @@ router.get('/sync', async (req, res) => {
     )
 
     // Consultar el estado "online" y datos adicionales de los usuarios aceptados
-    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000)
+    const activeThreshold = new Date(Date.now() - 15 * 1000)
     const activeUsers = await User.find({
       username: { $in: acceptedUsernames }
     }).select('username lastActive avatarUrl displayName')
 
-    const onlineSet = new Set(activeUsers.filter(u => u.lastActive >= twoMinutesAgo).map(u => u.username))
+    const onlineSet = new Set(activeUsers.filter(u => u.lastActive >= activeThreshold).map(u => u.username))
 
     const acceptedUsers = acceptedUsernames.map(username => {
       const dbUser = activeUsers.find(u => u.username === username)

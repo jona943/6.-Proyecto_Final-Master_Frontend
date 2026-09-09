@@ -6,6 +6,20 @@ export const useAuthStore = create((set, get) => ({
   isAuthenticated: !!authService.getCurrentUser()?.username,
   isLoading: false,
 
+  initAuth: async () => {
+    const { user } = get()
+    if (user?.username) {
+      try {
+        const fullProfile = await authService.getProfile(user.username)
+        if (fullProfile) {
+          set({ user: { ...user, ...fullProfile } })
+        }
+      } catch (e) {
+        console.error('Failed to init full profile', e)
+      }
+    }
+  },
+
   login: async (username, password) => {
     set({ isLoading: true })
     try {
