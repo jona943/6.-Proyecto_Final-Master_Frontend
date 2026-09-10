@@ -21,7 +21,7 @@ En una era donde las aplicaciones convencionales exigen datos personales invasiv
 
 ---
 
-## <img src="https://img.icons8.com/color/48/000000/architectural-design.png" width="28" height="28" valign="middle" /> Arquitectura del Sistema
+## <img src="https://img.icons8.com/color/48/000000/network.png" width="28" height="28" valign="middle" /> Arquitectura del Sistema
 
 Nexu implementa una arquitectura desacoplada y moderna orientada a la mensajería de baja latencia:
 
