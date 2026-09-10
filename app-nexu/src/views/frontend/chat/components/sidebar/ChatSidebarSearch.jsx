@@ -6,7 +6,8 @@ const ChatSidebarSearch = ({
   onSearchChange,
   chatsCount,
   activeFilter,
-  onFilterChange
+  onFilterChange,
+  incomingRequestsCount = 0
 }) => {
   return (
     <div className="chat-search-bar-box">
@@ -20,28 +21,33 @@ const ChatSidebarSearch = ({
         />
       </div>
 
-      {chatsCount > 0 && (
-        <div className="filter-pills">
-          <button
-            className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
-            onClick={() => onFilterChange('all')}
-          >
-            Todos ({chatsCount})
-          </button>
-          <button
-            className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}
-            onClick={() => onFilterChange('unread')}
-          >
-            No leídos
-          </button>
-          <button
-            className={`filter-pill-btn ${activeFilter === 'online' ? 'active' : ''}`}
-            onClick={() => onFilterChange('online')}
-          >
-            En línea
-          </button>
-        </div>
-      )}
+      <div className="filter-pills" style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '4px' }}>
+        <button
+          className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
+          onClick={() => onFilterChange('all')}
+        >
+          Todos ({chatsCount})
+        </button>
+        <button
+          className={`filter-pill-btn ${activeFilter === 'favorites' ? 'active' : ''}`}
+          onClick={() => onFilterChange('favorites')}
+        >
+          Favoritos
+        </button>
+        <button
+          className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}
+          onClick={() => onFilterChange('unread')}
+        >
+          No leídos
+        </button>
+        <button
+          className={`filter-pill-btn ${activeFilter === 'requests' ? 'active' : ''}`}
+          onClick={() => onFilterChange('requests')}
+          style={incomingRequestsCount > 0 ? { color: 'var(--accent-acid)' } : {}}
+        >
+          Solicitudes {incomingRequestsCount > 0 && `(${incomingRequestsCount})`}
+        </button>
+      </div>
     </div>
   )
 }

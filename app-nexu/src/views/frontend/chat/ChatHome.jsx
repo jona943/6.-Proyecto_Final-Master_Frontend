@@ -76,7 +76,8 @@ function ChatHome() {
 
       if (!matchesSearch) return false
       if (activeFilter === 'unread') return chat.unreadCount > 0
-      if (activeFilter === 'online') return chat.status === 'online'
+      if (activeFilter === 'favorites') return chat.isFavorite === true;
+      if (activeFilter === 'requests') return false;
       return true
     })
   }, [chats, searchQuery, activeFilter])

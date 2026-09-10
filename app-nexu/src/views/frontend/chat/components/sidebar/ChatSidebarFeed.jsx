@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import { IconShield, IconUserPlus, IconLink, IconLock } from '../../../../../components/icons/Icons'
 
 const ChatSidebarFeed = ({
-  incomingRequests,
+  incomingRequests = [],
   chatsCount,
   filteredChats,
   activeChatId,
@@ -11,12 +11,13 @@ const ChatSidebarFeed = ({
   onBlockUser,
   onOpenConnectModal,
   onCopyInviteLink,
-  onSelectChat
+  onSelectChat,
+  activeFilter
 }) => {
   return (
     <div className="conversations-feed">
       {/* Solicitudes de Conexión Entrantes */}
-      {incomingRequests.length > 0 && (
+      {activeFilter === 'requests' && incomingRequests.length > 0 && (
         <div className="sidebar-pending-requests">
           <span className="input-hint" style={{ textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700 }}>
             Solicitudes de Conexión ({incomingRequests.length})
@@ -61,9 +62,17 @@ const ChatSidebarFeed = ({
           ))}
         </div>
       )}
+      {activeFilter === 'requests' && incomingRequests.length === 0 && (
+        <div className="sidebar-empty-state">
+          <div>
+            <h4 className="sidebar-empty-title">Sin solicitudes</h4>
+            <p className="sidebar-empty-desc">No tienes solicitudes de conexión pendientes.</p>
+          </div>
+        </div>
+      )}
 
       {/* Lista de Chats o Estado Vacío */}
-      {chatsCount === 0 ? (
+      {chatsCount === 0 && activeFilter !== 'requests' ? (
         <div className="sidebar-empty-state">
           <div className="sidebar-empty-icon">
             <IconShield />
@@ -106,7 +115,7 @@ const ChatSidebarFeed = ({
             </p>
           </div>
         </div>
-      ) : filteredChats.length === 0 ? (
+      ) : activeFilter === 'requests' ? null : filteredChats.length === 0 ? (
         <div className="empty-search-msg">
           <p>No se encontraron resultados</p>
         </div>

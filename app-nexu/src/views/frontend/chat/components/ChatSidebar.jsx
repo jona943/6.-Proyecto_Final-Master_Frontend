@@ -47,6 +47,7 @@ const ChatSidebar = ({
         chatsCount={chatsCount}
         activeFilter={activeFilter}
         onFilterChange={onFilterChange}
+        incomingRequestsCount={incomingRequests?.length || 0}
       />
 
       {/* 3. Lista de Conversaciones o Estado Vacío */}
