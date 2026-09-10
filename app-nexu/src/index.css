@@ -324,8 +324,9 @@ body::-webkit-scrollbar {
    PARCHE DE MARGEN SUPERIOR EXCLUSIVO PARA APK WEBVIEW (ANDROID NATIVO)
    Protege la barra de notificaciones y el notch sin afectar Chrome/Safari ni Laptops
    ============================================================================ */
-html.is-webview-apk body,
-html.is-webview-apk .chat-app-layout,
-html.is-webview-apk .landing-container {
+html.is-webview-apk #root {
   padding-top: max(env(safe-area-inset-top), 36px) !important;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
