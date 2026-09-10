@@ -11,7 +11,7 @@
 
 ---
 
-## 🌟 Filosofía y Propósito de Nexu
+## <img src="https://img.icons8.com/color/48/000000/star--v1.png" width="28" height="28" valign="middle" /> Filosofía y Propósito de Nexu
 
 En una era donde las aplicaciones convencionales exigen datos personales invasivos como números de teléfono, correos y contactos, **Nexu propone un paradigma de mensajería privada y soberana**:
 
@@ -21,26 +21,26 @@ En una era donde las aplicaciones convencionales exigen datos personales invasiv
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## <img src="https://img.icons8.com/color/48/000000/architectural-design.png" width="28" height="28" valign="middle" /> Arquitectura del Sistema
 
 Nexu implementa una arquitectura desacoplada y moderna orientada a la mensajería de baja latencia:
 
 ```mermaid
 flowchart TD
-    subgraph Frontend["💻 Frontend (React + Vite)"]
+    subgraph Frontend["Frontend (React + Vite)"]
         UI[Vista de Chat / Landing / Settings]
         AuthCtx[Auth Context - Sesión e Identidad]
         ChatCtx[Chat Context - Polling & Real-Time Sync]
         Storage[Storage Service - Isolation por User]
     end
 
-    subgraph Backend["⚡ Backend REST Service (Node.js + Express)"]
+    subgraph Backend["Backend REST Service (Node.js + Express)"]
         API[Rutas REST /api]
         AuthRoutes[Auth Routes - Alias Check & Auth]
         ChatRoutes[Chat Routes - Requests, Sync & Messages]
     end
 
-    subgraph Database["☁️ Base de Datos Cloud (MongoDB Atlas)"]
+    subgraph Database["Base de Datos Cloud (MongoDB Atlas)"]
         UsersCol[(Colección: Users)]
         ReqsCol[(Colección: ConnectionRequests)]
         MsgsCol[(Colección: ChatMessages)]
@@ -62,7 +62,7 @@ flowchart TD
 1. **Protocolo de Conexiones Anti-Spam:**
    * **Búsqueda en tiempo real:** Verificación de `@alias` en la nube contra MongoDB Atlas.
    * **Flujo del Emisor:** Solicitud en estado *"En espera"*, chat temporalmente bloqueado y opción de *"Cancelar solicitud"*.
-   * **Flujo del Receptor:** Trilogía de control con acciones directas para **🟢 Aceptar**, **⚪ Rechazar** o **🔴 Bloquear**.
+   * **Flujo del Receptor:** Trilogía de control con acciones directas para **Aceptar**, **Rechazar** o **Bloquear**.
 
 2. **Motor de Sincronización en Tiempo Real (`syncUserSession`):**
    * Polling bidireccional continuo (< 3s) que detecta la aceptación de conexiones y desbloquea el chat automáticamente sin necesidad de recargar la página.
@@ -70,7 +70,24 @@ flowchart TD
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+---
+
+## <img src="https://img.icons8.com/color/48/000000/android-os.png" width="28" height="28" valign="middle" /> Descarga la App Móvil (Android)
+
+NexuHub está disponible como un **Cliente Ligero (Cloud-Based WebView)** para Android. Al instalarlo, siempre disfrutarás de la última versión de la app en tiempo real sin tener que descargar actualizaciones manuales.
+👉 **[Descargar NexuHub APK (v1.5.0)](https://github.com/jona943/6.-Proyecto_Final-Master_Frontend/releases/download/v1.5.0/app-debug.apk)**
+
+### Arquitectura Móvil (Thin Client)
+Aunque NexuHub es un esfuerzo de desarrollo colaborativo (ver equipo abajo), la versión APK nativa fue construida y optimizada de forma independiente utilizando la siguiente herramienta de mi autoría:
+
+<img src="https://img.icons8.com/color/48/000000/box.png" width="20" height="20" valign="middle" /> **[Capacitor APK Builder](https://github.com/jona943/capacitor-apk-builder)**
+
+Esta herramienta me permitió implementar 3 capas clave en la arquitectura móvil del proyecto:
+1. **Actualizaciones en la Nube:** Actúa como un marco transparente conectado a la nube, permitiendo desplegar los cambios de interfaz de todo el equipo de forma instantánea.
+2. **Parches Nativos en Java:** El manejo del espacio de la barra de estado (Notch) y la eliminación del rebote (overscroll) están programados directamente a nivel nativo (`MainActivity.java`).
+3. **Privilegios sin Restricciones:** Configuración de permisos para ignorar bloqueos HTTPS, leer almacenamiento multimedia y manipular el audio del dispositivo de forma fluida.
+
+## <img src="https://img.icons8.com/color/48/000000/tools.png" width="28" height="28" valign="middle" /> Tecnologías Utilizadas
 
 ### Frontend
 * <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" width="16" height="16" /> **React 18**: Biblioteca principal para la interfaz de usuario reactiva y modular.
@@ -85,7 +102,7 @@ flowchart TD
 
 ---
 
-## 👥 Equipo de Desarrolladores y Contribuidores
+## <img src="https://img.icons8.com/color/48/000000/group.png" width="28" height="28" valign="middle" /> Equipo de Desarrolladores y Contribuidores
 
 Agradecimientos especiales al equipo del **Master Frontend (DEV.F)** por su colaboración e innovación:
 
@@ -99,7 +116,7 @@ Agradecimientos especiales al equipo del **Master Frontend (DEV.F)** por su cola
 
 ---
 
-## 🚀 Instalación y Ejecución Local
+## <img src="https://img.icons8.com/color/48/000000/launched-rocket.png" width="28" height="28" valign="middle" /> Instalación y Ejecución Local
 
 ### Prerrequisitos
 * Node.js (v18.0 o superior)
