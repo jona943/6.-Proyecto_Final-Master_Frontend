@@ -194,6 +194,16 @@
 .filter-pills {
   display: flex;
   gap: 0.35rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.filter-pills::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .filter-pill-btn {

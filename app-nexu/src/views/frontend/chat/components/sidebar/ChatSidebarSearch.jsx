@@ -21,7 +21,7 @@ const ChatSidebarSearch = ({
         />
       </div>
 
-      <div className="filter-pills" style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '4px' }}>
+      <div className="filter-pills">
         <button
           className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
           onClick={() => onFilterChange('all')}
