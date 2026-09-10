@@ -112,7 +112,6 @@ Agradecimientos especiales al equipo del **Master Frontend (DEV.F)** por su cola
 | **Rosa Maria** | Login, Autenticación y Registro Minimalista | `feature/rosy` |
 | **EmaRama** | Arquitectura de Chat y Mensajería | `feature/EmaRama` |
 | **Victor** | Perfil de Usuario y Ajustes de Cuenta | `feature/victor` |
-| **Naomi** | Apoyo en Documentación e Interfaz | `feature/naomi` |
 
 ---
 
