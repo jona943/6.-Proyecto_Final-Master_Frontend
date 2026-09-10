@@ -18,7 +18,14 @@ function ActiveChatFeed({
     return <span className="msg-status-icon sent" title="Enviado"><IconCheck size={14} /></span>
   }
 
-  const renderHighlightedText = (text, query) => {
+    const renderHighlightedText = (text, query) => {
+    if (typeof text !== 'string') return text
+
+    // Helper to process search highlights within any text segment
+    const processSearch = (segment, keyPrefix = '') => {
+      if (!query || !query.trim()) return segment
+      const cleanQuery = query.trim()
+      const searchRegex = new RegExp(`(${cleanQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\const renderHighlightedText = (text, query) => {
     if (!query || !query.trim()) return text
 
     const cleanQuery = query.trim()
@@ -34,6 +41,43 @@ function ActiveChatFeed({
         part
       )
     )
+  }')})`, 'gi')
+      const parts = segment.split(searchRegex)
+
+      return parts.map((part, i) =>
+        searchRegex.test(part) ? (
+          <mark key={`${keyPrefix}-mark-${i}`} className="chat-search-match">
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      )
+    }
+
+    // Process Markdown Bold (**text**) first
+    const boldRegex = /\*\*(.*?)\*\*/g
+    const elements = []
+    let lastIndex = 0
+    let match
+
+    while ((match = boldRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        elements.push(processSearch(text.substring(lastIndex, match.index), `text-${match.index}`))
+      }
+      elements.push(
+        <strong key={`bold-${match.index}`}>
+          {processSearch(match[1], `bold-inner-${match.index}`)}
+        </strong>
+      )
+      lastIndex = boldRegex.lastIndex
+    }
+
+    if (lastIndex < text.length) {
+      elements.push(processSearch(text.substring(lastIndex), `text-last`))
+    }
+
+    return elements.length > 0 ? elements : text
   }
 
   const getMessageDateLabel = (msg) => {
