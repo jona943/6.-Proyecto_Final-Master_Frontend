@@ -322,10 +322,11 @@ body::-webkit-scrollbar {
 
 /* ============================================================================
    PARCHE DE MARGEN SUPERIOR EXCLUSIVO PARA APK WEBVIEW (ANDROID NATIVO)
-   Protege la barra de notificaciones y el notch sin afectar Chrome/Safari ni Laptops
+   El WebView de Capacitor ya se sitúa debajo de la barra de estado por defecto.
+   Ya no inyectamos padding extra para evitar el doble salto y los espacios blancos.
    ============================================================================ */
 html.is-webview-apk body,
 html.is-webview-apk .chat-app-layout,
 html.is-webview-apk .landing-container {
-  padding-top: max(env(safe-area-inset-top), 36px) !important;
+  /* padding eliminado */
 }
