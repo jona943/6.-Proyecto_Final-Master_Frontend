@@ -30,6 +30,58 @@ const INITIAL_CHATS_DEFAULT = [
   }
 ]
 
+
+
+const ENCRYPTION_KEY = 'NEXU_SECURE_VAULT_2026';
+
+const encryptData = (data) => {
+  const str = JSON.stringify(data);
+  let encrypted = '';
+  for(let i = 0; i < str.length; i++) {
+    encrypted += String.fromCharCode(str.charCodeAt(i) ^ ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length));
+  }
+  return btoa(encrypted);
+};
+
+const decryptData = (encodedData) => {
+  try {
+    const decoded = atob(encodedData);
+    let decrypted = '';
+    for(let i = 0; i < decoded.length; i++) {
+      decrypted += String.fromCharCode(decoded.charCodeAt(i) ^ ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length));
+    }
+    return JSON.parse(decrypted);
+  } catch (e) {
+    return null;
+  }
+};
+
+const getInitialChats = (username) => {
+  if (!username) return INITIAL_CHATS_DEFAULT;
+  const chatsCopy = JSON.parse(JSON.stringify(INITIAL_CHATS_DEFAULT));
+  try {
+    const savedBotHistory = localStorage.getItem(`nexu_bot_history_${username}`);
+    if (savedBotHistory) {
+      const decrypted = decryptData(savedBotHistory);
+      if (decrypted) chatsCopy[0].messages = decrypted;
+    }
+  } catch (e) {
+    console.error('Error reading bot history:', e);
+  }
+  return chatsCopy;
+}
+
+const saveBotHistory = (username, chats) => {
+  try {
+    const botChat = chats.find(c => c.id === 'chat_bot');
+    if (botChat) {
+      localStorage.setItem(`nexu_bot_history_${username}`, encryptData(botChat.messages));
+    }
+  } catch (e) {
+    console.error('Error saving bot history:', e);
+  }
+}
+
 export function useChats(currentUsername) {
   const queryClient = useQueryClient()
   const enabled = !!currentUsername
@@ -45,9 +97,9 @@ export function useChats(currentUsername) {
   } = useChatUIStore()
 
   // Queries base para mantener el estado local inicial
-  const { data: chats = INITIAL_CHATS_DEFAULT } = useQuery({
+  const { data: chats = getInitialChats(currentUsername) } = useQuery({
     queryKey: ['chats', currentUsername],
-    queryFn: () => INITIAL_CHATS_DEFAULT,
+    queryFn: () => getInitialChats(currentUsername),
     staleTime: Infinity,
     enabled
   })
@@ -76,7 +128,7 @@ export function useChats(currentUsername) {
       }
 
       // 2. Sincronizar y construir Chats
-      const prevChats = queryClient.getQueryData(['chats', currentUsername]) || INITIAL_CHATS_DEFAULT
+      const prevChats = queryClient.getQueryData(['chats', currentUsername]) || getInitialChats(currentUsername)
       let hasChanges = false
       let nextChats = [...prevChats]
 
@@ -271,6 +323,7 @@ export function useChats(currentUsername) {
 
     const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername, attachment)
     queryClient.setQueryData(['chats', currentUsername], updatedChats)
+    if (activeChat.isBot) saveBotHistory(currentUsername, updatedChats)
 
     if (activeChat.isBot) {
       setIsTyping(true)
@@ -284,6 +337,7 @@ export function useChats(currentUsername) {
         if (response.success && response.data && response.data.answer) {
           const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, response.data.answer)
           queryClient.setQueryData(['chats', currentUsername], replyChats)
+          saveBotHistory(currentUsername, replyChats)
         } else {
           console.error('Error del bot:', response.error || response.data?.message || 'Respuesta inválida')
         }
@@ -332,6 +386,7 @@ export function useChats(currentUsername) {
   const deleteConversation = (chatId) => {
     const updated = chats.filter((c) => c.id !== chatId)
     queryClient.setQueryData(['chats', currentUsername], updated)
+    if (activeChat.isBot) saveBotHistory(currentUsername, updated)
     if (selectedChatId === chatId) {
       setSelectedChatId(null)
     }
