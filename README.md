@@ -87,7 +87,7 @@ Esta herramienta me permitió implementar 3 capas clave en la arquitectura móvi
 2. **Parches Nativos en Java:** El manejo del espacio de la barra de estado (Notch) y la eliminación del rebote (overscroll) están programados directamente a nivel nativo (`MainActivity.java`).
 3. **Privilegios sin Restricciones:** Configuración de permisos para ignorar bloqueos HTTPS, leer almacenamiento multimedia y manipular el audio del dispositivo de forma fluida.
 
-## <img src="https://img.icons8.com/color/48/000000/tools.png" width="28" height="28" valign="middle" /> Tecnologías Utilizadas
+## <img src="https://img.icons8.com/color/48/000000/maintenance.png" width="28" height="28" valign="middle" /> Tecnologías Utilizadas
 
 ### Frontend
 * <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" width="16" height="16" /> **React 18**: Biblioteca principal para la interfaz de usuario reactiva y modular.
