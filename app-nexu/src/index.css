@@ -170,6 +170,8 @@ input, button, select, textarea {
 html, body {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
 }
 
 html::-webkit-scrollbar,
