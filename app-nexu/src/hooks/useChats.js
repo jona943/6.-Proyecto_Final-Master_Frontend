@@ -56,6 +56,25 @@ const decryptData = (encodedData) => {
   }
 };
 
+const loadFavorites = (username) => {
+  if (!username) return []
+  try {
+    const raw = localStorage.getItem(`nexu_favs_${username.toLowerCase()}`)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+const saveFavorites = (username, favIds) => {
+  if (!username) return
+  try {
+    localStorage.setItem(`nexu_favs_${username.toLowerCase()}`, JSON.stringify(favIds))
+  } catch (e) {
+    console.error('Error saving favorites:', e)
+  }
+}
+
 const getInitialChats = (username) => {
   if (!username) return INITIAL_CHATS_DEFAULT;
   const chatsCopy = JSON.parse(JSON.stringify(INITIAL_CHATS_DEFAULT));
@@ -65,8 +84,12 @@ const getInitialChats = (username) => {
       const decrypted = decryptData(savedBotHistory);
       if (decrypted) chatsCopy[0].messages = decrypted;
     }
+    const favs = loadFavorites(username);
+    chatsCopy.forEach((c) => {
+      c.isFavorite = favs.includes(c.id);
+    });
   } catch (e) {
-    console.error('Error reading bot history:', e);
+    console.error('Error reading bot history or favorites:', e);
   }
   return chatsCopy;
 }
@@ -411,12 +434,57 @@ export function useChats(currentUsername) {
     }
   }
 
-  const clearCurrentChat = () => {
-    if (!activeChat) return
+  const clearChatById = async (chatId) => {
+    const targetChat = chats.find(c => c.id === chatId)
+    if (!targetChat) return
+
+    if (!targetChat.isBot && targetChat.handle) {
+      await chatService.clearMessages(currentUsername, targetChat.handle.replace('@', ''))
+    }
+
     const updated = chats.map((c) =>
-      c.id === activeChat.id ? { ...c, messages: [] } : c
+      c.id === chatId ? { ...c, messages: [] } : c
     )
     queryClient.setQueryData(['chats', currentUsername], updated)
+    if (targetChat.isBot) saveBotHistory(currentUsername, updated)
+  }
+
+  const clearCurrentChat = () => {
+    if (!activeChat) return
+    clearChatById(activeChat.id)
+  }
+
+  const toggleFavorite = (chatId) => {
+    const currentFavs = loadFavorites(currentUsername)
+    const isFav = currentFavs.includes(chatId)
+    const updatedFavs = isFav ? currentFavs.filter(id => id !== chatId) : [...currentFavs, chatId]
+    saveFavorites(currentUsername, updatedFavs)
+
+    queryClient.setQueryData(['chats', currentUsername], (prev) =>
+      (prev || []).map((c) => (c.id === chatId ? { ...c, isFavorite: !isFav } : c))
+    )
+  }
+
+  const toggleRead = (chat) => {
+    const isCurrentlyUnread = (chat.unreadCount || 0) > 0
+    queryClient.setQueryData(['chats', currentUsername], (prev) =>
+      (prev || []).map((c) => {
+        if (c.id === chat.id) {
+          if (isCurrentlyUnread) {
+            const readMsgs = (c.messages || []).map((m) => (m.sender === 'them' ? { ...m, status: 'read' } : m))
+            return { ...c, unreadCount: 0, messages: readMsgs }
+          } else {
+            return { ...c, unreadCount: 1 }
+          }
+        }
+        return c
+      })
+    )
+
+    if (isCurrentlyUnread && chat.handle && !chat.isBot) {
+      const partner = chat.handle.replace(/^@/, '').toLowerCase()
+      chatService.markMessagesAsRead(currentUsername, partner)
+    }
   }
 
   return {
@@ -435,6 +503,9 @@ export function useChats(currentUsername) {
     rejectRequest,
     blockUser,
     deleteConversation,
-    clearCurrentChat
+    clearCurrentChat,
+    clearChatById,
+    toggleFavorite,
+    toggleRead
   }
 }

@@ -1,7 +1,8 @@
-import React, { memo } from 'react'
+import React, { memo, useState } from 'react'
 import RequestsSection from './requests/RequestsSection'
 import ConversationItem from './feed/ConversationItem'
 import EmptyFeed from './feed/EmptyFeed'
+import ChatContextMenu from './feed/ChatContextMenu'
 
 const ChatSidebarFeed = ({
   incomingRequests = [],
@@ -16,8 +17,22 @@ const ChatSidebarFeed = ({
   onOpenConnectModal,
   onCopyInviteLink,
   onSelectChat,
+  onToggleFavorite,
+  onToggleRead,
+  onClearMessages,
+  onDeleteContact,
   activeFilter
 }) => {
+  const [contextMenu, setContextMenu] = useState(null)
+
+  const handleContextMenu = (e, chat) => {
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      chat
+    })
+  }
+
   return (
     <div className="conversations-feed">
       {/* 1. Vista de Solicitudes (Entrantes y Salientes) */}
@@ -55,8 +70,23 @@ const ChatSidebarFeed = ({
             chat={chat}
             isSelected={chat.id === activeChatId}
             onSelectChat={onSelectChat}
+            onContextMenu={handleContextMenu}
           />
         ))
+      )}
+
+      {/* 5. Menú Contextual Flotante (Clic Derecho) */}
+      {contextMenu && (
+        <ChatContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          chat={contextMenu.chat}
+          onClose={() => setContextMenu(null)}
+          onToggleFavorite={onToggleFavorite}
+          onToggleRead={onToggleRead}
+          onClearMessages={onClearMessages}
+          onDeleteContact={onDeleteContact}
+        />
       )}
     </div>
   )

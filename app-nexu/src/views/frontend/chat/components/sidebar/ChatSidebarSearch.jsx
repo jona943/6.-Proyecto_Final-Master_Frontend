@@ -6,6 +6,7 @@ const ChatSidebarSearch = ({
   onSearchChange,
   chatsCount,
   unreadChatsCount = 0,
+  favoritesCount = 0,
   activeFilter,
   onFilterChange,
   incomingRequestsCount = 0
@@ -32,8 +33,9 @@ const ChatSidebarSearch = ({
         <button
           className={`filter-pill-btn ${activeFilter === 'favorites' ? 'active' : ''}`}
           onClick={() => onFilterChange('favorites')}
+          style={favoritesCount > 0 ? { color: 'var(--accent-acid)', fontWeight: 700 } : {}}
         >
-          Favoritos
+          Favoritos {favoritesCount > 0 && `(${favoritesCount})`}
         </button>
         <button
           className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}

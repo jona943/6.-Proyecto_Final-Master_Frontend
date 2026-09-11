@@ -576,3 +576,81 @@
   border-color: rgba(255, 107, 107, 0.3);
   background-color: rgba(255, 107, 107, 0.08);
 }
+
+/* ============================================================================
+   MENÚ CONTEXTUAL (CLIC DERECHO EN CONVERSACIÓN)
+   ============================================================================ */
+.chat-context-menu {
+  background: var(--bg-surface-elevated, #16191f);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.2);
+  padding: 0.35rem;
+  min-width: 190px;
+  animation: contextMenuFade 0.15s ease-out;
+  backdrop-filter: blur(12px);
+}
+
+@keyframes contextMenuFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.context-menu-header {
+  padding: 0.4rem 0.6rem 0.3rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+  margin-bottom: 0.25rem;
+}
+
+.context-menu-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted, #7e8796);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.context-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.8rem;
+  color: var(--text-primary, #f4f5f7);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.context-menu-item:hover {
+  background-color: var(--bg-surface-hover, rgba(255, 255, 255, 0.08));
+  color: #ffffff;
+}
+
+.context-menu-item.text-danger {
+  color: #ef4444;
+}
+
+.context-menu-item.text-danger:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background-color: var(--border-subtle, rgba(255, 255, 255, 0.08));
+  margin: 0.3rem 0;
+}
+

@@ -1,6 +1,7 @@
 import React from 'react'
+import { IconStar } from '../../../../../../components/icons/Icons'
 
-const ConversationItem = ({ chat, isSelected, onSelectChat }) => {
+const ConversationItem = ({ chat, isSelected, onSelectChat, onContextMenu }) => {
   const lastMsg = chat.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null
 
   const hasUnread = (chat.unreadCount || 0) > 0
@@ -10,6 +11,12 @@ const ConversationItem = ({ chat, isSelected, onSelectChat }) => {
       type="button"
       className={`conversation-item ${isSelected ? 'selected' : ''}`}
       onClick={() => onSelectChat(chat.id)}
+      onContextMenu={(e) => {
+        if (onContextMenu) {
+          e.preventDefault()
+          onContextMenu(e, chat)
+        }
+      }}
     >
       <div className="avatar-wrapper">
         {chat.avatarUrl ? (
@@ -38,7 +45,14 @@ const ConversationItem = ({ chat, isSelected, onSelectChat }) => {
 
       <div className="conv-details">
         <div className="conv-top-row">
-          <span className={`conv-name ${hasUnread ? 'has-unread' : ''}`}>{chat.name}</span>
+          <span className={`conv-name ${hasUnread ? 'has-unread' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            {chat.name}
+            {chat.isFavorite && (
+              <span title="Favorito" style={{ color: 'var(--accent-acid, #d4ff00)', display: 'inline-flex' }}>
+                <IconStar size={11} filled />
+              </span>
+            )}
+          </span>
           <span className={`conv-time ${hasUnread ? 'has-unread' : ''}`}>{lastMsg ? lastMsg.time : ''}</span>
         </div>
 

@@ -10,6 +10,7 @@ const ChatSidebar = ({
   currentUser,
   chatsCount,
   unreadChatsCount = 0,
+  favoritesCount = 0,
   filteredChats,
   searchQuery,
   activeFilter,
@@ -28,9 +29,12 @@ const ChatSidebar = ({
   onRejectRequest,
   onBlockUser,
   onToggleDetailsPanel,
-  showDetailsPanel
+  showDetailsPanel,
+  onToggleFavorite,
+  onToggleRead,
+  onClearMessages,
+  onDeleteContact
 }) => {
-
   return (
     <aside className={`chat-sidebar ${mobileView === 'chat' ? 'hidden-mobile' : ''}`}>
       {/* 1. Cabecera y Perfil */}
@@ -49,6 +53,7 @@ const ChatSidebar = ({
         onSearchChange={onSearchChange}
         chatsCount={chatsCount}
         unreadChatsCount={unreadChatsCount}
+        favoritesCount={favoritesCount}
         activeFilter={activeFilter}
         onFilterChange={onFilterChange}
         incomingRequestsCount={(incomingRequests?.length || 0) + (outgoingRequests?.length || 0)}
@@ -69,6 +74,10 @@ const ChatSidebar = ({
         onOpenConnectModal={onOpenConnectModal}
         onCopyInviteLink={onCopyInviteLink}
         onSelectChat={onSelectChat}
+        onToggleFavorite={onToggleFavorite}
+        onToggleRead={onToggleRead}
+        onClearMessages={onClearMessages}
+        onDeleteContact={onDeleteContact}
       />
     </aside>
   )

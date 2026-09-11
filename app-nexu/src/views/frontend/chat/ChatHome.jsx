@@ -36,7 +36,10 @@ function ChatHome() {
     rejectRequest,
     blockUser,
     deleteConversation,
-    clearCurrentChat
+    clearCurrentChat,
+    clearChatById,
+    toggleFavorite,
+    toggleRead
   } = useChats(user?.username || 'guest')
 
   const [inputText, setInputText] = useState('')
@@ -85,6 +88,10 @@ function ChatHome() {
 
   const unreadChatsCount = useMemo(() => {
     return chats.filter((c) => (c.unreadCount || 0) > 0).length
+  }, [chats])
+
+  const favoritesCount = useMemo(() => {
+    return chats.filter((c) => c.isFavorite === true).length
   }, [chats])
 
   // Optimización con useCallback para evitar recrear manejadores de eventos en cada render
@@ -229,6 +236,7 @@ function ChatHome() {
         onFilterChange={setActiveFilter}
         chatsCount={chats.length}
         unreadChatsCount={unreadChatsCount}
+        favoritesCount={favoritesCount}
         incomingRequests={incomingRequests}
         outgoingRequests={outgoingRequests}
         onCancelRequest={cancelRequest}
@@ -239,6 +247,10 @@ function ChatHome() {
         activeChatId={activeChat?.id}
         onSelectChat={handleSelectChat}
         onCopyInviteLink={handleCopyInviteLink}
+        onToggleFavorite={toggleFavorite}
+        onToggleRead={toggleRead}
+        onClearMessages={(chat) => clearChatById(chat.id)}
+        onDeleteContact={deleteConversation}
       />
 
       {/* 2. Panel de Chat Activo o Estado Vacío */}
