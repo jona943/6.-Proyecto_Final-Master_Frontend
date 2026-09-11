@@ -194,7 +194,9 @@ export function useChats(currentUsername) {
             if (
               currentChat.status !== currentStatus || 
               currentChat.avatarUrl !== targetAvatarUrl ||
-              currentChat.name !== (targetDisplayName || `@${cleanTarget}`)
+              currentChat.name !== (targetDisplayName || `@${cleanTarget}`) ||
+              currentChat.isDisconnected ||
+              currentChat.isPending
             ) {
               hasChanges = true
               nextChats[existingChatIndex] = {
@@ -202,7 +204,9 @@ export function useChats(currentUsername) {
                 status: currentStatus,
                 statusText: isTargetOnline ? 'En línea' : 'Desconectado',
                 avatarUrl: targetAvatarUrl,
-                name: targetDisplayName || `@${cleanTarget}`
+                name: targetDisplayName || `@${cleanTarget}`,
+                isDisconnected: false,
+                isPending: false
               }
             }
           }
@@ -211,28 +215,54 @@ export function useChats(currentUsername) {
 
       // B. Sincronizar mensajes en chats existentes
       nextChats = nextChats.map((c) => {
+        if (c.isBot) return c
+
         const target = c.handle ? c.handle.replace(/^@/, '').toLowerCase() : ''
         const acceptedObj = acceptedUsers?.find(u => (typeof u === 'string' ? u : u.username) === target)
+        const isOutgoingPending = requestsSync?.outgoing?.some(
+          (r) => (r.toUser?.username || r.targetUsername || '').toLowerCase() === target
+        )
 
-        if (c.isPending && acceptedObj) {
-          hasChanges = true
-          return {
-            ...c,
-            isPending: false,
-            status: typeof acceptedObj === 'string' ? 'online' : (acceptedObj.isOnline ? 'online' : 'offline'),
-            statusText: typeof acceptedObj === 'string' ? 'En línea' : (acceptedObj.isOnline ? 'En línea' : 'Desconectado'),
-            messages: c.messages.some((m) => m.id.includes('accepted'))
-              ? c.messages
-              : [
-                  ...c.messages,
-                  {
-                    id: `msg_accepted_sync_${Date.now()}`,
-                    sender: 'them',
-                    text: `@${target} aceptó tu solicitud de conexión. ¡Ya pueden chatear!`,
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    status: 'read'
-                  }
-                ]
+        let chatCopy = { ...c }
+
+        if (!acceptedObj) {
+          // No está en la lista de conexiones aceptadas
+          const shouldBePending = Boolean(isOutgoingPending)
+          const shouldBeDisconnected = !isOutgoingPending
+
+          if (chatCopy.isPending !== shouldBePending || chatCopy.isDisconnected !== shouldBeDisconnected) {
+            hasChanges = true
+            chatCopy = {
+              ...chatCopy,
+              isPending: shouldBePending,
+              isDisconnected: shouldBeDisconnected,
+              status: 'offline',
+              statusText: shouldBePending ? 'Solicitud pendiente' : 'Conexión no activa'
+            }
+          }
+        } else {
+          // Está aceptado
+          if (chatCopy.isPending || chatCopy.isDisconnected) {
+            hasChanges = true
+            chatCopy = {
+              ...chatCopy,
+              isPending: false,
+              isDisconnected: false,
+              status: typeof acceptedObj === 'string' ? 'online' : (acceptedObj.isOnline ? 'online' : 'offline'),
+              statusText: typeof acceptedObj === 'string' ? 'En línea' : (acceptedObj.isOnline ? 'En línea' : 'Desconectado'),
+              messages: chatCopy.messages.some((m) => m.id?.includes('accepted'))
+                ? chatCopy.messages
+                : [
+                    ...chatCopy.messages,
+                    {
+                      id: `msg_accepted_sync_${Date.now()}`,
+                      sender: 'them',
+                      text: `@${target} aceptó tu solicitud de conexión. ¡Ya pueden chatear!`,
+                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      status: 'read'
+                    }
+                  ]
+            }
           }
         }
 
@@ -244,10 +274,10 @@ export function useChats(currentUsername) {
           )
 
           if (relMsgs.length > 0) {
-            const existingIds = new Set(c.messages.map((m) => m.id))
+            const existingIds = new Set(chatCopy.messages.map((m) => m.id))
             const serverStatusMap = new Map(relMsgs.map((m) => [m.id, m.status]))
 
-            let updatedMessages = c.messages.map((m) => {
+            let updatedMessages = chatCopy.messages.map((m) => {
               if (serverStatusMap.has(m.id) && m.status !== serverStatusMap.get(m.id)) {
                 hasChanges = true
                 return { ...m, status: serverStatusMap.get(m.id) }
@@ -261,26 +291,24 @@ export function useChats(currentUsername) {
               hasChanges = true
               updatedMessages = [...updatedMessages, ...newMsgsToAdd]
               const incomingThem = newMsgsToAdd.filter((m) => m.sender === 'them')
-              if (c.id === selectedChatId && incomingThem.length > 0) {
+              if (chatCopy.id === selectedChatId && incomingThem.length > 0) {
                 chatService.markMessagesAsRead(currentUsername, target)
               }
             }
 
-            const unreadCount = c.id === selectedChatId
+            const unreadCount = chatCopy.id === selectedChatId
               ? 0
               : updatedMessages.filter((m) => m.sender === 'them' && m.status !== 'read').length
 
-            if (c.unreadCount !== unreadCount) {
+            if (chatCopy.unreadCount !== unreadCount) {
               hasChanges = true
             }
 
-            if (hasChanges) {
-              return { ...c, messages: updatedMessages, unreadCount }
-            }
+            return { ...chatCopy, messages: updatedMessages, unreadCount }
           }
         }
 
-        return c
+        return chatCopy
       })
 
       if (hasChanges) {
@@ -349,7 +377,7 @@ export function useChats(currentUsername) {
   }
 
   const sendMessage = async (text, attachment = null) => {
-    if ((!text.trim() && !attachment) || !activeChat || activeChat.isPending) return
+    if ((!text.trim() && !attachment) || !activeChat || activeChat.isPending || activeChat.isDisconnected) return
 
     const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername, attachment)
     queryClient.setQueryData(['chats', currentUsername], updatedChats)

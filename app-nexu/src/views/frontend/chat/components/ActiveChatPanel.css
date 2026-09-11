@@ -341,7 +341,14 @@
 .msg-avatar-tiny {
   width: 28px;
   height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
+  overflow: hidden;
   background-color: var(--bg-surface-elevated, #16191f);
   border: 1px solid var(--border-subtle, #1c2028);
   display: flex;
@@ -353,6 +360,14 @@
   color: var(--accent-acid, #d4ff00);
   align-self: flex-end;
   margin-bottom: 2px;
+}
+
+.msg-avatar-tiny img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .message-bubble-wrapper {

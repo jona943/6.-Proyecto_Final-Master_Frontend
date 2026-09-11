@@ -33,6 +33,10 @@ const chatMessageSchema = new mongoose.Schema(
       type: String,
       enum: ['sent', 'delivered', 'read'],
       default: 'sent'
+    },
+    deletedFor: {
+      type: [{ type: String, lowercase: true, trim: true }],
+      default: []
     }
   },
   {

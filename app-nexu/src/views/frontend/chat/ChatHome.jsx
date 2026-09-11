@@ -13,6 +13,7 @@ import ActiveChatPanel from './components/ActiveChatPanel'
 import ContactDetailsPanel from './components/ContactDetailsPanel'
 import ConnectUserModal from './components/ConnectUserModal'
 import ChatEmptyState from './components/ChatEmptyState'
+import ConfirmActionModal from './components/ConfirmActionModal'
 
 // ============================================================================
 // COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR + CONTEXT + UTILS)
@@ -57,6 +58,14 @@ function ChatHome() {
   const [searchedUser, setSearchedUser] = useState(null)
   const [userSuggestions, setUserSuggestions] = useState([])
   const [sentRequests, setSentRequests] = useState([])
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmLabel: 'Confirmar',
+    variant: 'danger',
+    onConfirm: null
+  })
 
   const messagesEndRef = useRef(null)
 
@@ -197,11 +206,43 @@ function ChatHome() {
     triggerToast(`Usuario ${req.fromUser.handle} bloqueado`)
   }
 
-  // Eliminar conversación
-  const handleDeleteConversation = (chatId) => {
-    deleteConversation(chatId)
-    setShowDetailsPanel(false)
-    triggerToast('Conversación eliminada')
+  // 1. Advertencia para Vaciar Mensajes
+  const handleRequestClearChat = (chatToClear) => {
+    const target = chatToClear || activeChat
+    if (!target) return
+
+    setConfirmModal({
+      isOpen: true,
+      title: `¿Vaciar mensajes de "${target.name}"?`,
+      message: 'Esta acción eliminará todos los mensajes de esta conversación en tu historial. Tu contacto aún podrá ver su copia de los mensajes.',
+      confirmLabel: 'Vaciar mensajes',
+      variant: 'danger',
+      onConfirm: async () => {
+        await clearChatById(target.id)
+        triggerToast('Mensajes vaciados correctamente')
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+      }
+    })
+  }
+
+  // 2. Advertencia para Eliminar Contacto
+  const handleRequestDeleteContact = (chatIdToDelete) => {
+    const target = chats.find((c) => c.id === chatIdToDelete) || activeChat
+    if (!target) return
+
+    setConfirmModal({
+      isOpen: true,
+      title: `¿Eliminar a "${target.name}" de tus contactos?`,
+      message: `Se eliminará a ${target.handle || target.name} de tus contactos. Para volver a enviarle mensajes, deberás enviar una nueva solicitud de conexión y esperar a que sea aceptada.`,
+      confirmLabel: 'Eliminar contacto',
+      variant: 'danger',
+      onConfirm: async () => {
+        await deleteConversation(target.id)
+        setShowDetailsPanel(false)
+        triggerToast('Contacto eliminado')
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+      }
+    })
   }
 
   // Copiar texto
@@ -249,8 +290,8 @@ function ChatHome() {
         onCopyInviteLink={handleCopyInviteLink}
         onToggleFavorite={toggleFavorite}
         onToggleRead={toggleRead}
-        onClearMessages={(chat) => clearChatById(chat.id)}
-        onDeleteContact={deleteConversation}
+        onClearMessages={(chat) => handleRequestClearChat(chat)}
+        onDeleteContact={(chatId) => handleRequestDeleteContact(chatId)}
       />
 
       {/* 2. Panel de Chat Activo o Estado Vacío */}
@@ -269,6 +310,7 @@ function ChatHome() {
           onInsertCodeSnippet={() => setInputText((prev) => prev + 'const nexu = true;')}
           onTriggerToast={triggerToast}
           onCancelRequest={handleCancelRequest}
+          onSendConnectionRequest={handleSendConnectionRequest}
           messagesEndRef={messagesEndRef}
         />
       ) : (
@@ -283,11 +325,8 @@ function ChatHome() {
         <ContactDetailsPanel
           activeChat={activeChat}
           onClose={() => setShowDetailsPanel(false)}
-          onClearChat={() => {
-            clearCurrentChat()
-            triggerToast('Historial reiniciado')
-          }}
-          onDeleteConversation={handleDeleteConversation}
+          onClearChat={() => handleRequestClearChat(activeChat)}
+          onDeleteConversation={(chatId) => handleRequestDeleteContact(chatId)}
         />
       )}
 
@@ -308,6 +347,17 @@ function ChatHome() {
         userSuggestions={userSuggestions}
         sentRequests={sentRequests}
         onSendRequest={handleSendConnectionRequest}
+      />
+
+      {/* 5. Modal de Confirmación de Acciones Destructivas */}
+      <ConfirmActionModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmLabel={confirmModal.confirmLabel}
+        variant={confirmModal.variant}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
       />
     </div>
   )

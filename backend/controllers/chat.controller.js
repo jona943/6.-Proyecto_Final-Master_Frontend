@@ -75,9 +75,10 @@ export const syncSession = async (req, res) => {
       { status: 'delivered' }
     )
 
-    // 4. Mensajes recientes 1 a 1
+    // 4. Mensajes recientes 1 a 1 (excluyendo los que el usuario haya vaciado)
     const messagesDocs = await ChatMessage.find({
-      $or: [{ senderUsername: clean }, { recipientUsername: clean }]
+      $or: [{ senderUsername: clean }, { recipientUsername: clean }],
+      deletedFor: { $ne: clean }
     }).sort({ createdAt: 1 })
 
     const formattedMessages = messagesDocs.map((msg) => ({
@@ -123,6 +124,22 @@ export const sendMessage = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'senderUsername, recipientUsername, y (text o attachment) son requeridos.'
+      })
+    }
+
+    // Verificar si existe una conexión aceptada activa entre ambos
+    const activeConnection = await ConnectionRequest.findOne({
+      status: 'accepted',
+      $or: [
+        { senderUsername: sender, targetUsername: recipient },
+        { senderUsername: recipient, targetUsername: sender }
+      ]
+    })
+
+    if (!activeConnection) {
+      return res.status(403).json({
+        success: false,
+        message: 'No puedes enviar mensajes porque no tienes una conexión activa con este usuario.'
       })
     }
 
@@ -179,7 +196,7 @@ export const markMessagesAsRead = async (req, res) => {
 
 /**
  * POST /api/chats/clear
- * Vaciar mensajes de un chat para ambos participantes
+ * Vaciar mensajes de un chat únicamente para el usuario solicitante
  */
 export const clearMessages = async (req, res) => {
   try {
@@ -190,14 +207,22 @@ export const clearMessages = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Usuario objetivo requerido' })
     }
 
-    await ChatMessage.deleteMany({
-      $or: [
-        { senderUsername: currentUser, recipientUsername: targetUsername },
-        { senderUsername: targetUsername, recipientUsername: currentUser }
-      ]
-    })
+    const cleanCurrent = currentUser.trim().toLowerCase()
+    const cleanTarget = targetUsername.trim().toLowerCase()
 
-    res.json({ success: true, message: 'Mensajes eliminados correctamente para ambos' })
+    await ChatMessage.updateMany(
+      {
+        $or: [
+          { senderUsername: cleanCurrent, recipientUsername: cleanTarget },
+          { senderUsername: cleanTarget, recipientUsername: cleanCurrent }
+        ]
+      },
+      {
+        $addToSet: { deletedFor: cleanCurrent }
+      }
+    )
+
+    res.json({ success: true, message: 'Mensajes eliminados de tu conversación' })
   } catch (error) {
     console.error('Error en clearMessages:', error)
     res.status(500).json({ success: false, message: 'Error interno' })
@@ -206,7 +231,7 @@ export const clearMessages = async (req, res) => {
 
 /**
  * POST /api/chats/delete-contact
- * Eliminar contacto y mensajes en ambas direcciones
+ * Eliminar conexión y ocultar mensajes para el usuario solicitante
  */
 export const deleteContact = async (req, res) => {
   try {
@@ -217,23 +242,29 @@ export const deleteContact = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Usuario objetivo requerido' })
     }
 
-    // 1. Borrar mensajes
-    await ChatMessage.deleteMany({
-      $or: [
-        { senderUsername: currentUser, recipientUsername: targetUsername },
-        { senderUsername: targetUsername, recipientUsername: currentUser }
-      ]
-    })
+    const cleanCurrent = currentUser.trim().toLowerCase()
+    const cleanTarget = targetUsername.trim().toLowerCase()
 
-    // 2. Borrar conexión
+    // 1. Ocultar mensajes para quien eliminó el contacto
+    await ChatMessage.updateMany(
+      {
+        $or: [
+          { senderUsername: cleanCurrent, recipientUsername: cleanTarget },
+          { senderUsername: cleanTarget, recipientUsername: cleanCurrent }
+        ]
+      },
+      { $addToSet: { deletedFor: cleanCurrent } }
+    )
+
+    // 2. Borrar conexión entre ambos
     await ConnectionRequest.deleteMany({
       $or: [
-        { senderUsername: currentUser, targetUsername: targetUsername },
-        { senderUsername: targetUsername, targetUsername: currentUser }
+        { senderUsername: cleanCurrent, targetUsername: cleanTarget },
+        { senderUsername: cleanTarget, targetUsername: cleanCurrent }
       ]
     })
 
-    res.json({ success: true, message: 'Contacto y mensajes eliminados correctamente' })
+    res.json({ success: true, message: 'Contacto eliminado correctamente' })
   } catch (error) {
     console.error('Error en deleteContact:', error)
     res.status(500).json({ success: false, message: 'Error interno' })
