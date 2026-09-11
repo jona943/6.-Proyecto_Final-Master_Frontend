@@ -142,3 +142,74 @@
   font-size: 0.75rem;
   color: var(--text-secondary, #7e8796);
 }
+
+.user-avatar-modal {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  max-width: 38px;
+  max-height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+  background-color: var(--bg-surface-elevated, #16191f);
+  border: 1px solid var(--border-subtle, #1c2028);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-acid, #d4ff00);
+}
+
+.user-avatar-modal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.badge-contact-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-contact-status.connected {
+  background-color: rgba(212, 255, 0, 0.12);
+  color: var(--accent-acid, #d4ff00);
+  border: 1px solid rgba(212, 255, 0, 0.3);
+}
+
+.badge-contact-status.pending {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.btn-open-chat-subtle {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle, #1c2028);
+  color: var(--text-primary, #f4f5f7);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-open-chat-subtle:hover {
+  background: rgba(212, 255, 0, 0.15);
+  border-color: rgba(212, 255, 0, 0.4);
+  color: var(--accent-acid, #d4ff00);
+}

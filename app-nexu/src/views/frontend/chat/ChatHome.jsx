@@ -402,7 +402,18 @@ function ChatHome() {
         searchedUser={searchedUser}
         userSuggestions={userSuggestions}
         sentRequests={sentRequests}
+        chats={chats}
+        incomingRequests={incomingRequests}
+        outgoingRequests={outgoingRequests}
         onSendRequest={handleSendConnectionRequest}
+        onAcceptRequest={(req) => {
+          handleAcceptRequest(req)
+          setShowConnectModal(false)
+        }}
+        onSelectExistingContact={(chatId) => {
+          handleSelectChat(chatId)
+          setShowConnectModal(false)
+        }}
       />
 
       {/* 5. Modal de Confirmación de Acciones Destructivas */}

@@ -24,9 +24,8 @@ router.get('/search', async (req, res) => {
     // Buscar usuarios en MongoDB Atlas que coincidan totalmente o parcialmente
     const regexPattern = new RegExp(clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
     const matchedDocs = await User.find({
-      username: { $regex: regexPattern },
-      username: { $ne: currentUser }
-    }).select('username displayName role').limit(6)
+      username: { $regex: regexPattern, $ne: currentUser }
+    }).select('username displayName role avatarUrl').limit(8)
 
     const formattedUsers = matchedDocs.map((u) => ({
       username: u.username,
@@ -34,6 +33,7 @@ router.get('/search', async (req, res) => {
       handle: `@${u.username}`,
       role: u.role === 'admin' ? 'System Admin' : 'Usuario Nexu',
       avatar: (u.displayName || u.username).replace(/^@/, '').slice(0, 2).toUpperCase(),
+      avatarUrl: u.avatarUrl || null,
       status: 'offline',
       statusText: 'Usuario Registrado'
     }))
