@@ -57,10 +57,17 @@ const decryptData = (encodedData) => {
   }
 };
 
+const isChatFavorite = (favList, chatId) => {
+  if (!Array.isArray(favList) || !chatId) return false
+  const lower = chatId.toLowerCase()
+  return favList.some((id) => (id || '').toLowerCase() === lower)
+}
+
 const loadFavorites = (username) => {
   if (!username) return []
   try {
-    const raw = localStorage.getItem(`nexu_favs_${username.toLowerCase()}`)
+    const clean = username.trim().toLowerCase()
+    const raw = localStorage.getItem(`nexu_favs_${clean}`)
     return raw ? JSON.parse(raw) : []
   } catch {
     return []
@@ -70,36 +77,70 @@ const loadFavorites = (username) => {
 const saveFavorites = (username, favIds) => {
   if (!username) return
   try {
-    localStorage.setItem(`nexu_favs_${username.toLowerCase()}`, JSON.stringify(favIds))
+    const clean = username.trim().toLowerCase()
+    localStorage.setItem(`nexu_favs_${clean}`, JSON.stringify(favIds))
   } catch (e) {
     console.error('Error saving favorites:', e)
   }
 }
 
+const isChatManualUnread = (unreadList, chatId) => {
+  if (!Array.isArray(unreadList) || !chatId) return false
+  const lower = chatId.toLowerCase()
+  return unreadList.some((id) => (id || '').toLowerCase() === lower)
+}
+
+const loadManualUnread = (username) => {
+  if (!username) return []
+  try {
+    const clean = username.trim().toLowerCase()
+    const raw = localStorage.getItem(`nexu_manual_unread_${clean}`)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+const saveManualUnread = (username, unreadIds) => {
+  if (!username) return
+  try {
+    const clean = username.trim().toLowerCase()
+    localStorage.setItem(`nexu_manual_unread_${clean}`, JSON.stringify(unreadIds))
+  } catch (e) {
+    console.error('Error saving manual unread:', e)
+  }
+}
+
 const getInitialChats = (username) => {
   if (!username) return INITIAL_CHATS_DEFAULT;
+  const clean = username.trim().toLowerCase()
   const chatsCopy = JSON.parse(JSON.stringify(INITIAL_CHATS_DEFAULT));
   try {
-    const savedBotHistory = localStorage.getItem(`nexu_bot_history_${username}`);
+    const savedBotHistory = localStorage.getItem(`nexu_bot_history_${clean}`);
     if (savedBotHistory) {
       const decrypted = decryptData(savedBotHistory);
       if (decrypted) chatsCopy[0].messages = decrypted;
     }
-    const favs = loadFavorites(username);
+    const favs = loadFavorites(clean);
+    const manualUnread = loadManualUnread(clean);
     chatsCopy.forEach((c) => {
-      c.isFavorite = favs.includes(c.id);
+      c.isFavorite = isChatFavorite(favs, c.id);
+      if (isChatManualUnread(manualUnread, c.id)) {
+        c.unreadCount = Math.max(c.unreadCount || 0, 1);
+      }
     });
   } catch (e) {
-    console.error('Error reading bot history or favorites:', e);
+    console.error('Error reading bot history, favorites, or unread state:', e);
   }
   return chatsCopy;
 }
 
 const saveBotHistory = (username, chats) => {
   try {
+    const clean = (username || '').trim().toLowerCase()
     const botChat = chats.find(c => c.id === 'chat_bot');
     if (botChat) {
-      localStorage.setItem(`nexu_bot_history_${username}`, encryptData(botChat.messages));
+      localStorage.setItem(`nexu_bot_history_${clean}`, encryptData(botChat.messages));
     }
   } catch (e) {
     console.error('Error saving bot history:', e);
@@ -107,8 +148,9 @@ const saveBotHistory = (username, chats) => {
 }
 
 export function useChats(currentUsername) {
+  const cleanUsername = (currentUsername || '').trim().toLowerCase()
   const queryClient = useQueryClient()
-  const enabled = !!currentUsername
+  const enabled = !!cleanUsername
 
   // Zustand UI State
   const {
@@ -121,16 +163,16 @@ export function useChats(currentUsername) {
   } = useChatUIStore()
 
   // Queries base para mantener el estado local inicial
-  const { data: chats = getInitialChats(currentUsername) } = useQuery({
-    queryKey: ['chats', currentUsername],
-    queryFn: () => getInitialChats(currentUsername),
+  const { data: chats = getInitialChats(cleanUsername) } = useQuery({
+    queryKey: ['chats', cleanUsername],
+    queryFn: () => getInitialChats(cleanUsername),
     staleTime: Infinity,
     enabled
   })
 
   const { data: requestsData = { incoming: [], outgoing: [] } } = useQuery({
-    queryKey: ['requests', currentUsername],
-    queryFn: () => chatService.getRequests(currentUsername),
+    queryKey: ['requests', cleanUsername],
+    queryFn: () => chatService.getRequests(cleanUsername),
     enabled
   })
   const incomingRequests = requestsData.incoming || []
@@ -138,11 +180,11 @@ export function useChats(currentUsername) {
 
   // Hook de sincronización (Polling) que reconstruye los chats como lo hacía ChatContext
   useQuery({
-    queryKey: ['sync', currentUsername],
+    queryKey: ['sync', cleanUsername],
     queryFn: async () => {
-      const syncData = await chatService.syncUserSession(currentUsername)
-      const requestsSync = await chatService.getRequests(currentUsername)
-      queryClient.setQueryData(['requests', currentUsername], requestsSync)
+      const syncData = await chatService.syncUserSession(cleanUsername)
+      const requestsSync = await chatService.getRequests(cleanUsername)
+      queryClient.setQueryData(['requests', cleanUsername], requestsSync)
       if (!syncData) return null
 
       const { incomingRequests: serverReqs, acceptedUsers, messages: serverMsgs } = syncData
@@ -150,7 +192,9 @@ export function useChats(currentUsername) {
       // Sincronización delegada a requestsSync
 
       // 2. Sincronizar y construir Chats
-      const prevChats = queryClient.getQueryData(['chats', currentUsername]) || getInitialChats(currentUsername)
+      const prevChats = queryClient.getQueryData(['chats', cleanUsername]) || getInitialChats(cleanUsername)
+      const currentFavs = loadFavorites(cleanUsername)
+      const currentManualUnread = loadManualUnread(cleanUsername)
       let hasChanges = false
       let nextChats = [...prevChats]
 
@@ -177,10 +221,11 @@ export function useChats(currentUsername) {
                 avatar: cleanTarget.slice(0, 2).toUpperCase(),
                 avatarUrl: targetAvatarUrl,
                 isBot: false,
+                isFavorite: isChatFavorite(currentFavs, chatId),
                 status: isTargetOnline ? 'online' : 'offline',
                 statusText: isTargetOnline ? 'En línea' : 'Desconectado',
                 isPending: false,
-                unreadCount: 0,
+                unreadCount: isChatManualUnread(currentManualUnread, chatId) ? 1 : 0,
                 role: 'Contacto Nexu',
                 email: `${cleanTarget}@nexu.app`,
                 bio: 'Conversación privada cifrada 1 a 1.',
@@ -216,7 +261,16 @@ export function useChats(currentUsername) {
 
       // B. Sincronizar mensajes en chats existentes
       nextChats = nextChats.map((c) => {
-        if (c.isBot) return c
+        const isManual = isChatManualUnread(currentManualUnread, c.id)
+
+        if (c.isBot) {
+          const targetUnread = c.id === selectedChatId ? 0 : (isManual ? Math.max(c.unreadCount || 0, 1) : (c.unreadCount || 0))
+          if (c.unreadCount !== targetUnread) {
+            hasChanges = true
+            return { ...c, unreadCount: targetUnread }
+          }
+          return c
+        }
 
         const target = c.handle ? c.handle.replace(/^@/, '').toLowerCase() : ''
         const acceptedObj = acceptedUsers?.find(u => (typeof u === 'string' ? u : u.username) === target)
@@ -321,9 +375,10 @@ export function useChats(currentUsername) {
               }
             }
 
+            const calculatedUnread = updatedMessages.filter((m) => m.sender === 'them' && m.status !== 'read').length
             const unreadCount = chatCopy.id === selectedChatId
               ? 0
-              : updatedMessages.filter((m) => m.sender === 'them' && m.status !== 'read').length
+              : (isManual ? Math.max(calculatedUnread, 1) : calculatedUnread)
 
             if (chatCopy.unreadCount !== unreadCount) {
               hasChanges = true
@@ -333,7 +388,27 @@ export function useChats(currentUsername) {
           }
         }
 
+        if (chatCopy.id === selectedChatId) {
+          if (chatCopy.unreadCount !== 0) {
+            hasChanges = true
+            chatCopy = { ...chatCopy, unreadCount: 0 }
+          }
+        } else if (isManual && (chatCopy.unreadCount || 0) === 0) {
+          hasChanges = true
+          chatCopy = { ...chatCopy, unreadCount: 1 }
+        }
+
         return chatCopy
+      })
+
+      // Asegurar que el estado isFavorite de cada chat siempre coincida con localStorage
+      nextChats = nextChats.map((c) => {
+        const shouldBeFav = isChatFavorite(currentFavs, c.id)
+        if (c.isFavorite !== shouldBeFav) {
+          hasChanges = true
+          return { ...c, isFavorite: shouldBeFav }
+        }
+        return c
       })
 
       if (hasChanges) {
@@ -346,7 +421,7 @@ export function useChats(currentUsername) {
           
           return bTime - aTime
         })
-        queryClient.setQueryData(['chats', currentUsername], nextChats)
+        queryClient.setQueryData(['chats', cleanUsername], nextChats)
       }
 
       return syncData
@@ -384,13 +459,21 @@ export function useChats(currentUsername) {
 
   const selectChat = (chatId) => {
     setSelectedChatId(chatId)
+
+    // Si estaba marcado manualmente como no leído, lo removemos de localStorage
+    const currentManualUnread = loadManualUnread(cleanUsername)
+    if (isChatManualUnread(currentManualUnread, chatId)) {
+      const updatedManual = currentManualUnread.filter((id) => (id || '').toLowerCase() !== (chatId || '').toLowerCase())
+      saveManualUnread(cleanUsername, updatedManual)
+    }
+
     const targetChat = chats.find((c) => c.id === chatId)
     if (targetChat && targetChat.handle && !targetChat.isBot) {
       const partner = targetChat.handle.replace(/^@/, '').toLowerCase()
-      chatService.markMessagesAsRead(currentUsername, partner)
+      chatService.markMessagesAsRead(cleanUsername, partner)
     }
 
-    queryClient.setQueryData(['chats', currentUsername], (prev) =>
+    queryClient.setQueryData(['chats', cleanUsername], (prev) =>
       (prev || []).map((c) => {
         if (c.id === chatId) {
           const readMsgs = c.messages.map((m) => (m.sender === 'them' ? { ...m, status: 'read' } : m))
@@ -406,9 +489,9 @@ export function useChats(currentUsername) {
 
     soundService.playMessageSentSound()
 
-    const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername, attachment)
-    queryClient.setQueryData(['chats', currentUsername], updatedChats)
-    if (activeChat.isBot) saveBotHistory(currentUsername, updatedChats)
+    const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', cleanUsername, attachment)
+    queryClient.setQueryData(['chats', cleanUsername], updatedChats)
+    if (activeChat.isBot) saveBotHistory(cleanUsername, updatedChats)
 
     if (activeChat.isBot) {
       setIsTyping(true)
@@ -421,8 +504,8 @@ export function useChats(currentUsername) {
         // El cliente api.js envuelve la respuesta en { success: true, data: { ... } }
         if (response.success && response.data && response.data.answer) {
           const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, response.data.answer)
-          queryClient.setQueryData(['chats', currentUsername], replyChats)
-          saveBotHistory(currentUsername, replyChats)
+          queryClient.setQueryData(['chats', cleanUsername], replyChats)
+          saveBotHistory(cleanUsername, replyChats)
           soundService.playMessageReceivedSound()
         } else {
           console.error('Error del bot:', response.error || response.data?.message || 'Respuesta inválida')
@@ -463,40 +546,40 @@ export function useChats(currentUsername) {
       }
     }
 
-    const res = await chatService.sendConnectionRequest(currentUsername, cleanTarget, chats)
-    const requestsSync = await chatService.getRequests(currentUsername)
-    queryClient.setQueryData(['requests', currentUsername], requestsSync)
+    const res = await chatService.sendConnectionRequest(cleanUsername, cleanTarget, chats)
+    const requestsSync = await chatService.getRequests(cleanUsername)
+    queryClient.setQueryData(['requests', cleanUsername], requestsSync)
     return res
   }
 
   const acceptRequest = async (req) => {
-    const { updatedRecipientChats, newChatId } = await chatService.acceptConnectionRequest(req, currentUsername, chats)
-    queryClient.setQueryData(['chats', currentUsername], updatedRecipientChats)
-    const requestsSync = await chatService.getRequests(currentUsername)
-    queryClient.setQueryData(['requests', currentUsername], requestsSync)
+    const { updatedRecipientChats, newChatId } = await chatService.acceptConnectionRequest(req, cleanUsername, chats)
+    queryClient.setQueryData(['chats', cleanUsername], updatedRecipientChats)
+    const requestsSync = await chatService.getRequests(cleanUsername)
+    queryClient.setQueryData(['requests', cleanUsername], requestsSync)
     setSelectedChatId(newChatId)
   }
 
   const rejectRequest = async (reqId) => {
-    await chatService.rejectConnectionRequest(reqId, currentUsername)
-    const requestsSync = await chatService.getRequests(currentUsername)
-    queryClient.setQueryData(['requests', currentUsername], requestsSync)
+    await chatService.rejectConnectionRequest(reqId, cleanUsername)
+    const requestsSync = await chatService.getRequests(cleanUsername)
+    queryClient.setQueryData(['requests', cleanUsername], requestsSync)
   }
 
   const cancelRequest = async (reqIdOrTarget, targetUsername) => {
     const reqId = typeof reqIdOrTarget === 'string' && reqIdOrTarget.length === 24 ? reqIdOrTarget : null
     const target = reqId ? targetUsername : reqIdOrTarget
-    await chatService.cancelConnectionRequest(reqId, currentUsername, target)
-    const requestsSync = await chatService.getRequests(currentUsername)
-    queryClient.setQueryData(['requests', currentUsername], requestsSync)
+    await chatService.cancelConnectionRequest(reqId, cleanUsername, target)
+    const requestsSync = await chatService.getRequests(cleanUsername)
+    queryClient.setQueryData(['requests', cleanUsername], requestsSync)
     if (target && selectedChatId === `chat_${target.toLowerCase()}`) {
       setSelectedChatId(null)
     }
   }
 
   const blockUser = async (req) => {
-    const updatedReqs = await chatService.blockUserRequest(req, currentUsername)
-    queryClient.setQueryData(['requests', currentUsername], updatedReqs)
+    const updatedReqs = await chatService.blockUserRequest(req, cleanUsername)
+    queryClient.setQueryData(['requests', cleanUsername], updatedReqs)
     if (selectedChatId === `chat_${req.fromUser.username.toLowerCase()}`) {
       setSelectedChatId(null)
     }
@@ -506,10 +589,19 @@ export function useChats(currentUsername) {
     const targetChat = chats.find(c => c.id === chatId)
     if (!targetChat || targetChat.isBot) return
 
-    await chatService.deleteContact(currentUsername, targetChat.handle.replace('@', ''))
+    await chatService.deleteContact(cleanUsername, targetChat.handle.replace('@', ''))
+
+    const currentFavs = loadFavorites(cleanUsername)
+    if (isChatFavorite(currentFavs, chatId)) {
+      saveFavorites(cleanUsername, currentFavs.filter((id) => (id || '').toLowerCase() !== chatId.toLowerCase()))
+    }
+    const currentManualUnread = loadManualUnread(cleanUsername)
+    if (isChatManualUnread(currentManualUnread, chatId)) {
+      saveManualUnread(cleanUsername, currentManualUnread.filter((id) => (id || '').toLowerCase() !== chatId.toLowerCase()))
+    }
 
     const updated = chats.filter((c) => c.id !== chatId)
-    queryClient.setQueryData(['chats', currentUsername], updated)
+    queryClient.setQueryData(['chats', cleanUsername], updated)
     if (selectedChatId === chatId) {
       setSelectedChatId(null)
     }
@@ -520,14 +612,14 @@ export function useChats(currentUsername) {
     if (!targetChat) return
 
     if (!targetChat.isBot && targetChat.handle) {
-      await chatService.clearMessages(currentUsername, targetChat.handle.replace('@', ''))
+      await chatService.clearMessages(cleanUsername, targetChat.handle.replace('@', ''))
     }
 
     const updated = chats.map((c) =>
       c.id === chatId ? { ...c, messages: [] } : c
     )
-    queryClient.setQueryData(['chats', currentUsername], updated)
-    if (targetChat.isBot) saveBotHistory(currentUsername, updated)
+    queryClient.setQueryData(['chats', cleanUsername], updated)
+    if (targetChat.isBot) saveBotHistory(cleanUsername, updated)
   }
 
   const clearCurrentChat = () => {
@@ -536,35 +628,63 @@ export function useChats(currentUsername) {
   }
 
   const toggleFavorite = (chatId) => {
-    const currentFavs = loadFavorites(currentUsername)
-    const isFav = currentFavs.includes(chatId)
-    const updatedFavs = isFav ? currentFavs.filter(id => id !== chatId) : [...currentFavs, chatId]
-    saveFavorites(currentUsername, updatedFavs)
+    if (!chatId) return
+    const currentFavs = loadFavorites(cleanUsername)
+    const isFav = isChatFavorite(currentFavs, chatId)
+    const updatedFavs = isFav
+      ? currentFavs.filter((id) => (id || '').toLowerCase() !== chatId.toLowerCase())
+      : [...currentFavs, chatId.toLowerCase()]
 
-    queryClient.setQueryData(['chats', currentUsername], (prev) =>
-      (prev || []).map((c) => (c.id === chatId ? { ...c, isFavorite: !isFav } : c))
+    saveFavorites(cleanUsername, updatedFavs)
+
+    queryClient.setQueryData(['chats', cleanUsername], (prev) =>
+      (prev || []).map((c) =>
+        (c.id || '').toLowerCase() === chatId.toLowerCase()
+          ? { ...c, isFavorite: !isFav }
+          : c
+      )
     )
   }
 
   const toggleRead = (chat) => {
+    if (!chat || !chat.id) return
     const isCurrentlyUnread = (chat.unreadCount || 0) > 0
-    queryClient.setQueryData(['chats', currentUsername], (prev) =>
-      (prev || []).map((c) => {
-        if (c.id === chat.id) {
-          if (isCurrentlyUnread) {
+    const currentManualUnread = loadManualUnread(cleanUsername)
+    const targetIdLower = chat.id.toLowerCase()
+
+    if (isCurrentlyUnread) {
+      // Marcar como LEÍDO
+      const updatedManual = currentManualUnread.filter((id) => (id || '').toLowerCase() !== targetIdLower)
+      saveManualUnread(cleanUsername, updatedManual)
+
+      queryClient.setQueryData(['chats', cleanUsername], (prev) =>
+        (prev || []).map((c) => {
+          if ((c.id || '').toLowerCase() === targetIdLower) {
             const readMsgs = (c.messages || []).map((m) => (m.sender === 'them' ? { ...m, status: 'read' } : m))
             return { ...c, unreadCount: 0, messages: readMsgs }
-          } else {
+          }
+          return c
+        })
+      )
+
+      if (chat.handle && !chat.isBot) {
+        const partner = chat.handle.replace(/^@/, '').toLowerCase()
+        chatService.markMessagesAsRead(cleanUsername, partner)
+      }
+    } else {
+      // Marcar como NO LEÍDO
+      if (!isChatManualUnread(currentManualUnread, chat.id)) {
+        saveManualUnread(cleanUsername, [...currentManualUnread, targetIdLower])
+      }
+
+      queryClient.setQueryData(['chats', cleanUsername], (prev) =>
+        (prev || []).map((c) => {
+          if ((c.id || '').toLowerCase() === targetIdLower) {
             return { ...c, unreadCount: 1 }
           }
-        }
-        return c
-      })
-    )
-
-    if (isCurrentlyUnread && chat.handle && !chat.isBot) {
-      const partner = chat.handle.replace(/^@/, '').toLowerCase()
-      chatService.markMessagesAsRead(currentUsername, partner)
+          return c
+        })
+      )
     }
   }
 
