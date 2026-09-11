@@ -3,6 +3,8 @@ import { IconShield, IconUserPlus, IconLink, IconLock } from '../../../../../com
 
 const ChatSidebarFeed = ({
   incomingRequests = [],
+  outgoingRequests = [],
+  onCancelRequest,
   chatsCount,
   filteredChats,
   activeChatId,
@@ -16,53 +18,89 @@ const ChatSidebarFeed = ({
 }) => {
   return (
     <div className="conversations-feed">
-      {/* Solicitudes de Conexión Entrantes */}
-      {activeFilter === 'requests' && incomingRequests.length > 0 && (
+      {/* Solicitudes de Conexión Entrantes y Salientes */}
+      {activeFilter === 'requests' && (incomingRequests.length > 0 || outgoingRequests.length > 0) && (
         <div className="sidebar-pending-requests">
-          <span className="input-hint" style={{ textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700 }}>
-            Solicitudes de Conexión ({incomingRequests.length})
-          </span>
-          {incomingRequests.map((req) => (
-            <div key={req.id} className="pending-request-card">
-              <div className="pending-request-header">
-                <div className="avatar-badge">{req.fromUser.avatar}</div>
-                <div>
-                  <div className="user-found-name">{req.fromUser.name}</div>
-                  <div className="user-found-handle">{req.fromUser.handle}</div>
+          {incomingRequests.length > 0 && (
+            <>
+              <span className="input-hint" style={{ textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginTop: '0.5rem' }}>
+                Recibidas ({incomingRequests.length})
+              </span>
+              {incomingRequests.map((req) => (
+                <div key={req.id} className="pending-request-card">
+                  <div className="pending-request-header">
+                    <div className="avatar-badge">{req.fromUser.avatar}</div>
+                    <div>
+                      <div className="user-found-name">{req.fromUser.name}</div>
+                      <div className="user-found-handle">{req.fromUser.handle}</div>
+                    </div>
+                  </div>
+                  <div className="pending-request-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <button
+                        type="button"
+                        className="btn-accept-req"
+                        style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem', fontWeight: 600 }}
+                        onClick={() => onAcceptRequest(req)}
+                      >
+                        Aceptar
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-reject-req"
+                        style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem' }}
+                        onClick={() => onRejectRequest(req.id)}
+                      >
+                        Rechazar
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-reject-req"
+                      style={{ padding: '0.45rem', fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', borderColor: 'transparent' }}
+                      onClick={() => onBlockUser && onBlockUser(req)}
+                      title="Rechazar y bloquear usuario"
+                    >
+                      Bloquear usuario
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="pending-request-actions" style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  className="btn-accept-req"
-                  style={{ flex: '1 1 auto', padding: '0.45rem 0.6rem', fontSize: '0.78rem' }}
-                  onClick={() => onAcceptRequest(req)}
-                >
-                  Aceptar
-                </button>
-                <button
-                  type="button"
-                  className="btn-reject-req"
-                  style={{ flex: '1 1 auto', padding: '0.45rem 0.6rem', fontSize: '0.78rem' }}
-                  onClick={() => onRejectRequest(req.id)}
-                >
-                  Rechazar
-                </button>
-                <button
-                  type="button"
-                  className="btn-reject-req"
-                  style={{ flex: '1 1 auto', padding: '0.45rem 0.6rem', fontSize: '0.78rem', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
-                  onClick={() => onBlockUser && onBlockUser(req)}
-                  title="Rechazar y bloquear usuario"
-                >
-                  Bloquear
-                </button>
-              </div>
-            </div>
-          ))}
+              ))}
+            </>
+          )}
+
+          {outgoingRequests.length > 0 && (
+            <>
+              <span className="input-hint" style={{ textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginTop: '1rem' }}>
+                Enviadas ({outgoingRequests.length})
+              </span>
+              {outgoingRequests.map((req) => (
+                <div key={req.id} className="pending-request-card" style={{ opacity: 0.8 }}>
+                  <div className="pending-request-header">
+                    <div className="avatar-badge" style={{ background: 'transparent', border: '1px solid var(--border-subtle)' }}>{req.toUser.avatar}</div>
+                    <div>
+                      <div className="user-found-name">{req.toUser.name}</div>
+                      <div className="user-found-handle" style={{ fontSize: '0.75rem' }}>Pendiente de aceptación...</div>
+                    </div>
+                  </div>
+                  <div className="pending-request-actions">
+                    <button
+                      type="button"
+                      className="btn-reject-req"
+                      style={{ width: '100%', padding: '0.45rem' }}
+                      onClick={() => onCancelRequest && onCancelRequest(req.id, req.toUser.username)}
+                    >
+                      Cancelar solicitud
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       )}
-      {activeFilter === 'requests' && incomingRequests.length === 0 && (
+
+      {activeFilter === 'requests' && incomingRequests.length === 0 && outgoingRequests.length === 0 && (
         <div className="sidebar-empty-state">
           <div>
             <h4 className="sidebar-empty-title">Sin solicitudes</h4>

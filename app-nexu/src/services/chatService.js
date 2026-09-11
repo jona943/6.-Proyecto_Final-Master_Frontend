@@ -210,25 +210,27 @@ export const chatService = {
     return { user: exactMatch, suggestions, error: !exactMatch && suggestions.length === 0 ? `El usuario @${clean} no fue encontrado.` : '' }
   },
 
-  async getIncomingRequests(username) {
+  async getRequests(username) {
     const clean = (username || '').trim().toLowerCase()
-    if (!clean) return []
+    if (!clean) return { incoming: [], outgoing: [] }
 
     try {
       const res = await api.get(`/chats/requests?username=${encodeURIComponent(clean)}`)
-      if (res && res.success && Array.isArray(res.data?.requests)) {
-        return res.data.requests
+      if (res && res.success) {
+        return {
+          incoming: res.data.requests || [],
+          outgoing: res.data.outgoing || []
+        }
       }
-    } catch {
-      // Backend inaccesible
+    } catch (e) {
+      console.error(e)
     }
-
-    return []
+    return { incoming: [], outgoing: [] }
   },
 
   async sendConnectionRequest(senderUsername, targetUser, currentSenderChats) {
-    const senderClean = senderUsername.toLowerCase()
-    const targetClean = targetUser.username.toLowerCase()
+    const senderClean = (senderUsername || '').toLowerCase()
+    const targetClean = (typeof targetUser === 'string' ? targetUser : targetUser?.username || '').toLowerCase()
 
     try {
       await api.post('/chats/request', {
@@ -239,33 +241,9 @@ export const chatService = {
       // Backend inaccesible
     }
 
-    const chatId = `chat_${targetClean}`
-    const pendingChat = {
-      id: chatId,
-      name: targetUser.name || `@${targetClean}`,
-      handle: `@${targetClean}`,
-      avatar: targetUser.avatar || targetClean.slice(0, 2).toUpperCase(),
-      isBot: false,
-      status: 'pending',
-      statusText: 'Solicitud enviada (En espera de aprobación)',
-      isPending: true,
-      unreadCount: 0,
-      role: targetUser.role || 'Usuario Nexu',
-      email: `${targetClean}@nexu.app`,
-      bio: 'Solicitud de conexión enviada. En espera de respuesta.',
-      messages: [
-        {
-          id: `msg_pending_${Date.now()}`,
-          sender: 'system',
-          text: `Solicitud de conexión enviada a @${targetClean}. En espera de que acepte tu solicitud para entablar mensajes 1 a 1.`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: 'read'
-        }
-      ]
-    }
-
-    const updatedChats = [pendingChat, ...currentSenderChats.filter((c) => c.id !== chatId)]
-    return { updatedChats, newChatId: chatId }
+    // Ya no generamos chat automático local.
+    // Se reflejará en la sección "Enviadas" de las solicitudes en el próximo sync.
+    return { updatedChats: currentSenderChats, newChatId: null }
   },
 
   async acceptConnectionRequest(req, recipientUsername, currentRecipientChats) {
@@ -321,21 +299,18 @@ export const chatService = {
     return [] // Retornar vacío obliga al contexto a limpiar o actualizar en base a la RAM
   },
 
-  async cancelConnectionRequest(senderUsername, targetUsername, currentSenderChats) {
-    const senderClean = senderUsername.toLowerCase()
-    const targetClean = targetUsername.toLowerCase()
-
+  async cancelConnectionRequest(reqId, currentUsername, targetUsername) {
     try {
       await api.post('/chats/cancel', {
-        senderUsername: senderClean,
-        targetUsername: targetClean
+        reqId,
+        senderUsername: currentUsername,
+        targetUsername
       })
-    } catch {
-      // Backend inaccesible
+      return true
+    } catch (e) {
+      console.error('Error cancelando solicitud:', e)
+      return false
     }
-
-    const chatId = `chat_${targetClean}`
-    return currentSenderChats.filter((c) => c.id !== chatId)
   },
 
   async blockUserRequest(req, recipientUsername) {

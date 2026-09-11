@@ -104,28 +104,26 @@ export function useChats(currentUsername) {
     enabled
   })
 
-  const { data: incomingRequests = [] } = useQuery({
+  const { data: requestsData = { incoming: [], outgoing: [] } } = useQuery({
     queryKey: ['requests', currentUsername],
-    queryFn: () => chatService.getIncomingRequests(currentUsername),
+    queryFn: () => chatService.getRequests(currentUsername),
     enabled
   })
+  const incomingRequests = requestsData.incoming || []
+  const outgoingRequests = requestsData.outgoing || []
 
   // Hook de sincronización (Polling) que reconstruye los chats como lo hacía ChatContext
   useQuery({
     queryKey: ['sync', currentUsername],
     queryFn: async () => {
       const syncData = await chatService.syncUserSession(currentUsername)
+      const requestsSync = await chatService.getRequests(currentUsername)
+      queryClient.setQueryData(['requests', currentUsername], requestsSync)
       if (!syncData) return null
 
       const { incomingRequests: serverReqs, acceptedUsers, messages: serverMsgs } = syncData
 
-      // 1. Sincronizar solicitudes entrantes
-      if (serverReqs && Array.isArray(serverReqs)) {
-        const prevReqs = queryClient.getQueryData(['requests', currentUsername]) || []
-        if (JSON.stringify(prevReqs) !== JSON.stringify(serverReqs)) {
-          queryClient.setQueryData(['requests', currentUsername], serverReqs)
-        }
-      }
+      // Sincronización delegada a requestsSync
 
       // 2. Sincronizar y construir Chats
       const prevChats = queryClient.getQueryData(['chats', currentUsername]) || getInitialChats(currentUsername)
@@ -350,27 +348,32 @@ export function useChats(currentUsername) {
   }
 
   const sendRequest = async (targetUser) => {
-    const { updatedChats, newChatId } = await chatService.sendConnectionRequest(currentUsername, targetUser, chats)
-    queryClient.setQueryData(['chats', currentUsername], updatedChats)
-    setSelectedChatId(newChatId)
+    await chatService.sendConnectionRequest(currentUsername, targetUser, chats)
+    const requestsSync = await chatService.getRequests(currentUsername)
+    queryClient.setQueryData(['requests', currentUsername], requestsSync)
   }
 
   const acceptRequest = async (req) => {
-    const { updatedRecipientChats, updatedReqs, newChatId } = await chatService.acceptConnectionRequest(req, currentUsername, chats)
+    const { updatedRecipientChats, newChatId } = await chatService.acceptConnectionRequest(req, currentUsername, chats)
     queryClient.setQueryData(['chats', currentUsername], updatedRecipientChats)
-    queryClient.setQueryData(['requests', currentUsername], updatedReqs)
+    const requestsSync = await chatService.getRequests(currentUsername)
+    queryClient.setQueryData(['requests', currentUsername], requestsSync)
     setSelectedChatId(newChatId)
   }
 
   const rejectRequest = async (reqId) => {
-    const updatedReqs = await chatService.rejectConnectionRequest(reqId, currentUsername)
-    queryClient.setQueryData(['requests', currentUsername], updatedReqs)
+    await chatService.rejectConnectionRequest(reqId, currentUsername)
+    const requestsSync = await chatService.getRequests(currentUsername)
+    queryClient.setQueryData(['requests', currentUsername], requestsSync)
   }
 
-  const cancelRequest = async (targetUsername) => {
-    const updatedChats = await chatService.cancelConnectionRequest(currentUsername, targetUsername, chats)
-    queryClient.setQueryData(['chats', currentUsername], updatedChats)
-    if (selectedChatId === `chat_${targetUsername.toLowerCase()}`) {
+  const cancelRequest = async (reqIdOrTarget, targetUsername) => {
+    const reqId = typeof reqIdOrTarget === 'string' && reqIdOrTarget.length === 24 ? reqIdOrTarget : null
+    const target = reqId ? targetUsername : reqIdOrTarget
+    await chatService.cancelConnectionRequest(reqId, currentUsername, target)
+    const requestsSync = await chatService.getRequests(currentUsername)
+    queryClient.setQueryData(['requests', currentUsername], requestsSync)
+    if (target && selectedChatId === `chat_${target.toLowerCase()}`) {
       setSelectedChatId(null)
     }
   }
@@ -418,6 +421,7 @@ export function useChats(currentUsername) {
     isTyping,
     presenceStatus,
     incomingRequests,
+    outgoingRequests,
     acceptRequest,
     rejectRequest,
     blockUser,

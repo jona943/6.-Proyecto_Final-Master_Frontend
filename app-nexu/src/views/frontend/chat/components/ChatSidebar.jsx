@@ -15,6 +15,8 @@ const ChatSidebar = ({
   activeChatId,
   presenceStatus,
   incomingRequests,
+  outgoingRequests,
+  onCancelRequest,
   onSearchChange,
   onFilterChange,
   onSelectChat,
@@ -47,12 +49,15 @@ const ChatSidebar = ({
         chatsCount={chatsCount}
         activeFilter={activeFilter}
         onFilterChange={onFilterChange}
-        incomingRequestsCount={incomingRequests?.length || 0}
+        incomingRequestsCount={(incomingRequests?.length || 0) + (outgoingRequests?.length || 0)}
       />
 
       {/* 3. Lista de Conversaciones o Estado Vacío */}
       <ChatSidebarFeed 
+        activeFilter={activeFilter}
         incomingRequests={incomingRequests}
+        outgoingRequests={outgoingRequests}
+        onCancelRequest={onCancelRequest}
         chatsCount={chatsCount}
         filteredChats={filteredChats}
         activeChatId={activeChatId}

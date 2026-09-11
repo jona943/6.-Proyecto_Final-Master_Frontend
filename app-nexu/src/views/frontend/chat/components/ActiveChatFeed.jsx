@@ -18,30 +18,14 @@ function ActiveChatFeed({
     return <span className="msg-status-icon sent" title="Enviado"><IconCheck size={14} /></span>
   }
 
-    const renderHighlightedText = (text, query) => {
+  const renderHighlightedText = (text, query) => {
     if (typeof text !== 'string') return text
 
     // Helper to process search highlights within any text segment
     const processSearch = (segment, keyPrefix = '') => {
       if (!query || !query.trim()) return segment
       const cleanQuery = query.trim()
-      const searchRegex = new RegExp(`(${cleanQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\const renderHighlightedText = (text, query) => {
-    if (!query || !query.trim()) return text
-
-    const cleanQuery = query.trim()
-    const regex = new RegExp(`(${cleanQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-    const parts = text.split(regex)
-
-    return parts.map((part, index) =>
-      regex.test(part) ? (
-        <mark key={index} className="chat-search-match">
-          {part}
-        </mark>
-      ) : (
-        part
-      )
-    )
-  }')})`, 'gi')
+      const searchRegex = new RegExp(`(${cleanQuery.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')})`, 'gi')
       const parts = segment.split(searchRegex)
 
       return parts.map((part, i) =>

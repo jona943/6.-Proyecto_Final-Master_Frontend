@@ -31,6 +31,7 @@ function ChatHome() {
     isTyping,
     presenceStatus,
     incomingRequests,
+    outgoingRequests,
     acceptRequest,
     rejectRequest,
     blockUser,
@@ -224,6 +225,8 @@ function ChatHome() {
         onFilterChange={setActiveFilter}
         chatsCount={chats.length}
         incomingRequests={incomingRequests}
+        outgoingRequests={outgoingRequests}
+        onCancelRequest={cancelRequest}
         onAcceptRequest={handleAcceptRequest}
         onRejectRequest={handleRejectRequest}
         onBlockUser={handleBlockUser}

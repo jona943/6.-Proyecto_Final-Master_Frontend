@@ -179,6 +179,11 @@ router.get('/requests', async (req, res) => {
       status: 'pending'
     }).sort({ createdAt: -1 })
 
+    const outgoingDocs = await ConnectionRequest.find({
+      senderUsername: clean,
+      status: 'pending'
+    }).sort({ createdAt: -1 })
+
     const formattedRequests = pendingDocs.map((doc) => ({
       id: doc._id.toString(),
       fromUser: {
@@ -191,9 +196,22 @@ router.get('/requests', async (req, res) => {
       status: 'pending'
     }))
 
+    const formattedOutgoing = outgoingDocs.map((doc) => ({
+      id: doc._id.toString(),
+      toUser: {
+        username: doc.targetUsername,
+        name: `@${doc.targetUsername}`,
+        handle: `@${doc.targetUsername}`,
+        avatar: doc.targetUsername.slice(0, 2).toUpperCase()
+      },
+      time: 'Reciente',
+      status: 'pending'
+    }))
+
     return res.status(200).json({
       success: true,
-      requests: formattedRequests
+      requests: formattedRequests,
+      outgoing: formattedOutgoing
     })
   } catch (error) {
     console.error('Error en /api/chats/requests:', error.message)
@@ -267,11 +285,13 @@ router.post('/reject', async (req, res) => {
  */
 router.post('/cancel', async (req, res) => {
   try {
-    const { senderUsername, targetUsername } = req.body || {}
-    const sender = (senderUsername || '').trim().toLowerCase()
-    const target = (targetUsername || '').trim().toLowerCase()
-
-    if (sender && target) {
+    const { reqId, senderUsername, targetUsername } = req.body || {}
+    
+    if (reqId) {
+      await ConnectionRequest.findByIdAndDelete(reqId)
+    } else if (senderUsername && targetUsername) {
+      const sender = senderUsername.trim().toLowerCase()
+      const target = targetUsername.trim().toLowerCase()
       await ConnectionRequest.deleteMany({
         senderUsername: sender,
         targetUsername: target,
