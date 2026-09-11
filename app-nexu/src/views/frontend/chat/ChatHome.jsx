@@ -168,11 +168,29 @@ function ChatHome() {
   }
 
   // Enviar solicitud de conexión
-  const handleSendConnectionRequest = (target) => {
+  const handleSendConnectionRequest = async (target) => {
     if (!target) return
-    sendRequest(target)
-    setSentRequests((prev) => [...prev, target.username])
-    triggerToast(`Solicitud de conexión enviada a ${target.handle}`)
+    const targetUsername = typeof target === 'string' ? target : target.username
+    const targetHandle = typeof target === 'string' ? `@${target}` : (target.handle || `@${target.username}`)
+
+    // Validar si el usuario ya nos envió una solicitud previamente
+    const isAlreadyIncoming = incomingRequests.some(
+      (r) => (r.fromUser?.username || '').toLowerCase() === targetUsername.toLowerCase()
+    )
+    if (isAlreadyIncoming) {
+      triggerToast(`@${targetUsername} ya te ha enviado una solicitud. Revisa tu bandeja de solicitudes para aceptarla.`)
+      setShowConnectModal(false)
+      return
+    }
+
+    const res = await sendRequest(target)
+    if (res && res.success === false) {
+      triggerToast(res.message || 'No se pudo enviar la solicitud')
+      return
+    }
+
+    setSentRequests((prev) => [...prev, targetUsername])
+    triggerToast(`Solicitud de conexión enviada a ${targetHandle}`)
     setShowConnectModal(false)
     setSearchAlias('')
     setSearchedUser(null)
@@ -311,6 +329,8 @@ function ChatHome() {
           onTriggerToast={triggerToast}
           onCancelRequest={handleCancelRequest}
           onSendConnectionRequest={handleSendConnectionRequest}
+          onAcceptRequest={handleAcceptRequest}
+          onRejectRequest={handleRejectRequest}
           messagesEndRef={messagesEndRef}
         />
       ) : (

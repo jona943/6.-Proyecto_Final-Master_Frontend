@@ -222,32 +222,51 @@ export function useChats(currentUsername) {
         const isOutgoingPending = requestsSync?.outgoing?.some(
           (r) => (r.toUser?.username || r.targetUsername || '').toLowerCase() === target
         )
+        const incomingReq = (requestsSync?.incoming || incomingRequests)?.find(
+          (r) => (r.fromUser?.username || '').toLowerCase() === target
+        )
 
         let chatCopy = { ...c }
 
         if (!acceptedObj) {
           // No está en la lista de conexiones aceptadas
-          const shouldBePending = Boolean(isOutgoingPending)
-          const shouldBeDisconnected = !isOutgoingPending
+          const hasIncomingRequest = Boolean(incomingReq)
+          const shouldBePending = Boolean(isOutgoingPending) && !hasIncomingRequest
+          const shouldBeDisconnected = !isOutgoingPending && !hasIncomingRequest
 
-          if (chatCopy.isPending !== shouldBePending || chatCopy.isDisconnected !== shouldBeDisconnected) {
+          if (
+            chatCopy.hasIncomingRequest !== hasIncomingRequest ||
+            chatCopy.isPending !== shouldBePending ||
+            chatCopy.isDisconnected !== shouldBeDisconnected ||
+            chatCopy.incomingRequestId !== (incomingReq?.id || null)
+          ) {
             hasChanges = true
             chatCopy = {
               ...chatCopy,
+              hasIncomingRequest,
+              incomingRequestId: incomingReq?.id || null,
+              incomingRequest: incomingReq || null,
               isPending: shouldBePending,
               isDisconnected: shouldBeDisconnected,
               status: 'offline',
-              statusText: shouldBePending ? 'Solicitud pendiente' : 'Conexión no activa'
+              statusText: hasIncomingRequest
+                ? 'Te envió una solicitud'
+                : shouldBePending
+                ? 'Solicitud pendiente'
+                : 'Conexión no activa'
             }
           }
         } else {
           // Está aceptado
-          if (chatCopy.isPending || chatCopy.isDisconnected) {
+          if (chatCopy.isPending || chatCopy.isDisconnected || chatCopy.hasIncomingRequest) {
             hasChanges = true
             chatCopy = {
               ...chatCopy,
               isPending: false,
               isDisconnected: false,
+              hasIncomingRequest: false,
+              incomingRequestId: null,
+              incomingRequest: null,
               status: typeof acceptedObj === 'string' ? 'online' : (acceptedObj.isOnline ? 'online' : 'offline'),
               statusText: typeof acceptedObj === 'string' ? 'En línea' : (acceptedObj.isOnline ? 'En línea' : 'Desconectado'),
               messages: chatCopy.messages.some((m) => m.id?.includes('accepted'))
@@ -408,9 +427,37 @@ export function useChats(currentUsername) {
   }
 
   const sendRequest = async (targetUser) => {
-    await chatService.sendConnectionRequest(currentUsername, targetUser, chats)
+    const cleanTarget = (typeof targetUser === 'string' ? targetUser : targetUser?.username || '')
+      .replace(/^@/, '')
+      .trim()
+      .toLowerCase()
+
+    // 1. ¿El usuario ya nos envió una solicitud entrante?
+    const isAlreadyIncoming = incomingRequests.some(
+      (r) => (r.fromUser?.username || '').toLowerCase() === cleanTarget
+    )
+    if (isAlreadyIncoming) {
+      return {
+        success: false,
+        message: `@${cleanTarget} ya te ha enviado una solicitud de conexión. Revisa tu bandeja de solicitudes para aceptarla.`
+      }
+    }
+
+    // 2. ¿Ya tenemos una solicitud saliente pendiente enviada a él?
+    const isAlreadyOutgoing = outgoingRequests.some(
+      (r) => (r.toUser?.username || r.targetUsername || '').toLowerCase() === cleanTarget
+    )
+    if (isAlreadyOutgoing) {
+      return {
+        success: false,
+        message: `Ya tienes una solicitud pendiente enviada a @${cleanTarget}. Espera a que la acepte.`
+      }
+    }
+
+    const res = await chatService.sendConnectionRequest(currentUsername, cleanTarget, chats)
     const requestsSync = await chatService.getRequests(currentUsername)
     queryClient.setQueryData(['requests', currentUsername], requestsSync)
+    return res
   }
 
   const acceptRequest = async (req) => {

@@ -19,6 +19,8 @@ function ActiveChatPanel({
   onTriggerToast,
   onCancelRequest,
   onSendConnectionRequest,
+  onAcceptRequest,
+  onRejectRequest,
   messagesEndRef
 }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -80,6 +82,8 @@ function ActiveChatPanel({
         onInsertCodeSnippet={onInsertCodeSnippet}
         onCancelRequest={onCancelRequest}
         onSendConnectionRequest={onSendConnectionRequest}
+        onAcceptRequest={onAcceptRequest}
+        onRejectRequest={onRejectRequest}
       />
     </main>
   )

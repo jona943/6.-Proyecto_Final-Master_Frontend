@@ -33,6 +33,50 @@ export const sendRequest = async (req, res) => {
       })
     }
 
+    // 1. ¿El otro usuario ya nos envió una solicitud pendiente?
+    const incomingReverse = await ConnectionRequest.findOne({
+      senderUsername: target,
+      targetUsername: sender,
+      status: 'pending'
+    })
+
+    if (incomingReverse) {
+      return res.status(400).json({
+        success: false,
+        message: `El usuario @${target} ya te ha enviado una solicitud de conexión. Revisa tu bandeja de solicitudes para aceptarla.`
+      })
+    }
+
+    // 2. ¿Ya existe una conexión activa (aceptada) entre ambos?
+    const alreadyConnected = await ConnectionRequest.findOne({
+      status: 'accepted',
+      $or: [
+        { senderUsername: sender, targetUsername: target },
+        { senderUsername: target, targetUsername: sender }
+      ]
+    })
+
+    if (alreadyConnected) {
+      return res.status(400).json({
+        success: false,
+        message: `Ya tienes una conexión activa con @${target}.`
+      })
+    }
+
+    // 3. ¿Ya le habíamos enviado una solicitud que aún está pendiente?
+    const existingPending = await ConnectionRequest.findOne({
+      senderUsername: sender,
+      targetUsername: target,
+      status: 'pending'
+    })
+
+    if (existingPending) {
+      return res.status(400).json({
+        success: false,
+        message: `Ya tienes una solicitud pendiente enviada a @${target}. Espera a que la acepte.`
+      })
+    }
+
     const requestDoc = await ConnectionRequest.findOneAndUpdate(
       { senderUsername: sender, targetUsername: target },
       { status: 'pending' },

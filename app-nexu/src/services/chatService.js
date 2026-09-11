@@ -230,20 +230,33 @@ export const chatService = {
 
   async sendConnectionRequest(senderUsername, targetUser, currentSenderChats) {
     const senderClean = (senderUsername || '').toLowerCase()
-    const targetClean = (typeof targetUser === 'string' ? targetUser : targetUser?.username || '').toLowerCase()
+    const targetClean = (typeof targetUser === 'string' ? targetUser : targetUser?.username || '').replace(/^@/, '').trim().toLowerCase()
 
     try {
-      await api.post('/chats/request', {
+      const res = await api.post('/chats/request', {
         senderUsername: senderClean,
         targetUsername: targetClean
       })
-    } catch {
-      // Backend inaccesible
+      if (!res || !res.success) {
+        return {
+          success: false,
+          message: res?.error || res?.message || 'No se pudo enviar la solicitud',
+          updatedChats: currentSenderChats
+        }
+      }
+      return {
+        success: true,
+        message: res.data?.message || 'Solicitud enviada exitosamente',
+        updatedChats: currentSenderChats,
+        newChatId: null
+      }
+    } catch (err) {
+      return {
+        success: false,
+        message: err.message || 'Error de conexión',
+        updatedChats: currentSenderChats
+      }
     }
-
-    // Ya no generamos chat automático local.
-    // Se reflejará en la sección "Enviadas" de las solicitudes en el próximo sync.
-    return { updatedChats: currentSenderChats, newChatId: null }
   },
 
   async acceptConnectionRequest(req, recipientUsername, currentRecipientChats) {

@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { IconClock, IconImage, IconPaperclip, IconCode, IconSend, IconAlertCircle, IconUserPlus } from '../../../../components/icons/Icons'
+import { IconClock, IconImage, IconPaperclip, IconCode, IconSend, IconAlertCircle, IconUserPlus, IconCheck } from '../../../../components/icons/Icons'
 
 function ActiveChatFooter({
   activeChat,
@@ -9,7 +9,9 @@ function ActiveChatFooter({
   onTriggerToast,
   onInsertCodeSnippet,
   onCancelRequest,
-  onSendConnectionRequest
+  onSendConnectionRequest,
+  onAcceptRequest,
+  onRejectRequest
 }) {
   const fileInputRef = useRef(null)
 
@@ -114,6 +116,73 @@ function ActiveChatFooter({
   const handleSubmit = (e) => {
     e.preventDefault()
     onSendMessage(e)
+  }
+
+  if (activeChat.hasIncomingRequest) {
+    return (
+      <footer className="chat-input-footer chat-incoming-req-footer" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '1.2rem 1.5rem', background: 'rgba(15, 23, 42, 0.85)', gap: '0.85rem' }}>
+        <div style={{ color: 'var(--text-secondary, #94a3b8)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', maxWidth: '540px' }}>
+          <IconAlertCircle size={18} style={{ color: 'var(--accent-acid, #d4ff00)', flexShrink: 0 }} />
+          <span>
+            <strong>@{activeChat.handle?.replace(/^@/, '') || activeChat.name} ya te ha enviado una solicitud de conexión.</strong> Puedes aceptarla aquí para restablecer la comunicación.
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          {onAcceptRequest && (
+            <button
+              type="button"
+              className="btn-accept-req"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.55rem 1.25rem',
+                fontSize: '0.84rem',
+                fontWeight: 600,
+                borderRadius: '8px',
+                border: '1px solid rgba(212, 255, 0, 0.4)',
+                background: 'rgba(212, 255, 0, 0.15)',
+                color: 'var(--accent-acid, #d4ff00)',
+                cursor: 'pointer'
+              }}
+              onClick={() => {
+                const reqToAccept = activeChat.incomingRequest || {
+                  id: activeChat.incomingRequestId,
+                  fromUser: {
+                    username: activeChat.handle?.replace(/^@/, ''),
+                    name: activeChat.name,
+                    handle: activeChat.handle,
+                    avatar: activeChat.avatar
+                  }
+                }
+                onAcceptRequest(reqToAccept)
+              }}
+            >
+              <IconCheck size={16} />
+              Aceptar solicitud de conexión
+            </button>
+          )}
+          {onRejectRequest && (
+            <button
+              type="button"
+              className="btn-reject-req"
+              style={{
+                padding: '0.55rem 1rem',
+                fontSize: '0.84rem',
+                borderRadius: '8px',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                background: 'rgba(239, 68, 68, 0.12)',
+                color: '#ef4444',
+                cursor: 'pointer'
+              }}
+              onClick={() => onRejectRequest(activeChat.incomingRequest?.id || activeChat.incomingRequestId)}
+            >
+              Rechazar
+            </button>
+          )}
+        </div>
+      </footer>
+    )
   }
 
   if (activeChat.isDisconnected) {
