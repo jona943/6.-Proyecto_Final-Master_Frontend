@@ -9,6 +9,7 @@ const ChatSidebar = ({
   mobileView,
   currentUser,
   chatsCount,
+  unreadChatsCount = 0,
   filteredChats,
   searchQuery,
   activeFilter,
@@ -47,6 +48,7 @@ const ChatSidebar = ({
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
         chatsCount={chatsCount}
+        unreadChatsCount={unreadChatsCount}
         activeFilter={activeFilter}
         onFilterChange={onFilterChange}
         incomingRequestsCount={(incomingRequests?.length || 0) + (outgoingRequests?.length || 0)}

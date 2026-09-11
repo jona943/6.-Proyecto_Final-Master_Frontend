@@ -69,7 +69,13 @@ export const syncSession = async (req, res) => {
       }
     })
 
-    // 3. Mensajes recientes 1 a 1
+    // 3. Actualizar mensajes pendientes de entrega para el receptor a 'delivered' (✓✓)
+    await ChatMessage.updateMany(
+      { recipientUsername: clean, status: 'sent' },
+      { status: 'delivered' }
+    )
+
+    // 4. Mensajes recientes 1 a 1
     const messagesDocs = await ChatMessage.find({
       $or: [{ senderUsername: clean }, { recipientUsername: clean }]
     }).sort({ createdAt: 1 })
@@ -124,7 +130,8 @@ export const sendMessage = async (req, res) => {
       senderUsername: sender,
       recipientUsername: recipient,
       text: text?.trim() || '',
-      attachment: attachment || null
+      attachment: attachment || null,
+      status: 'sent'
     })
 
     await newMessage.save()

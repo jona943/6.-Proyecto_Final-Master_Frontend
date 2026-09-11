@@ -237,13 +237,22 @@ export function useChats(currentUsername) {
             if (newMsgsToAdd.length > 0) {
               hasChanges = true
               updatedMessages = [...updatedMessages, ...newMsgsToAdd]
-              if (c.id === selectedChatId) {
+              const incomingThem = newMsgsToAdd.filter((m) => m.sender === 'them')
+              if (c.id === selectedChatId && incomingThem.length > 0) {
                 chatService.markMessagesAsRead(currentUsername, target)
               }
             }
 
+            const unreadCount = c.id === selectedChatId
+              ? 0
+              : updatedMessages.filter((m) => m.sender === 'them' && m.status !== 'read').length
+
+            if (c.unreadCount !== unreadCount) {
+              hasChanges = true
+            }
+
             if (hasChanges) {
-              return { ...c, messages: updatedMessages }
+              return { ...c, messages: updatedMessages, unreadCount }
             }
           }
         }

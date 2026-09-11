@@ -83,6 +83,10 @@ function ChatHome() {
     })
   }, [chats, searchQuery, activeFilter])
 
+  const unreadChatsCount = useMemo(() => {
+    return chats.filter((c) => (c.unreadCount || 0) > 0).length
+  }, [chats])
+
   // Optimización con useCallback para evitar recrear manejadores de eventos en cada render
   const handleSelectChat = useCallback((chatId) => {
     selectChat(chatId)
@@ -224,6 +228,7 @@ function ChatHome() {
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
         chatsCount={chats.length}
+        unreadChatsCount={unreadChatsCount}
         incomingRequests={incomingRequests}
         outgoingRequests={outgoingRequests}
         onCancelRequest={cancelRequest}

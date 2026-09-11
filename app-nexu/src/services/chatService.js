@@ -82,7 +82,7 @@ export const chatService = {
       sender,
       text: text?.trim() || '',
       time: timeFormatted,
-      status: sender === 'me' ? 'delivered' : 'read',
+      status: sender === 'me' ? 'sent' : 'read',
       ...(attachment && { attachment })
     }
 

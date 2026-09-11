@@ -3,6 +3,8 @@ import React from 'react'
 const ConversationItem = ({ chat, isSelected, onSelectChat }) => {
   const lastMsg = chat.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null
 
+  const hasUnread = (chat.unreadCount || 0) > 0
+
   return (
     <button
       type="button"
@@ -36,12 +38,12 @@ const ConversationItem = ({ chat, isSelected, onSelectChat }) => {
 
       <div className="conv-details">
         <div className="conv-top-row">
-          <span className="conv-name">{chat.name}</span>
-          <span className="conv-time">{lastMsg ? lastMsg.time : ''}</span>
+          <span className={`conv-name ${hasUnread ? 'has-unread' : ''}`}>{chat.name}</span>
+          <span className={`conv-time ${hasUnread ? 'has-unread' : ''}`}>{lastMsg ? lastMsg.time : ''}</span>
         </div>
 
         <div className="conv-bottom-row">
-          <span className="conv-preview">
+          <span className={`conv-preview ${hasUnread ? 'has-unread' : ''}`}>
             {lastMsg ? (
               <>
                 {lastMsg.sender === 'me' && <span>Tú: </span>}
@@ -52,7 +54,7 @@ const ConversationItem = ({ chat, isSelected, onSelectChat }) => {
             )}
           </span>
 
-          {chat.unreadCount > 0 && (
+          {hasUnread && (
             <span className="unread-badge">{chat.unreadCount}</span>
           )}
         </div>

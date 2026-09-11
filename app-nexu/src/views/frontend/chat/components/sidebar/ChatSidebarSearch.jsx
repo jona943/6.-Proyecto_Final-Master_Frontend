@@ -5,6 +5,7 @@ const ChatSidebarSearch = ({
   searchQuery,
   onSearchChange,
   chatsCount,
+  unreadChatsCount = 0,
   activeFilter,
   onFilterChange,
   incomingRequestsCount = 0
@@ -37,8 +38,9 @@ const ChatSidebarSearch = ({
         <button
           className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}
           onClick={() => onFilterChange('unread')}
+          style={unreadChatsCount > 0 ? { color: 'var(--accent-acid)', fontWeight: 700 } : {}}
         >
-          No leídos
+          No leídos {unreadChatsCount > 0 && `(${unreadChatsCount})`}
         </button>
         <button
           className={`filter-pill-btn ${activeFilter === 'requests' ? 'active' : ''}`}

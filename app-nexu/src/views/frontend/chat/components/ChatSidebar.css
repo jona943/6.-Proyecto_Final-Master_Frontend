@@ -293,6 +293,12 @@
   color: var(--text-muted, #484f5c);
   font-family: var(--font-mono, monospace);
   flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.conv-time.has-unread {
+  color: var(--accent-acid, #d4ff00);
+  font-weight: 700;
 }
 
 .conv-bottom-row {
@@ -311,6 +317,16 @@
   flex: 1;
 }
 
+.conv-preview.has-unread {
+  color: var(--text-primary, #f4f5f7);
+  font-weight: 600;
+}
+
+.conv-name.has-unread {
+  color: var(--text-primary, #ffffff);
+  font-weight: 800;
+}
+
 .unread-badge {
   background-color: var(--accent-acid, #d4ff00);
   color: var(--accent-acid-contrast, #08090b);
@@ -323,7 +339,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
+  padding: 0 5px;
+  box-shadow: 0 0 10px rgba(212, 255, 0, 0.4);
+  animation: badgePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .empty-search-msg {
