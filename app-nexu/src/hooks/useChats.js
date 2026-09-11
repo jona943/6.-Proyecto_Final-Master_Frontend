@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { chatService } from '../services/chatService'
+import { soundService } from '../services/soundService'
 import { useChatUIStore } from '../store/useChatUIStore'
 import api from '../services/api'
 
@@ -310,8 +311,13 @@ export function useChats(currentUsername) {
               hasChanges = true
               updatedMessages = [...updatedMessages, ...newMsgsToAdd]
               const incomingThem = newMsgsToAdd.filter((m) => m.sender === 'them')
-              if (chatCopy.id === selectedChatId && incomingThem.length > 0) {
-                chatService.markMessagesAsRead(currentUsername, target)
+              if (incomingThem.length > 0) {
+                if (chatCopy.messages && chatCopy.messages.length > 0) {
+                  soundService.playMessageReceivedSound()
+                }
+                if (chatCopy.id === selectedChatId) {
+                  chatService.markMessagesAsRead(currentUsername, target)
+                }
               }
             }
 
@@ -398,6 +404,8 @@ export function useChats(currentUsername) {
   const sendMessage = async (text, attachment = null) => {
     if ((!text.trim() && !attachment) || !activeChat || activeChat.isPending || activeChat.isDisconnected) return
 
+    soundService.playMessageSentSound()
+
     const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername, attachment)
     queryClient.setQueryData(['chats', currentUsername], updatedChats)
     if (activeChat.isBot) saveBotHistory(currentUsername, updatedChats)
@@ -415,6 +423,7 @@ export function useChats(currentUsername) {
           const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, response.data.answer)
           queryClient.setQueryData(['chats', currentUsername], replyChats)
           saveBotHistory(currentUsername, replyChats)
+          soundService.playMessageReceivedSound()
         } else {
           console.error('Error del bot:', response.error || response.data?.message || 'Respuesta inválida')
         }

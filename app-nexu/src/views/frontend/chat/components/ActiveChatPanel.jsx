@@ -21,6 +21,8 @@ function ActiveChatPanel({
   onSendConnectionRequest,
   onAcceptRequest,
   onRejectRequest,
+  soundEnabled,
+  onToggleSound,
   messagesEndRef
 }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -62,6 +64,8 @@ function ActiveChatPanel({
         searchInputRef={searchInputRef}
         onBackToList={onBackToList}
         onToggleDetails={onToggleDetails}
+        soundEnabled={soundEnabled}
+        onToggleSound={onToggleSound}
       />
 
       <ActiveChatFeed 

@@ -1,4 +1,4 @@
-import { IconArrowLeft, IconSearch, IconInfo, IconX } from '../../../../components/icons/Icons'
+import { IconArrowLeft, IconSearch, IconInfo, IconX, IconVolume2, IconVolumeX } from '../../../../components/icons/Icons'
 
 function ActiveChatHeader({
   activeChat,
@@ -11,7 +11,9 @@ function ActiveChatHeader({
   matchCount,
   searchInputRef,
   onBackToList,
-  onToggleDetails
+  onToggleDetails,
+  soundEnabled,
+  onToggleSound
 }) {
   return (
     <>
@@ -65,6 +67,16 @@ function ActiveChatHeader({
             type="button"
           >
             <IconSearch size={16} />
+          </button>
+
+          {/* Botón Silenciar / Activar Sonidos */}
+          <button
+            className={`btn-chat-action ${soundEnabled ? 'active' : ''}`}
+            onClick={onToggleSound}
+            title={soundEnabled ? 'Silenciar sonidos de mensajes' : 'Activar sonidos de mensajes'}
+            type="button"
+          >
+            {soundEnabled ? <IconVolume2 size={16} /> : <IconVolumeX size={16} />}
           </button>
 
           {/* Botón Detalles del Contacto */}

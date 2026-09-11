@@ -14,6 +14,8 @@ import ContactDetailsPanel from './components/ContactDetailsPanel'
 import ConnectUserModal from './components/ConnectUserModal'
 import ChatEmptyState from './components/ChatEmptyState'
 import ConfirmActionModal from './components/ConfirmActionModal'
+import SoundPermissionPrompt from './components/SoundPermissionPrompt'
+import { soundService } from '../../../services/soundService'
 
 // ============================================================================
 // COMPONENTE PRINCIPAL: CHAT HOME (COORDINADOR MODULAR + CONTEXT + UTILS)
@@ -66,6 +68,10 @@ function ChatHome() {
     variant: 'danger',
     onConfirm: null
   })
+
+  // Estado del permiso y activación de sonido de notificaciones
+  const [showSoundPrompt, setShowSoundPrompt] = useState(() => soundService.getPermissionState() === null)
+  const [soundEnabled, setSoundEnabled] = useState(() => soundService.isSoundEnabled())
 
   const messagesEndRef = useRef(null)
 
@@ -263,6 +269,34 @@ function ChatHome() {
     })
   }
 
+  // Control de sonido de notificaciones
+  const handleEnableSound = () => {
+    soundService.setSoundEnabled(true)
+    setSoundEnabled(true)
+    setShowSoundPrompt(false)
+    soundService.playMessageReceivedSound()
+    triggerToast('Sonidos de notificación activados')
+  }
+
+  const handleMuteSound = () => {
+    soundService.setSoundEnabled(false)
+    setSoundEnabled(false)
+    setShowSoundPrompt(false)
+    triggerToast('Sonidos de notificación desactivados')
+  }
+
+  const handleToggleSound = () => {
+    const next = !soundEnabled
+    soundService.setSoundEnabled(next)
+    setSoundEnabled(next)
+    if (next) {
+      soundService.playMessageReceivedSound()
+      triggerToast('Sonidos de notificación activados')
+    } else {
+      triggerToast('Sonidos de notificación silenciados')
+    }
+  }
+
   // Copiar texto
   const handleCopyMessage = (text) => {
     navigator.clipboard?.writeText(text)
@@ -331,6 +365,8 @@ function ChatHome() {
           onSendConnectionRequest={handleSendConnectionRequest}
           onAcceptRequest={handleAcceptRequest}
           onRejectRequest={handleRejectRequest}
+          soundEnabled={soundEnabled}
+          onToggleSound={handleToggleSound}
           messagesEndRef={messagesEndRef}
         />
       ) : (
@@ -379,6 +415,14 @@ function ChatHome() {
         onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
         onConfirm={confirmModal.onConfirm}
       />
+
+      {/* 6. Prompt de Permiso de Sonido (Solo una vez) */}
+      {showSoundPrompt && (
+        <SoundPermissionPrompt
+          onEnable={handleEnableSound}
+          onMute={handleMuteSound}
+        />
+      )}
     </div>
   )
 }

@@ -1,0 +1,120 @@
+/* Banner de Permiso de Audio / Sonidos de Notificación */
+.sound-permission-banner {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000;
+  max-width: 420px;
+  background: rgba(16, 18, 22, 0.95);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 255, 0, 0.08);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sound-permission-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.sound-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(212, 255, 0, 0.1);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  color: var(--accent-acid, #d4ff00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sound-permission-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sound-permission-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary, #f4f5f7);
+  margin: 0 0 0.25rem 0;
+}
+
+.sound-permission-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #94a3b8);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.sound-permission-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.btn-sound-mute {
+  background: transparent;
+  border: 1px solid var(--border-subtle, #1c2028);
+  color: var(--text-muted, #7e8796);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sound-mute:hover {
+  color: var(--text-primary, #f4f5f7);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-sound-enable {
+  background: var(--accent-acid, #d4ff00);
+  border: 1px solid var(--accent-acid, #d4ff00);
+  color: #0b0d10;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-sound-enable:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .sound-permission-banner {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
