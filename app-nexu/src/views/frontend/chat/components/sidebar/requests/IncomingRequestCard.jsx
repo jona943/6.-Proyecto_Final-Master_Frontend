@@ -3,11 +3,12 @@ import React from 'react'
 const IncomingRequestCard = ({ req, onAcceptRequest, onRejectRequest, onBlockUser }) => {
   return (
     <div className="pending-request-card">
-      <div className="pending-request-header">
-        <div className="avatar-badge">{req.fromUser?.avatar}</div>
-        <div>
-          <div className="user-found-name">{req.fromUser?.name}</div>
-          <div className="user-found-handle">{req.fromUser?.handle}</div>
+      <div className="pending-request-header" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', alignItems: 'flex-start' }}>
+        <div className="user-found-name" style={{ fontWeight: 600, fontSize: '0.88rem' }}>
+          {req.fromUser?.handle || req.fromUser?.name || `@${req.fromUser?.username}`}
+        </div>
+        <div className="user-found-handle" style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)' }}>
+          Solicitud de conexión entrante
         </div>
       </div>
       <div className="pending-request-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
