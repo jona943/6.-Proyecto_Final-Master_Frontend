@@ -1,0 +1,85 @@
+/* ==========================================================================
+   NEXU PROFILE & SETTINGS — CONTENEDOR RAÍZ & TOAST NOTIFICATION
+   Los estilos de cada subcomponente se encuentran modularizados en ./components/*.css
+   Paleta: Obsidian Carbon (#08090b) & Acid Lime (#d4ff00)
+   ========================================================================== */
+
+.profile-settings-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  padding: 2.5rem 1.5rem 4rem 1.5rem;
+  box-sizing: border-box;
+  animation: profileFadeIn 0.35s ease-out;
+  position: relative;
+}
+
+@keyframes profileFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-settings-container {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Toast Notification (Feedback Visual Global del Módulo) */
+.profile-toast-alert {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(16, 18, 22, 0.95);
+  border: 1px solid var(--accent-acid);
+  color: var(--text-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 255, 0, 0.2);
+  z-index: 10001;
+  animation: toastPop 0.3s ease-out;
+}
+
+@keyframes toastPop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 15px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent-acid);
+  box-shadow: 0 0 8px var(--accent-acid);
+}
+
+@media (max-width: 768px) {
+  .profile-settings-wrapper {
+    padding: 1.5rem 1rem 3rem 1rem;
+  }
+}

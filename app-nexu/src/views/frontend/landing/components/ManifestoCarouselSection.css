@@ -1,0 +1,482 @@
+/* ==========================================================================
+   EL MANIFIESTO (ManifestoCarouselSection Component)
+   ========================================================================== */
+.manifesto-section {
+  position: relative;
+  z-index: 2;
+  height: calc(100dvh - 65px);
+  min-height: calc(100dvh - 65px);
+  max-height: calc(100dvh - 65px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1.75rem 1.5rem;
+  box-sizing: border-box;
+  background-color: rgba(8, 9, 11, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 -40px 90px rgba(0, 0, 0, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  scroll-snap-align: start;
+  scroll-margin-top: 65px;
+  overflow: hidden;
+}
+
+.manifesto-horizon-light {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 960px);
+  height: 1px;
+  background: radial-gradient(circle, rgba(212, 255, 0, 0.45) 0%, rgba(212, 255, 0, 0.12) 40%, transparent 80%);
+  box-shadow: 0 0 18px rgba(212, 255, 0, 0.25);
+  pointer-events: none;
+}
+
+.manifesto-ambient-glow {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw, 680px);
+  height: 320px;
+  background: radial-gradient(circle, rgba(212, 255, 0, 0.035) 0%, rgba(212, 255, 0, 0.008) 50%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.manifesto-container {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+/* Cabecera y Tabs */
+.manifesto-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.manifesto-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.manifesto-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: rgba(212, 255, 0, 0.08);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  color: var(--accent-acid);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.28rem 0.8rem;
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(212, 255, 0, 0.08);
+}
+
+.manifesto-compact-title {
+  font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.manifesto-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: rgba(16, 18, 22, 0.85);
+  border: 1px solid var(--border-subtle);
+  padding: 0.25rem;
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.manifesto-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.38rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.manifesto-tab-btn:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.manifesto-tab-btn.active {
+  background-color: var(--bg-surface-elevated);
+  border-color: rgba(212, 255, 0, 0.35);
+  color: var(--text-primary);
+  box-shadow: 0 0 14px rgba(212, 255, 0, 0.15);
+}
+
+.manifesto-tab-btn .tab-number {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.1);
+  padding: 0.08rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* Tarjeta Activa del Carrusel */
+.manifesto-carousel-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 0.95fr 1.2fr;
+  gap: 2rem;
+  align-items: center;
+  background-color: rgba(16, 18, 22, 0.75);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7);
+  animation: cardSlideFade 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.manifesto-carousel-card:hover {
+  border-color: rgba(212, 255, 0, 0.4);
+  box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(212, 255, 0, 0.08);
+}
+
+.manifesto-carousel-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-acid), transparent);
+}
+
+@keyframes cardSlideFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.97) translateY(14px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Bloque Visual */
+.manifesto-visual-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.manifesto-img-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 290px;
+  max-height: 290px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-active);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+}
+
+.manifesto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.92) contrast(1.05);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.manifesto-carousel-card:hover .manifesto-img {
+  transform: scale(1.03);
+}
+
+.manifesto-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(8, 9, 11, 0.8) 100%);
+  pointer-events: none;
+}
+
+.manifesto-img-badge {
+  position: absolute;
+  bottom: 0.85rem;
+  left: 0.85rem;
+  right: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: rgba(8, 9, 11, 0.82);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.32rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.manifesto-badge-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent-acid);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-acid);
+}
+
+/* Texto de la Ley */
+.manifesto-text-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.manifesto-law-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.law-number-box {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--accent-acid-contrast);
+  background-color: var(--accent-acid);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.law-tag-text {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-acid);
+}
+
+.manifesto-law-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.manifesto-comparison-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.comp-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+.comp-contrast {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid #ef4444;
+}
+
+.comp-solution {
+  background-color: rgba(212, 255, 0, 0.03);
+  border-left: 2px solid var(--accent-acid);
+}
+
+.comp-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.comp-badge-vulnerable {
+  color: #ef4444;
+}
+
+.comp-badge-sovereign {
+  color: var(--accent-acid);
+}
+
+.comp-text {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Controles de Navegación */
+.manifesto-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.manifesto-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.dot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.dot-indicator.active {
+  width: 28px;
+  background-color: var(--accent-acid);
+  box-shadow: 0 0 10px rgba(212, 255, 0, 0.4);
+}
+
+.manifesto-nav-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.manifesto-nav-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(22, 25, 31, 0.8);
+  border: 1px solid var(--border-active);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.manifesto-nav-arrow:hover {
+  background-color: var(--bg-surface-elevated);
+  border-color: var(--accent-acid);
+  color: var(--accent-acid);
+}
+
+/* Adaptación Responsiva Manifiesto */
+@media (max-width: 880px) {
+  .manifesto-carousel-card {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .manifesto-img-wrapper {
+    max-height: 220px;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 768px) {
+  .manifesto-section {
+    padding: 0.85rem 0.85rem 1rem 0.85rem;
+    min-height: calc(100dvh - 58px);
+    height: calc(100dvh - 58px);
+    max-height: calc(100dvh - 58px);
+    scroll-margin-top: 58px;
+  }
+
+  .manifesto-container {
+    gap: 0.6rem;
+    height: 100%;
+    justify-content: space-between;
+  }
+
+  .manifesto-top-bar {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .manifesto-badge-group {
+    justify-content: center;
+  }
+
+  .manifesto-tabs-bar {
+    display: none;
+  }
+
+  .manifesto-carousel-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    flex: 1;
+    min-height: 0;
+    justify-content: space-evenly;
+  }
+
+  .manifesto-img-wrapper {
+    max-height: clamp(120px, 24vh, 190px);
+    max-width: clamp(120px, 24vh, 190px);
+  }
+
+  .manifesto-carousel-controls {
+    justify-content: center;
+  }
+}

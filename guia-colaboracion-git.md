@@ -1,144 +1,111 @@
-# Guía de Colaboración y Flujo de Git — Proyecto Nexu
+# Guía de Colaboración y Arquitectura Fullstack — Proyecto Nexu (v1.0)
 
-Esta guía contiene los comandos básicos y las buenas prácticas que utilizaremos el equipo (**Jonathan**, **Rosy**, **EmaRama** y **Victor**) para trabajar de forma ordenada, evitar pisarnos el código y resolver integraciones sin problemas.
+Esta guía contiene la arquitectura del repositorio, los comandos básicos y las buenas prácticas que utilizaremos el equipo (**Jonathan**, **Rosy**, **EmaRama** y **Víctor**) para trabajar de forma ordenada, evitar colisiones de código y cumplir con los entregables del campus.
 
 ---
 
-## 1. Equipo y Asignación de Ramas
+## 1. Estructura General del Repositorio
 
-Cada integrante cuenta con su propia rama de trabajo dedicada a su módulo:
+El proyecto se organiza bajo una estructura Fullstack desacoplada:
 
-| Integrante | Rama de Trabajo | Módulo Asignado | Carpeta en el Proyecto |
+```text
+6.-Proyecto_Final-Master_Frontend/
+├── app-nexu/              # FRONTEND (React + Vite + Design Tokens)
+│   ├── src/
+│   │   ├── services/      # Servicios de datos, api.js y storageService
+│   │   ├── context/       # AuthContext y ChatContext (Estado global)
+│   │   ├── utils/         # Validadores y formateadores puros
+│   │   └── views/frontend/# Módulos visuales (landing, login-auth, chat, profile-settings)
+│   └── package.json
+│
+├── backend/               # BACKEND (Node.js + Express API REST)
+│   ├── routes/            # Rutas modulares asignadas por integrante
+│   │   ├── public.routes.js   # Health check (/api/health) y alias (Jonathan)
+│   │   ├── auth.routes.js     # Login y Registro (/api/auth) (Rosy)
+│   │   ├── chat.routes.js     # Mensajería y Chats (/api/chats) (EmaRama)
+│   │   └── user.routes.js     # Perfil y Ajustes (/api/user) (Víctor)
+│   ├── server.js          # Servidor Express principal con CORS
+│   ├── package.json       # Dependencias del servidor
+│   └── README.md          # Especificación de ejecución
+│
+└── README.md
+```
+
+---
+
+## 2. Asignación de Roles y Ramas
+
+| Integrante | Rama | Frontend Asignado | Backend Asignado |
 | :--- | :--- | :--- | :--- |
-| **Jonathan** | `feature/jonathan` | Landing Page & Presentación | `src/views/frontend/landing/` |
-| **Rosy** | `feature/rosy` | Login & Autenticación | `src/views/frontend/login-auth/` |
-| **EmaRama** | `feature/EmaRama` | Chat & Mensajería | `src/views/frontend/chat/` |
-| **Victor** | `feature/victor` | Perfil de Usuario & Configuración | `src/views/frontend/profile-settings/` |
-
-> **Regla de Oro:** La rama `main` es la rama central y compartida. Todo el desarrollo diario se realiza dentro de tu rama `feature/...`.
+| **Jonathan** *(Líder)* | `feature/jonathan` | `src/views/frontend/landing/` | `backend/server.js` & `public.routes.js` |
+| **Rosy** | `feature/rosy` | `src/views/frontend/login-auth/` | `backend/routes/auth.routes.js` |
+| **EmaRama** | `feature/EmaRama` | `src/views/frontend/chat/` | `backend/routes/chat.routes.js` |
+| **Víctor** | `feature/victor` | `src/views/frontend/profile-settings/` | `backend/routes/user.routes.js` |
 
 ---
 
-## 2. Flujo de Trabajo Diario (Paso a Paso)
+## 3. Cómo Ejecutar el Proyecto en Local
 
-Sigue estos pasos **cada vez que vayas a comenzar a trabajar**:
+Para probar la comunicación Front ↔ Back, se levantan ambos entornos en dos terminales separadas:
 
-### Paso 1: Actualizar tu copia local de `main`
-Antes de escribir código, asegúrate de tener lo último que subió el equipo a `main`:
+### Terminal 1: Servidor Backend (Node.js / Express)
 ```bash
-# Cambiar a la rama principal
-git switch main
-
-# Descargar y aplicar los últimos cambios de GitHub
-git pull origin main
+cd backend
+npm install   # (Solo la primera vez)
+npm start     # Ejecuta en http://localhost:5000
 ```
+> *Endpoint de prueba de vida:* `http://localhost:5000/api/health`
 
-### Paso 2: Cambiar a tu rama de trabajo
-```bash
-# Para Jonathan:
-git switch feature/jonathan
-
-# Para Rosy:
-git switch feature/rosy
-
-# Para EmaRama:
-git switch feature/EmaRama
-
-# Para Victor:
-git switch feature/victor
-```
-
-### Paso 3: Sincronizar tu rama con los cambios nuevos de `main`
-Para que tu rama siempre esté al día con lo que hayan subido los demás:
-```bash
-git merge main
-```
-
-### Paso 4: Levantar el servidor de desarrollo y programar
+### Terminal 2: Aplicación Frontend (React / Vite)
 ```bash
 cd app-nexu
-npm run dev
+npm install   # (Solo la primera vez)
+npm run dev   # Ejecuta en http://localhost:5173
 ```
 
 ---
 
-## 3. Cómo Guardar y Subir tus Cambios a GitHub
+## 4. Flujo de Trabajo en Git
 
-Cuando hayas terminado una función, pantalla o avance en tu módulo:
-
-### 1. Ver qué archivos modificaste
-```bash
-git status
-```
-
-### 2. Preparar los archivos para el commit
-```bash
-git add .
-```
-*(O si solo quieres agregar archivos específicos: `git add ruta/al/archivo`)*
-
-### 3. Crear el commit con un mensaje claro
-```bash
-git commit -m "feat(landing): agrega seccion hero y llamados a la accion"
-```
-*Usa mensajes descriptivos como:*
-- `feat(...)`: para nuevas funcionalidades o vistas.
-- `fix(...)`: para corrección de errores.
-- `style(...)`: para ajustes de CSS o diseño visual.
-
-### 4. Subir tus cambios a tu rama en GitHub
-```bash
-# Jonathan:
-git push origin feature/jonathan
-
-# Rosy:
-git push origin feature/rosy
-
-# EmaRama:
-git push origin feature/EmaRama
-
-# Victor:
-git push origin feature/victor
-```
+1. **Actualizar `main` antes de empezar:**
+   ```bash
+   git switch main
+   git pull origin main
+   ```
+2. **Cambiar a tu rama y sincronizar:**
+   ```bash
+   git switch feature/tu-nombre
+   git merge main
+   ```
+3. **Desarrollar y guardar cambios:**
+   ```bash
+   git status
+   git add .
+   git commit -m "feat(modulo): descripcion clara de los cambios"
+   git push origin feature/tu-nombre
+   ```
+4. **Integrar avances a `main`:**
+   ```bash
+   git switch main
+   git pull origin main
+   git merge feature/tu-nombre
+   git push origin main
+   git switch feature/tu-nombre
+   ```
 
 ---
 
-## 4. Cómo Integrar tus Avances a `main` (Merge)
-
-Cuando un módulo esté listo y probado, se integra a `main`:
-
-### Método Local:
-```bash
-# 1. Asegúrate de haber hecho commit y push en tu feature branch
-# 2. Cambiar a main y actualizar
-git switch main
-git pull origin main
-
-# 3. Traer los cambios de tu rama a main
-git merge feature/tu-nombre
-
-# 4. Subir main actualizado a GitHub
-git push origin main
-
-# 5. Volver a tu rama para seguir trabajando
-git switch feature/tu-nombre
-```
-
----
-
-## 5. Resumen Rápido de Comandos Útiles
+## 5. Resumen de Comandos Útiles
 
 | Qué quiero hacer | Comando |
 | :--- | :--- |
-| Ver en qué rama estoy y qué cambios tengo | `git status` |
-| Ver la lista de todas las ramas locales | `git branch` |
+| Ver estado de archivos modificados | `git status` |
+| Ver todas las ramas | `git branch` |
 | Cambiarme de rama | `git switch <nombre-rama>` |
-| Crear y cambiarme a una rama nueva | `git switch -c <nombre-rama>` |
 | Descargar lo último de GitHub | `git pull origin <rama>` |
 | Subir mis cambios a GitHub | `git push origin <rama>` |
-| Ver historial de commits resumido | `git log --oneline -n 5` |
-| Deshacer cambios no guardados en un archivo | `git restore <archivo>` |
+| Deshacer cambios en un archivo | `git restore <archivo>` |
 
 ---
 
-**Nexu**
+**Nexu · Mensajería Privada y Soberana**

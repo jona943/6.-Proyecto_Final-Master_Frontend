@@ -1,245 +1,137 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Landing.css'
+import { validateAlias } from '../../../utils/validators'
+import { session, STORAGE_KEYS } from '../../../services/storageService'
+import { api } from '../../../services/api'
+
+import LandingNavbar from './components/LandingNavbar'
+import HeroSection from './components/HeroSection'
+import ManifestoCarouselSection, { MANIFESTO_LAWS } from './components/ManifestoCarouselSection'
+import ScarcityCtaSection from './components/ScarcityCtaSection'
 
 // ============================================================================
-// ICONOS SVG VECTORIALES NATIVOS (Minimalistas, Nítidos & Zero-Bloat)
-// ============================================================================
-const IconUserPlus = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-    <circle cx="8.5" cy="7" r="4"></circle>
-    <line x1="20" y1="8" x2="20" y2="14"></line>
-    <line x1="23" y1="11" x2="17" y2="11"></line>
-  </svg>
-)
-
-const IconUser = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-)
-
-const IconZap = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-  </svg>
-)
-
-const IconLock = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-)
-
-const IconSparkles = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"></path>
-  </svg>
-)
-
-const IconChevronLeft = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="15 18 9 12 15 6"></polyline>
-  </svg>
-)
-
-const IconChevronRight = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="9 18 15 12 9 6"></polyline>
-  </svg>
-)
-
-const IconChevronDown = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9"></polyline>
-  </svg>
-)
-
-// ============================================================================
-// VENTAJAS DEL MVP SIMPLIFICADO
-// ============================================================================
-const ADVANTAGES = [
-  {
-    id: 'alias',
-    tag: '01 · Registro Rápido',
-    title: 'Identidad por Alias',
-    desc: 'Regístrate en segundos eligiendo tu nombre de usuario único. Sin números de teléfono ni datos obligatorios.',
-    icon: <IconUser />
-  },
-  {
-    id: 'direct-chat',
-    tag: '02 · Tiempo Real',
-    title: 'Mensajería Directa 1 a 1',
-    desc: 'Conexión instantánea al milisegundo para chatear directamente con otra persona sin intermediarios ni retrasos.',
-    icon: <IconZap />
-  },
-  {
-    id: 'auth',
-    tag: '03 · Seguridad',
-    title: 'Acceso Rápido y Seguro',
-    desc: 'Inicia sesión con tu alias y contraseña para volver a tus conversaciones con total privacidad y protección.',
-    icon: <IconLock />
-  },
-  {
-    id: 'design',
-    tag: '04 · Experiencia',
-    title: 'Diseño Oscuro Minimalista',
-    desc: 'Interfaz nocturna pulida sin distracciones, anuncios ni algoritmos. Enfocada 100% en la conversación.',
-    icon: <IconSparkles />
-  }
-]
-
-// ============================================================================
-// COMPONENTE PRINCIPAL LANDING
+// COMPONENTE PRINCIPAL: LANDING PAGE (COORDINADOR + STORAGE + UTILS)
 // ============================================================================
 function Landing() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const navigate = useNavigate()
+  const [claimAlias, setClaimAlias] = useState('')
+  const [activeLawIndex, setActiveLawIndex] = useState(0)
 
-  // Auto-avance del carrusel cada 5 segundos
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % ADVANTAGES.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [])
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % ADVANTAGES.length)
+  const nextLaw = () => {
+    setActiveLawIndex((prev) => (prev + 1) % MANIFESTO_LAWS.length)
   }
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + ADVANTAGES.length) % ADVANTAGES.length)
+  const prevLaw = () => {
+    setActiveLawIndex((prev) => (prev - 1 + MANIFESTO_LAWS.length) % MANIFESTO_LAWS.length)
   }
 
-  const scrollToVentajas = () => {
-    const section = document.getElementById('seccion-ventajas')
+  const scrollToManifiesto = () => {
+    const section = document.getElementById('el-manifiesto')
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
+  // Estado interactivo de validación (conectado al Backend)
+  const [validation, setValidation] = useState({
+    state: 'idle',
+    msg: 'Introduce de 3 a 10 caracteres',
+    value: ''
+  })
+
+  // Consulta reactiva al Backend con debounce (300ms)
+  useEffect(() => {
+    // 1. Verificación local inmediata de formato y caracteres
+    const localVal = validateAlias(claimAlias)
+
+    if (localVal.state !== 'valid') {
+      setValidation(localVal)
+      return
+    }
+
+    // 2. Si el formato es válido, indicamos estado de carga
+    setValidation({
+      state: 'warning',
+      msg: 'Consultando disponibilidad en el protocolo...',
+      value: localVal.value
+    })
+
+    // 3. Temporizador debounce para no saturar al servidor mientras el usuario escribe
+    const timer = setTimeout(async () => {
+      try {
+        const res = await api.checkAlias(localVal.value)
+
+        if (res.success && res.data) {
+          if (res.data.available) {
+            setValidation({
+              state: 'valid',
+              msg: `@${localVal.value} está libre para reclamar`,
+              value: localVal.value
+            })
+          } else {
+            setValidation({
+              state: 'error',
+              msg: res.data.message || `@${localVal.value} ya está en uso`,
+              value: localVal.value
+            })
+          }
+        } else {
+          setValidation({
+            state: 'error',
+            msg: res.error || 'No se pudo conectar con el servidor',
+            value: localVal.value
+          })
+        }
+      } catch (_err) {
+        console.error('Error de red al consultar alias:', _err)
+        setValidation({
+          state: 'error',
+          msg: 'Error al verificar alias en el servidor',
+          value: localVal.value
+        })
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [claimAlias])
+
+  const handleClaimSubmit = (e) => {
+    e.preventDefault()
+    if (validation.state === 'valid') {
+      session.set(STORAGE_KEYS.PREFILLED_ALIAS, validation.value)
+      navigate('/register')
+    }
+  }
+
   return (
     <div className="landing-clean">
-      {/* 1. HERO SECTION (FIRST FOLD PERFECTAMENTE DISTRIBUIDO) */}
-      <section className="hero-fold">
-        {/* 1.1 Top: Identidad de Marca */}
-        <div className="hero-top">
-          <div className="hero-brand-mark">
-            <div className="hero-logo-box">N</div>
-            <span className="hero-brand-name">Nexu</span>
-            <span className="hero-badge-pill">v1.0</span>
-          </div>
-        </div>
+      {/* 0. Navbar Superior */}
+      <LandingNavbar
+        onScrollToManifiesto={scrollToManifiesto}
+      />
 
-        {/* 1.2 Centro: Titular, Subtítulo y Botones */}
-        <div className="hero-center">
-          <h1 className="hero-clean-title">
-            Mensajería directa, <br />
-            <span className="hero-clean-highlight">libre y privada.</span>
-          </h1>
+      {/* 1. Carta 1: Hero Cinematográfico (100dvh) */}
+      <HeroSection
+        claimAlias={claimAlias}
+        onClaimAliasChange={setClaimAlias}
+        validation={validation}
+        onClaimSubmit={handleClaimSubmit}
+        onScrollToManifiesto={scrollToManifiesto}
+      />
 
-          <p className="hero-clean-desc">
-            Crea tu usuario, inicia sesión y chatea en tiempo real al instante. Sin números de teléfono ni complicaciones.
-          </p>
+      {/* 2. Carta 2: El Manifiesto (100dvh) */}
+      <ManifestoCarouselSection
+        activeLawIndex={activeLawIndex}
+        onSelectLawIndex={setActiveLawIndex}
+        onNextLaw={nextLaw}
+        onPrevLaw={prevLaw}
+      />
 
-          <div className="hero-actions">
-            <button className="btn-action-primary" type="button">
-              <IconUserPlus />
-              <span>Crear usuario</span>
-            </button>
-            <button className="btn-action-secondary" type="button">
-              <span>Iniciar sesión</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 1.3 Bottom: Indicador Intuitivo de Scroll */}
-        <div className="hero-bottom">
-          <button
-            className="scroll-cue"
-            onClick={scrollToVentajas}
-            type="button"
-            aria-label="Deslizar para explorar ventajas"
-          >
-            <span className="scroll-pill">
-              <IconChevronDown />
-            </span>
-          </button>
-        </div>
-      </section>
-
-      {/* 2. CARRUSEL DE VENTAJAS DEL MVP */}
-      <section id="seccion-ventajas" className="carousel-section">
-        <div className="carousel-container">
-          {/* Tarjeta Activa del Carrusel */}
-          <div className="carousel-card">
-            <div className="card-header-bar">
-              <span className="slide-tag">{ADVANTAGES[currentSlide].tag}</span>
-              <div className="slide-icon-box">{ADVANTAGES[currentSlide].icon}</div>
-            </div>
-
-            <div className="slide-content">
-              <h2>{ADVANTAGES[currentSlide].title}</h2>
-              <p>{ADVANTAGES[currentSlide].desc}</p>
-            </div>
-
-            {/* Controles de Navegación del Carrusel */}
-            <div className="carousel-footer">
-              <div className="carousel-dots">
-                {ADVANTAGES.map((adv, index) => (
-                  <button
-                    key={adv.id}
-                    className={`dot-indicator ${currentSlide === index ? 'active' : ''}`}
-                    onClick={() => setCurrentSlide(index)}
-                    aria-label={`Ir a ventaja ${index + 1}`}
-                  />
-                ))}
-              </div>
-
-              <div className="carousel-nav-btns">
-                <button
-                  className="nav-arrow"
-                  onClick={prevSlide}
-                  aria-label="Ventaja anterior"
-                >
-                  <IconChevronLeft />
-                </button>
-                <button
-                  className="nav-arrow"
-                  onClick={nextSlide}
-                  aria-label="Siguiente ventaja"
-                >
-                  <IconChevronRight />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. FOOTER MINIMALISTA */}
-      <footer className="footer-clean">
-        <div className="footer-content">
-          <div className="footer-logo">
-            <div className="logo-tiny">N</div>
-            <span>Nexu v1.0</span>
-          </div>
-
-          <div className="footer-links">
-            <a href="#seccion-ventajas">Ventajas</a>
-            <span>·</span>
-            <a href="#privacidad">Privacidad</a>
-            <span>·</span>
-            <a href="#terminos">Términos</a>
-          </div>
-
-          <p className="footer-copy">
-            © 2026 Nexu. Mensajería directa construida con React + Vite.
-          </p>
-        </div>
-      </footer>
+      {/* 3. Carta 3: Escasez Matemática e Invitación Final Integrada (100dvh) */}
+      <ScarcityCtaSection
+        onScrollToManifiesto={scrollToManifiesto}
+      />
     </div>
   )
 }

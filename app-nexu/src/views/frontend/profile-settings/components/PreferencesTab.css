@@ -1,0 +1,191 @@
+/* ==========================================================================
+   NEXU PROFILE & SETTINGS — PREFERENCES TAB
+   Selector de tema visual (Dark/Light) y configuraciones de sonido/notificación
+   ========================================================================== */
+
+.theme-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.theme-card-option {
+  background-color: var(--bg-surface-elevated);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-card-option:hover {
+  border-color: var(--border-active);
+  background-color: var(--bg-surface-hover);
+}
+
+.theme-card-option.active {
+  border-color: var(--accent-acid);
+  background-color: rgba(212, 255, 0, 0.04);
+}
+
+.theme-preview-box {
+  width: 100%;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.theme-preview-box.dark {
+  background-color: #08090b;
+}
+
+.theme-preview-box.dark .preview-side {
+  width: 30%;
+  background-color: #101216;
+  border-right: 1px solid #1c2028;
+}
+
+.theme-preview-box.dark .preview-body {
+  flex: 1;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.theme-preview-box.dark .preview-line {
+  height: 6px;
+  background-color: #1e222a;
+  border-radius: 2px;
+}
+
+.theme-preview-box.dark .preview-line.accent {
+  background-color: #d4ff00;
+  width: 50%;
+}
+
+.theme-preview-box.light {
+  background-color: #f4f5f8;
+}
+
+.theme-preview-box.light .preview-side {
+  width: 30%;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e5eb;
+}
+
+.theme-preview-box.light .preview-body {
+  flex: 1;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.theme-preview-box.light .preview-line {
+  height: 6px;
+  background-color: #dbe0ea;
+  border-radius: 2px;
+}
+
+.theme-preview-box.light .preview-line.accent {
+  background-color: #82a800;
+  width: 50%;
+}
+
+.theme-label-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Lista de Switches / Toggles */
+.settings-toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.toggle-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  gap: 1rem;
+}
+
+.toggle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.toggle-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.toggle-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Interruptor Toggle Switch CSS */
+.switch-control {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch-control input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-round {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-active);
+  transition: 0.25s ease;
+  border-radius: 34px;
+}
+
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-secondary);
+  transition: 0.25s ease;
+  border-radius: 50%;
+}
+
+input:checked + .slider-round {
+  background-color: var(--accent-acid);
+  border-color: var(--accent-acid);
+}
+
+input:checked + .slider-round:before {
+  transform: translateX(22px);
+  background-color: var(--accent-acid-contrast);
+}
