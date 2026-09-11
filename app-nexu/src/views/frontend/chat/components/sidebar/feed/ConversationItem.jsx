@@ -1,5 +1,5 @@
 import React from 'react'
-import { IconStar } from '../../../../../../components/icons/Icons'
+import { IconStar, IconBot } from '../../../../../../components/icons/Icons'
 
 const ConversationItem = ({ chat, isSelected, onSelectChat, onContextMenu }) => {
   const lastMsg = chat.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null
@@ -45,8 +45,13 @@ const ConversationItem = ({ chat, isSelected, onSelectChat, onContextMenu }) => 
 
       <div className="conv-details">
         <div className="conv-top-row">
-          <span className={`conv-name ${hasUnread ? 'has-unread' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+          <span className={`conv-name ${hasUnread ? 'has-unread' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
             {chat.name}
+            {chat.isBot && (
+              <span className="bot-pill-badge" title="Asistente de Inteligencia Artificial / Sistema">
+                <IconBot size={10} /> BOT
+              </span>
+            )}
             {chat.isFavorite && (
               <span title="Favorito" style={{ color: 'var(--accent-acid, #d4ff00)', display: 'inline-flex' }}>
                 <IconStar size={11} filled />

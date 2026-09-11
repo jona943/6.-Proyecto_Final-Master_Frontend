@@ -1,4 +1,4 @@
-import { IconArrowLeft, IconSearch, IconInfo, IconX, IconVolume2, IconVolumeX } from '../../../../components/icons/Icons'
+import { IconArrowLeft, IconSearch, IconInfo, IconX, IconVolume2, IconVolumeX, IconBot } from '../../../../components/icons/Icons'
 
 function ActiveChatHeader({
   activeChat,
@@ -41,7 +41,14 @@ function ActiveChatHeader({
           </div>
 
           <div className="chat-header-title-box">
-            <h3 className="chat-header-title">{activeChat.name}</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <h3 className="chat-header-title">{activeChat.name}</h3>
+              {activeChat.isBot && (
+                <span className="bot-pill-badge" title="Asistente Oficial del Sistema">
+                  <IconBot size={11} /> BOT
+                </span>
+              )}
+            </div>
             <div className={`chat-header-status ${isTyping ? 'typing' : ''}`}>
               {isTyping ? (
                 <span>Generando respuesta en tiempo real...</span>

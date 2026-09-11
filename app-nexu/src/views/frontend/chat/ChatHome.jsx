@@ -252,7 +252,7 @@ function ChatHome() {
   // 2. Advertencia para Eliminar Contacto
   const handleRequestDeleteContact = (chatIdToDelete) => {
     const target = chats.find((c) => c.id === chatIdToDelete) || activeChat
-    if (!target) return
+    if (!target || target.isBot) return
 
     setConfirmModal({
       isOpen: true,

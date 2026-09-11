@@ -504,15 +504,12 @@ export function useChats(currentUsername) {
 
   const deleteConversation = async (chatId) => {
     const targetChat = chats.find(c => c.id === chatId)
-    if (!targetChat) return
+    if (!targetChat || targetChat.isBot) return
 
-    if (!targetChat.isBot) {
-      await chatService.deleteContact(currentUsername, targetChat.handle.replace('@', ''))
-    }
+    await chatService.deleteContact(currentUsername, targetChat.handle.replace('@', ''))
 
     const updated = chats.filter((c) => c.id !== chatId)
     queryClient.setQueryData(['chats', currentUsername], updated)
-    if (targetChat.isBot) saveBotHistory(currentUsername, updated)
     if (selectedChatId === chatId) {
       setSelectedChatId(null)
     }

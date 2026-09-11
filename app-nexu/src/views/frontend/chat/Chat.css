@@ -95,3 +95,40 @@
     width: 100%;
   }
 }
+
+/* ============================================================================
+   DISTINTIVO ESPECIAL PARA BOTS Y ASISTENTES DEL SISTEMA
+   ============================================================================ */
+.bot-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  background: rgba(212, 255, 0, 0.14);
+  color: var(--accent-acid, #d4ff00);
+  border: 1px solid rgba(212, 255, 0, 0.35);
+  font-family: var(--font-mono, monospace);
+  line-height: 1;
+  vertical-align: middle;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(212, 255, 0, 0.12);
+}
+
+.details-protected-notice {
+  font-size: 0.73rem;
+  color: var(--text-muted, #7e8796);
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  border: 1px dashed var(--border-subtle, #1c2028);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
