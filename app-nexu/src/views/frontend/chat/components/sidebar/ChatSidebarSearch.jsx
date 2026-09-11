@@ -5,8 +5,11 @@ const ChatSidebarSearch = ({
   searchQuery,
   onSearchChange,
   chatsCount,
+  unreadChatsCount = 0,
+  favoritesCount = 0,
   activeFilter,
-  onFilterChange
+  onFilterChange,
+  incomingRequestsCount = 0
 }) => {
   return (
     <div className="chat-search-bar-box">
@@ -20,28 +23,35 @@ const ChatSidebarSearch = ({
         />
       </div>
 
-      {chatsCount > 0 && (
-        <div className="filter-pills">
-          <button
-            className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
-            onClick={() => onFilterChange('all')}
-          >
-            Todos ({chatsCount})
-          </button>
-          <button
-            className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}
-            onClick={() => onFilterChange('unread')}
-          >
-            No leídos
-          </button>
-          <button
-            className={`filter-pill-btn ${activeFilter === 'online' ? 'active' : ''}`}
-            onClick={() => onFilterChange('online')}
-          >
-            En línea
-          </button>
-        </div>
-      )}
+      <div className="filter-pills">
+        <button
+          className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
+          onClick={() => onFilterChange('all')}
+        >
+          Todos ({chatsCount})
+        </button>
+        <button
+          className={`filter-pill-btn ${activeFilter === 'favorites' ? 'active' : ''}`}
+          onClick={() => onFilterChange('favorites')}
+          style={favoritesCount > 0 ? { color: 'var(--accent-acid)', fontWeight: 700 } : {}}
+        >
+          Favoritos {favoritesCount > 0 && `(${favoritesCount})`}
+        </button>
+        <button
+          className={`filter-pill-btn ${activeFilter === 'unread' ? 'active' : ''}`}
+          onClick={() => onFilterChange('unread')}
+          style={unreadChatsCount > 0 ? { color: 'var(--accent-acid)', fontWeight: 700 } : {}}
+        >
+          No leídos {unreadChatsCount > 0 && `(${unreadChatsCount})`}
+        </button>
+        <button
+          className={`filter-pill-btn ${activeFilter === 'requests' ? 'active' : ''}`}
+          onClick={() => onFilterChange('requests')}
+          style={incomingRequestsCount > 0 ? { color: 'var(--accent-acid)' } : {}}
+        >
+          Solicitudes {incomingRequestsCount > 0 && `(${incomingRequestsCount})`}
+        </button>
+      </div>
     </div>
   )
 }

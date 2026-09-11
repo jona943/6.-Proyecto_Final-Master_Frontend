@@ -30,6 +30,81 @@ const INITIAL_CHATS_DEFAULT = [
   }
 ]
 
+
+
+const ENCRYPTION_KEY = 'NEXU_SECURE_VAULT_2026';
+
+const encryptData = (data) => {
+  const str = JSON.stringify(data);
+  let encrypted = '';
+  for(let i = 0; i < str.length; i++) {
+    encrypted += String.fromCharCode(str.charCodeAt(i) ^ ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length));
+  }
+  return btoa(encrypted);
+};
+
+const decryptData = (encodedData) => {
+  try {
+    const decoded = atob(encodedData);
+    let decrypted = '';
+    for(let i = 0; i < decoded.length; i++) {
+      decrypted += String.fromCharCode(decoded.charCodeAt(i) ^ ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length));
+    }
+    return JSON.parse(decrypted);
+  } catch (e) {
+    return null;
+  }
+};
+
+const loadFavorites = (username) => {
+  if (!username) return []
+  try {
+    const raw = localStorage.getItem(`nexu_favs_${username.toLowerCase()}`)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+const saveFavorites = (username, favIds) => {
+  if (!username) return
+  try {
+    localStorage.setItem(`nexu_favs_${username.toLowerCase()}`, JSON.stringify(favIds))
+  } catch (e) {
+    console.error('Error saving favorites:', e)
+  }
+}
+
+const getInitialChats = (username) => {
+  if (!username) return INITIAL_CHATS_DEFAULT;
+  const chatsCopy = JSON.parse(JSON.stringify(INITIAL_CHATS_DEFAULT));
+  try {
+    const savedBotHistory = localStorage.getItem(`nexu_bot_history_${username}`);
+    if (savedBotHistory) {
+      const decrypted = decryptData(savedBotHistory);
+      if (decrypted) chatsCopy[0].messages = decrypted;
+    }
+    const favs = loadFavorites(username);
+    chatsCopy.forEach((c) => {
+      c.isFavorite = favs.includes(c.id);
+    });
+  } catch (e) {
+    console.error('Error reading bot history or favorites:', e);
+  }
+  return chatsCopy;
+}
+
+const saveBotHistory = (username, chats) => {
+  try {
+    const botChat = chats.find(c => c.id === 'chat_bot');
+    if (botChat) {
+      localStorage.setItem(`nexu_bot_history_${username}`, encryptData(botChat.messages));
+    }
+  } catch (e) {
+    console.error('Error saving bot history:', e);
+  }
+}
+
 export function useChats(currentUsername) {
   const queryClient = useQueryClient()
   const enabled = !!currentUsername
@@ -45,38 +120,36 @@ export function useChats(currentUsername) {
   } = useChatUIStore()
 
   // Queries base para mantener el estado local inicial
-  const { data: chats = INITIAL_CHATS_DEFAULT } = useQuery({
+  const { data: chats = getInitialChats(currentUsername) } = useQuery({
     queryKey: ['chats', currentUsername],
-    queryFn: () => INITIAL_CHATS_DEFAULT,
+    queryFn: () => getInitialChats(currentUsername),
     staleTime: Infinity,
     enabled
   })
 
-  const { data: incomingRequests = [] } = useQuery({
+  const { data: requestsData = { incoming: [], outgoing: [] } } = useQuery({
     queryKey: ['requests', currentUsername],
-    queryFn: () => chatService.getIncomingRequests(currentUsername),
+    queryFn: () => chatService.getRequests(currentUsername),
     enabled
   })
+  const incomingRequests = requestsData.incoming || []
+  const outgoingRequests = requestsData.outgoing || []
 
   // Hook de sincronización (Polling) que reconstruye los chats como lo hacía ChatContext
   useQuery({
     queryKey: ['sync', currentUsername],
     queryFn: async () => {
       const syncData = await chatService.syncUserSession(currentUsername)
+      const requestsSync = await chatService.getRequests(currentUsername)
+      queryClient.setQueryData(['requests', currentUsername], requestsSync)
       if (!syncData) return null
 
       const { incomingRequests: serverReqs, acceptedUsers, messages: serverMsgs } = syncData
 
-      // 1. Sincronizar solicitudes entrantes
-      if (serverReqs && Array.isArray(serverReqs)) {
-        const prevReqs = queryClient.getQueryData(['requests', currentUsername]) || []
-        if (JSON.stringify(prevReqs) !== JSON.stringify(serverReqs)) {
-          queryClient.setQueryData(['requests', currentUsername], serverReqs)
-        }
-      }
+      // Sincronización delegada a requestsSync
 
       // 2. Sincronizar y construir Chats
-      const prevChats = queryClient.getQueryData(['chats', currentUsername]) || INITIAL_CHATS_DEFAULT
+      const prevChats = queryClient.getQueryData(['chats', currentUsername]) || getInitialChats(currentUsername)
       let hasChanges = false
       let nextChats = [...prevChats]
 
@@ -187,13 +260,22 @@ export function useChats(currentUsername) {
             if (newMsgsToAdd.length > 0) {
               hasChanges = true
               updatedMessages = [...updatedMessages, ...newMsgsToAdd]
-              if (c.id === selectedChatId) {
+              const incomingThem = newMsgsToAdd.filter((m) => m.sender === 'them')
+              if (c.id === selectedChatId && incomingThem.length > 0) {
                 chatService.markMessagesAsRead(currentUsername, target)
               }
             }
 
+            const unreadCount = c.id === selectedChatId
+              ? 0
+              : updatedMessages.filter((m) => m.sender === 'them' && m.status !== 'read').length
+
+            if (c.unreadCount !== unreadCount) {
+              hasChanges = true
+            }
+
             if (hasChanges) {
-              return { ...c, messages: updatedMessages }
+              return { ...c, messages: updatedMessages, unreadCount }
             }
           }
         }
@@ -271,6 +353,7 @@ export function useChats(currentUsername) {
 
     const { updatedChats } = await chatService.sendMessage(chats, activeChat.id, text, 'me', currentUsername, attachment)
     queryClient.setQueryData(['chats', currentUsername], updatedChats)
+    if (activeChat.isBot) saveBotHistory(currentUsername, updatedChats)
 
     if (activeChat.isBot) {
       setIsTyping(true)
@@ -284,6 +367,7 @@ export function useChats(currentUsername) {
         if (response.success && response.data && response.data.answer) {
           const { updatedChats: replyChats } = await chatService.getAutoReply(updatedChats, activeChat.id, response.data.answer)
           queryClient.setQueryData(['chats', currentUsername], replyChats)
+          saveBotHistory(currentUsername, replyChats)
         } else {
           console.error('Error del bot:', response.error || response.data?.message || 'Respuesta inválida')
         }
@@ -296,27 +380,32 @@ export function useChats(currentUsername) {
   }
 
   const sendRequest = async (targetUser) => {
-    const { updatedChats, newChatId } = await chatService.sendConnectionRequest(currentUsername, targetUser, chats)
-    queryClient.setQueryData(['chats', currentUsername], updatedChats)
-    setSelectedChatId(newChatId)
+    await chatService.sendConnectionRequest(currentUsername, targetUser, chats)
+    const requestsSync = await chatService.getRequests(currentUsername)
+    queryClient.setQueryData(['requests', currentUsername], requestsSync)
   }
 
   const acceptRequest = async (req) => {
-    const { updatedRecipientChats, updatedReqs, newChatId } = await chatService.acceptConnectionRequest(req, currentUsername, chats)
+    const { updatedRecipientChats, newChatId } = await chatService.acceptConnectionRequest(req, currentUsername, chats)
     queryClient.setQueryData(['chats', currentUsername], updatedRecipientChats)
-    queryClient.setQueryData(['requests', currentUsername], updatedReqs)
+    const requestsSync = await chatService.getRequests(currentUsername)
+    queryClient.setQueryData(['requests', currentUsername], requestsSync)
     setSelectedChatId(newChatId)
   }
 
   const rejectRequest = async (reqId) => {
-    const updatedReqs = await chatService.rejectConnectionRequest(reqId, currentUsername)
-    queryClient.setQueryData(['requests', currentUsername], updatedReqs)
+    await chatService.rejectConnectionRequest(reqId, currentUsername)
+    const requestsSync = await chatService.getRequests(currentUsername)
+    queryClient.setQueryData(['requests', currentUsername], requestsSync)
   }
 
-  const cancelRequest = async (targetUsername) => {
-    const updatedChats = await chatService.cancelConnectionRequest(currentUsername, targetUsername, chats)
-    queryClient.setQueryData(['chats', currentUsername], updatedChats)
-    if (selectedChatId === `chat_${targetUsername.toLowerCase()}`) {
+  const cancelRequest = async (reqIdOrTarget, targetUsername) => {
+    const reqId = typeof reqIdOrTarget === 'string' && reqIdOrTarget.length === 24 ? reqIdOrTarget : null
+    const target = reqId ? targetUsername : reqIdOrTarget
+    await chatService.cancelConnectionRequest(reqId, currentUsername, target)
+    const requestsSync = await chatService.getRequests(currentUsername)
+    queryClient.setQueryData(['requests', currentUsername], requestsSync)
+    if (target && selectedChatId === `chat_${target.toLowerCase()}`) {
       setSelectedChatId(null)
     }
   }
@@ -329,20 +418,73 @@ export function useChats(currentUsername) {
     }
   }
 
-  const deleteConversation = (chatId) => {
+  const deleteConversation = async (chatId) => {
+    const targetChat = chats.find(c => c.id === chatId)
+    if (!targetChat) return
+
+    if (!targetChat.isBot) {
+      await chatService.deleteContact(currentUsername, targetChat.handle.replace('@', ''))
+    }
+
     const updated = chats.filter((c) => c.id !== chatId)
     queryClient.setQueryData(['chats', currentUsername], updated)
+    if (targetChat.isBot) saveBotHistory(currentUsername, updated)
     if (selectedChatId === chatId) {
       setSelectedChatId(null)
     }
   }
 
-  const clearCurrentChat = () => {
-    if (!activeChat) return
+  const clearChatById = async (chatId) => {
+    const targetChat = chats.find(c => c.id === chatId)
+    if (!targetChat) return
+
+    if (!targetChat.isBot && targetChat.handle) {
+      await chatService.clearMessages(currentUsername, targetChat.handle.replace('@', ''))
+    }
+
     const updated = chats.map((c) =>
-      c.id === activeChat.id ? { ...c, messages: [] } : c
+      c.id === chatId ? { ...c, messages: [] } : c
     )
     queryClient.setQueryData(['chats', currentUsername], updated)
+    if (targetChat.isBot) saveBotHistory(currentUsername, updated)
+  }
+
+  const clearCurrentChat = () => {
+    if (!activeChat) return
+    clearChatById(activeChat.id)
+  }
+
+  const toggleFavorite = (chatId) => {
+    const currentFavs = loadFavorites(currentUsername)
+    const isFav = currentFavs.includes(chatId)
+    const updatedFavs = isFav ? currentFavs.filter(id => id !== chatId) : [...currentFavs, chatId]
+    saveFavorites(currentUsername, updatedFavs)
+
+    queryClient.setQueryData(['chats', currentUsername], (prev) =>
+      (prev || []).map((c) => (c.id === chatId ? { ...c, isFavorite: !isFav } : c))
+    )
+  }
+
+  const toggleRead = (chat) => {
+    const isCurrentlyUnread = (chat.unreadCount || 0) > 0
+    queryClient.setQueryData(['chats', currentUsername], (prev) =>
+      (prev || []).map((c) => {
+        if (c.id === chat.id) {
+          if (isCurrentlyUnread) {
+            const readMsgs = (c.messages || []).map((m) => (m.sender === 'them' ? { ...m, status: 'read' } : m))
+            return { ...c, unreadCount: 0, messages: readMsgs }
+          } else {
+            return { ...c, unreadCount: 1 }
+          }
+        }
+        return c
+      })
+    )
+
+    if (isCurrentlyUnread && chat.handle && !chat.isBot) {
+      const partner = chat.handle.replace(/^@/, '').toLowerCase()
+      chatService.markMessagesAsRead(currentUsername, partner)
+    }
   }
 
   return {
@@ -356,10 +498,14 @@ export function useChats(currentUsername) {
     isTyping,
     presenceStatus,
     incomingRequests,
+    outgoingRequests,
     acceptRequest,
     rejectRequest,
     blockUser,
     deleteConversation,
-    clearCurrentChat
+    clearCurrentChat,
+    clearChatById,
+    toggleFavorite,
+    toggleRead
   }
 }

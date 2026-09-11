@@ -31,11 +31,15 @@ function ChatHome() {
     isTyping,
     presenceStatus,
     incomingRequests,
+    outgoingRequests,
     acceptRequest,
     rejectRequest,
     blockUser,
     deleteConversation,
-    clearCurrentChat
+    clearCurrentChat,
+    clearChatById,
+    toggleFavorite,
+    toggleRead
   } = useChats(user?.username || 'guest')
 
   const [inputText, setInputText] = useState('')
@@ -76,10 +80,19 @@ function ChatHome() {
 
       if (!matchesSearch) return false
       if (activeFilter === 'unread') return chat.unreadCount > 0
-      if (activeFilter === 'online') return chat.status === 'online'
+      if (activeFilter === 'favorites') return chat.isFavorite === true;
+      if (activeFilter === 'requests') return false;
       return true
     })
   }, [chats, searchQuery, activeFilter])
+
+  const unreadChatsCount = useMemo(() => {
+    return chats.filter((c) => (c.unreadCount || 0) > 0).length
+  }, [chats])
+
+  const favoritesCount = useMemo(() => {
+    return chats.filter((c) => c.isFavorite === true).length
+  }, [chats])
 
   // Optimización con useCallback para evitar recrear manejadores de eventos en cada render
   const handleSelectChat = useCallback((chatId) => {
@@ -222,7 +235,11 @@ function ChatHome() {
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
         chatsCount={chats.length}
+        unreadChatsCount={unreadChatsCount}
+        favoritesCount={favoritesCount}
         incomingRequests={incomingRequests}
+        outgoingRequests={outgoingRequests}
+        onCancelRequest={cancelRequest}
         onAcceptRequest={handleAcceptRequest}
         onRejectRequest={handleRejectRequest}
         onBlockUser={handleBlockUser}
@@ -230,6 +247,10 @@ function ChatHome() {
         activeChatId={activeChat?.id}
         onSelectChat={handleSelectChat}
         onCopyInviteLink={handleCopyInviteLink}
+        onToggleFavorite={toggleFavorite}
+        onToggleRead={toggleRead}
+        onClearMessages={(chat) => clearChatById(chat.id)}
+        onDeleteContact={deleteConversation}
       />
 
       {/* 2. Panel de Chat Activo o Estado Vacío */}

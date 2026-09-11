@@ -396,6 +396,7 @@
 .message-text {
   font-size: 0.9rem;
   word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .message-meta {
