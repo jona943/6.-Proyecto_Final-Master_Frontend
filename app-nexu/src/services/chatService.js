@@ -29,7 +29,30 @@ export const BOT_RESPONSES = [
 ]
 
 export const chatService = {
-  // Obtener lista de chats (sólo backend, sin persistencia en localStorage)
+
+  async clearMessages(currentUser, targetUser) {
+    if (targetUser === '@nexu_assistant' || targetUser === 'chat_bot') return true;
+    try {
+      const res = await api.post('/chats/clear', { targetUsername: targetUser, currentUser });
+      return res.success;
+    } catch (e) {
+      console.error('Error clearing messages:', e);
+      return false;
+    }
+  },
+
+  async deleteContact(currentUser, targetUser) {
+    if (targetUser === '@nexu_assistant' || targetUser === 'chat_bot') return true;
+    try {
+      const res = await api.post('/chats/delete-contact', { targetUsername: targetUser, currentUser });
+      return res.success;
+    } catch (e) {
+      console.error('Error deleting contact:', e);
+      return false;
+    }
+  },
+
+  // Obtener lista de chats
   async getChats(username = 'guest') {
     const clean = (username || '').trim().toLowerCase()
     if (!clean) return []
