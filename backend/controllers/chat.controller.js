@@ -2,6 +2,9 @@ import ConnectionRequest from '../models/ConnectionRequest.js'
 import ChatMessage from '../models/ChatMessage.js'
 import User from '../models/User.js'
 
+let lastEphemeralCleanup = 0
+const EPHEMERAL_CLEANUP_INTERVAL_MS = 5 * 60 * 1000 // Throttle a 5 minutos
+
 /**
  * GET /api/chats/sync?username=xxx
  * Sincronización en vivo de solicitudes, usuarios activos y mensajes
@@ -23,17 +26,31 @@ export const syncSession = async (req, res) => {
     // Actualizar última conexión (Punto Verde)
     await User.findOneAndUpdate({ username: clean }, { lastActive: new Date() })
 
-    // Limpiar payloads efímeros que hayan expirado (> 24h) garantizando política de cero retención
-    await ChatMessage.updateMany(
-      { 'attachment.expiresAt': { $lte: new Date() }, 'attachment.encryptedPayload': { $ne: null } },
-      { $set: { 'attachment.encryptedPayload': null, 'attachment.ephemeralExpired': true } }
-    ).catch(() => {})
+    // Limpiar payloads efímeros expirados (>24h) con throttle (máximo una vez cada 5 min en vez de en cada ciclo de 2.5s)
+    const now = Date.now()
+    if (now - lastEphemeralCleanup > EPHEMERAL_CLEANUP_INTERVAL_MS) {
+      lastEphemeralCleanup = now
+      ChatMessage.updateMany(
+        { 'attachment.expiresAt': { $lte: new Date() }, 'attachment.encryptedPayload': { $ne: null } },
+        { $set: { 'attachment.encryptedPayload': null, 'attachment.ephemeralExpired': true } }
+      ).catch(() => {})
+    }
 
-    // 1. Solicitudes de conexión entrantes pendientes
-    const pendingDocs = await ConnectionRequest.find({
-      targetUsername: clean,
-      status: 'pending'
-    }).sort({ createdAt: -1 })
+    // 1. Solicitudes de conexión entrantes y salientes pendientes (ejecutadas en paralelo con lean)
+    const [pendingDocs, outgoingDocs] = await Promise.all([
+      ConnectionRequest.find({
+        targetUsername: clean,
+        status: 'pending'
+      })
+        .sort({ createdAt: -1 })
+        .lean(),
+      ConnectionRequest.find({
+        senderUsername: clean,
+        status: 'pending'
+      })
+        .sort({ createdAt: -1 })
+        .lean()
+    ])
 
     const incomingRequests = pendingDocs.map((doc) => ({
       id: doc._id.toString(),
@@ -47,11 +64,23 @@ export const syncSession = async (req, res) => {
       status: 'pending'
     }))
 
+    const outgoingRequests = outgoingDocs.map((doc) => ({
+      id: doc._id.toString(),
+      toUser: {
+        username: doc.targetUsername,
+        name: `@${doc.targetUsername}`,
+        handle: `@${doc.targetUsername}`,
+        avatar: doc.targetUsername.slice(0, 2).toUpperCase()
+      },
+      time: 'Reciente',
+      status: 'pending'
+    }))
+
     // 2. Conexiones aceptadas (donde el usuario es emisor o receptor)
     const acceptedDocs = await ConnectionRequest.find({
       status: 'accepted',
       $or: [{ senderUsername: clean }, { targetUsername: clean }]
-    })
+    }).lean()
 
     const acceptedUsernames = acceptedDocs.map((doc) =>
       doc.senderUsername === clean ? doc.targetUsername : doc.senderUsername
@@ -61,7 +90,9 @@ export const syncSession = async (req, res) => {
     const activeThreshold = new Date(Date.now() - 15 * 1000)
     const activeUsers = await User.find({
       username: { $in: acceptedUsernames }
-    }).select('username lastActive avatarUrl displayName')
+    })
+      .select('username lastActive avatarUrl displayName')
+      .lean()
 
     const onlineSet = new Set(activeUsers.filter((u) => u.lastActive >= activeThreshold).map((u) => u.username))
 
@@ -81,11 +112,17 @@ export const syncSession = async (req, res) => {
       { status: 'delivered' }
     )
 
-    // 4. Mensajes recientes 1 a 1 (excluyendo los que el usuario haya vaciado)
+    // 4. Mensajes recientes 1 a 1 (acotados a los últimos 100 para evitar transferencias pesadas)
     const messagesDocs = await ChatMessage.find({
       $or: [{ senderUsername: clean }, { recipientUsername: clean }],
       deletedFor: { $ne: clean }
-    }).sort({ createdAt: 1 })
+    })
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .lean()
+
+    // Devolver en orden cronológico para el cliente
+    messagesDocs.reverse()
 
     const formattedMessages = messagesDocs.map((msg) => ({
       id: msg._id.toString(),
@@ -103,6 +140,7 @@ export const syncSession = async (req, res) => {
       success: true,
       sync: {
         incomingRequests,
+        outgoingRequests,
         acceptedUsers,
         messages: formattedMessages
       }

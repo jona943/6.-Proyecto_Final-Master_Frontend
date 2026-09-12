@@ -28,5 +28,12 @@ const connectionRequestSchema = new mongoose.Schema(
   }
 )
 
+// Índices compuestos de alto rendimiento para búsquedas frecuentes y polling
+connectionRequestSchema.index({ targetUsername: 1, status: 1, createdAt: -1 })
+connectionRequestSchema.index({ senderUsername: 1, status: 1, createdAt: -1 })
+connectionRequestSchema.index({ senderUsername: 1, targetUsername: 1, status: 1 })
+connectionRequestSchema.index({ status: 1, senderUsername: 1 })
+connectionRequestSchema.index({ status: 1, targetUsername: 1 })
+
 export const ConnectionRequest = mongoose.model('ConnectionRequest', connectionRequestSchema)
 export default ConnectionRequest

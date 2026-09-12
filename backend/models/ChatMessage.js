@@ -44,5 +44,13 @@ const chatMessageSchema = new mongoose.Schema(
   }
 )
 
+// Índices Compuestos de Alto Rendimiento para Consultas de Polling y Mensajería
+chatMessageSchema.index({ senderUsername: 1, recipientUsername: 1, createdAt: -1 })
+chatMessageSchema.index({ recipientUsername: 1, senderUsername: 1, createdAt: -1 })
+chatMessageSchema.index({ senderUsername: 1, createdAt: -1 })
+chatMessageSchema.index({ recipientUsername: 1, createdAt: -1 })
+chatMessageSchema.index({ recipientUsername: 1, status: 1 })
+chatMessageSchema.index({ 'attachment.expiresAt': 1 }, { sparse: true })
+
 export const ChatMessage = mongoose.model('ChatMessage', chatMessageSchema)
 export default ChatMessage

@@ -180,12 +180,16 @@ export function useChats(currentUsername) {
 
   // Hook de sincronización (Polling) que reconstruye los chats como lo hacía ChatContext
   useQuery({
-    queryKey: ['sync', cleanUsername],
     queryFn: async () => {
       const syncData = await chatService.syncUserSession(cleanUsername)
-      const requestsSync = await chatService.getRequests(cleanUsername)
-      queryClient.setQueryData(['requests', cleanUsername], requestsSync)
       if (!syncData) return null
+
+      // Actualizar la caché de solicitudes directamente desde syncData sin generar una 2da petición HTTP
+      const requestsSync = {
+        incoming: syncData.incomingRequests || [],
+        outgoing: syncData.outgoingRequests || []
+      }
+      queryClient.setQueryData(['requests', cleanUsername], requestsSync)
 
       const { incomingRequests: serverReqs, acceptedUsers, messages: serverMsgs } = syncData
 
