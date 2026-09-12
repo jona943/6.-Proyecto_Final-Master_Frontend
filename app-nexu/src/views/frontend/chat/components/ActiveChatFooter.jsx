@@ -1,4 +1,9 @@
-import { IconClock, IconCode, IconSend, IconAlertCircle, IconUserPlus, IconCheck } from '../../../../components/icons/Icons'
+import { useRef, useState } from 'react'
+import { IconClock, IconCode, IconSend, IconAlertCircle, IconUserPlus, IconCheck, IconPaperclip, IconX } from '../../../../components/icons/Icons'
+import { imageOptimizer } from '../../../../services/imageOptimizer'
+import { cryptoVault } from '../../../../services/cryptoVault'
+import { mediaVault } from '../../../../services/mediaVault'
+import { useAuthStore } from '../../../../store/useAuthStore'
 
 function ActiveChatFooter({
   activeChat,
@@ -12,8 +17,121 @@ function ActiveChatFooter({
   onAcceptRequest,
   onRejectRequest
 }) {
+  const fileInputRef = useRef(null)
+  const [uploadState, setUploadState] = useState(null)
+  const currentUser = useAuthStore((state) => state.user)
+
+  const handleFileClick = () => {
+    if (uploadState?.active) return
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // 1. Validar límite estricto de 10 MB
+    const validation = imageOptimizer.validateFileSize(file)
+    if (!validation.valid) {
+      if (onTriggerToast) onTriggerToast(validation.message)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      return
+    }
+
+    const isImage = file.type.startsWith('image/')
+    const previewUrl = isImage ? URL.createObjectURL(file) : null
+
+    setUploadState({
+      active: true,
+      progress: 15,
+      status: isImage ? 'Optimizando imagen en HD (WebP)...' : 'Procesando archivo seguro...',
+      fileName: file.name,
+      fileSize: imageOptimizer.formatSize(file.size),
+      previewUrl,
+      error: null
+    })
+
+    try {
+      let processed
+      if (isImage) {
+        processed = await imageOptimizer.optimizeImage(file, (p) => {
+          setUploadState((prev) => (prev ? { ...prev, progress: Math.max(15, Math.min(45, p)) } : null))
+        })
+      } else {
+        processed = await imageOptimizer.processDocument(file, (p) => {
+          setUploadState((prev) => (prev ? { ...prev, progress: Math.max(15, Math.min(45, p)) } : null))
+        })
+      }
+
+      setUploadState((prev) => (prev ? {
+        ...prev,
+        progress: 60,
+        status: 'Cifrando de extremo a extremo (AES-GCM)...'
+      } : null))
+
+      const myUsername = (currentUser?.username || '').trim().toLowerCase()
+      const partnerUsername = (activeChat.handle ? activeChat.handle.replace(/^@/, '') : activeChat.name).trim().toLowerCase()
+      const fileId = `file_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
+      // 2. Guardar copia local permanente en IndexedDB para el emisor
+      await mediaVault.saveMedia(fileId, {
+        dataUrl: processed.dataUrl,
+        name: processed.name,
+        type: processed.type,
+        size: processed.size,
+        mimeType: processed.mimeType
+      })
+
+      // 3. Cifrar el payload para el buzón efímero del servidor
+      const encryptedPayload = await cryptoVault.encryptPayload(
+        processed.dataUrl,
+        myUsername,
+        partnerUsername
+      )
+
+      setUploadState((prev) => (prev ? {
+        ...prev,
+        progress: 85,
+        status: 'Subiendo al buzón efímero...'
+      } : null))
+
+      const attachment = {
+        fileId,
+        name: processed.name,
+        type: processed.type,
+        size: processed.size,
+        mimeType: processed.mimeType,
+        encryptedPayload
+      }
+
+      // Enviar el mensaje con el adjunto
+      await onSendMessage(null, attachment)
+
+      setUploadState((prev) => (prev ? {
+        ...prev,
+        progress: 100,
+        status: '¡Archivo entregado al buzón efímero!'
+      } : null))
+
+      setTimeout(() => {
+        setUploadState(null)
+      }, 1200)
+
+    } catch (err) {
+      console.error('Error al subir archivo:', err)
+      setUploadState((prev) => (prev ? {
+        ...prev,
+        error: 'Error al procesar el archivo. Inténtalo nuevamente.',
+        progress: 0
+      } : null))
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!inputText.trim()) return
     onSendMessage(e)
   }
 
@@ -146,8 +264,115 @@ function ActiveChatFooter({
 
   return (
     <footer className="chat-input-footer">
+      {/* Barra de progreso visual de carga y optimización */}
+      {uploadState && (
+        <div
+          className="upload-progress-banner"
+          style={{
+            margin: '0.4rem 1rem 0.6rem 1rem',
+            padding: '0.75rem 1rem',
+            background: uploadState.error ? 'rgba(239, 68, 68, 0.12)' : 'rgba(15, 23, 42, 0.95)',
+            border: `1px solid ${uploadState.error ? 'rgba(239, 68, 68, 0.4)' : 'rgba(212, 255, 0, 0.3)'}`,
+            borderRadius: '10px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.45rem',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', overflow: 'hidden' }}>
+              {uploadState.previewUrl ? (
+                <img
+                  src={uploadState.previewUrl}
+                  alt="preview"
+                  style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover', border: '1px solid rgba(255, 255, 255, 0.2)' }}
+                />
+              ) : (
+                <span style={{ fontSize: '1.2rem' }}>📎</span>
+              )}
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary, #fff)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', maxWidth: '280px' }}>
+                  {uploadState.fileName} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>({uploadState.fileSize})</span>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: uploadState.error ? '#f87171' : 'var(--accent-acid, #d4ff00)' }}>
+                  {uploadState.error || uploadState.status}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {!uploadState.error && (
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-acid, #d4ff00)' }}>
+                  {uploadState.progress}%
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setUploadState(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted, #94a3b8)',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex'
+                }}
+                title="Cerrar"
+              >
+                <IconX size={15} />
+              </button>
+            </div>
+          </div>
+
+          {!uploadState.error && (
+            <div
+              style={{
+                width: '100%',
+                height: '4px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px',
+                overflow: 'hidden'
+              }}
+            >
+              <div
+                style={{
+                  width: `${uploadState.progress}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, var(--accent-primary, #6366f1), var(--accent-acid, #d4ff00))',
+                  borderRadius: '4px',
+                  transition: 'width 0.3s ease'
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="chat-toolbar">
         <div className="toolbar-group">
+          {!activeChat.isBot && (
+            <>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                accept="image/*,application/pdf,text/*,.zip,.rar,.doc,.docx"
+                onChange={handleFileSelect}
+              />
+              <button
+                type="button"
+                className="btn-tool-icon"
+                title="Adjuntar imagen o archivo (máx. 10 MB)"
+                onClick={handleFileClick}
+                disabled={uploadState?.active}
+              >
+                <IconPaperclip size={16} />
+              </button>
+            </>
+          )}
+
           <button
             type="button"
             className="btn-tool-icon"

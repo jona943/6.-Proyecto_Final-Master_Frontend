@@ -23,6 +23,12 @@ export const syncSession = async (req, res) => {
     // Actualizar última conexión (Punto Verde)
     await User.findOneAndUpdate({ username: clean }, { lastActive: new Date() })
 
+    // Limpiar payloads efímeros que hayan expirado (> 24h) garantizando política de cero retención
+    await ChatMessage.updateMany(
+      { 'attachment.expiresAt': { $lte: new Date() }, 'attachment.encryptedPayload': { $ne: null } },
+      { $set: { 'attachment.encryptedPayload': null, 'attachment.ephemeralExpired': true } }
+    ).catch(() => {})
+
     // 1. Solicitudes de conexión entrantes pendientes
     const pendingDocs = await ConnectionRequest.find({
       targetUsername: clean,
@@ -143,11 +149,19 @@ export const sendMessage = async (req, res) => {
       })
     }
 
+    let finalAttachment = null
+    if (attachment) {
+      finalAttachment = {
+        ...attachment,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24h de permanencia efímera en tránsito
+      }
+    }
+
     const newMessage = new ChatMessage({
       senderUsername: sender,
       recipientUsername: recipient,
       text: text?.trim() || '',
-      attachment: attachment || null,
+      attachment: finalAttachment,
       status: 'sent'
     })
 
@@ -166,7 +180,7 @@ export const sendMessage = async (req, res) => {
 
 /**
  * POST /api/chats/read
- * Marcar mensajes como leídos
+ * Marcar mensajes como leídos y vaciar archivos efímeros entregados
  */
 export const markMessagesAsRead = async (req, res) => {
   try {
@@ -179,6 +193,22 @@ export const markMessagesAsRead = async (req, res) => {
         { senderUsername: sender, recipientUsername: reader, status: { $ne: 'read' } },
         { status: 'read' }
       )
+
+      // Eliminación física del payload efímero una vez entregado/leído
+      await ChatMessage.updateMany(
+        {
+          senderUsername: sender,
+          recipientUsername: reader,
+          'attachment.encryptedPayload': { $exists: true, $ne: null }
+        },
+        {
+          $set: {
+            'attachment.encryptedPayload': null,
+            'attachment.ephemeralCleared': true,
+            'attachment.clearedAt': new Date()
+          }
+        }
+      ).catch(() => {})
     }
 
     return res.status(200).json({
