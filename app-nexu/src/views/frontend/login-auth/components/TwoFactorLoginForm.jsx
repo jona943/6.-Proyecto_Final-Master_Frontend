@@ -140,37 +140,22 @@ function TwoFactorLoginForm({
 
   return (
     <form className="auth-form twofa-login-wrapper" onSubmit={handleSubmit} noValidate>
-      {/* Badge Superior de Seguridad */}
-      <div className="twofa-badge-pill">
-        <span className="twofa-pulse-dot"></span>
-        <span>PROTECCIÓN 2FA · RFC 6238</span>
-      </div>
-
       {/* Icono de Escudo con Halo Criptográfico */}
       <div className="twofa-icon-glow">
-        <IconShield size={32} />
+        <IconShield size={28} />
       </div>
 
-      <h2 className="auth-form-title" style={{ marginBottom: '0.2rem' }}>
+      <h2 className="auth-form-title" style={{ marginBottom: '0.35rem' }}>
         Autenticación en Dos Pasos
       </h2>
 
-      {/* Chip de Identidad del Usuario */}
-      <div className="twofa-user-chip">
-        <div className="twofa-user-avatar-tiny">
-          {(cleanUser[0] || 'U').toUpperCase()}
-        </div>
-        <span className="twofa-user-handle">@{cleanUser}</span>
-        <span className="twofa-user-status">Verificación activa</span>
-      </div>
-
       <p
         className="auth-form-desc"
-        style={{ maxWidth: '360px', margin: '0 auto 1.15rem', textAlign: 'center' }}
+        style={{ maxWidth: '360px', margin: '0 auto 0.5rem', textAlign: 'center' }}
       >
         {useBackupCode
-          ? 'Ingresa uno de tus códigos de respaldo de emergencia generados al activar 2FA.'
-          : 'Ingresa el código dinámico de 6 dígitos de tu aplicación Authenticator.'}
+          ? 'Ingresa uno de tus códigos de respaldo de emergencia guardados al activar 2FA.'
+          : `Hola @${cleanUser}. Ingresa el código de 6 dígitos de tu aplicación Authenticator.`}
       </p>
 
       {/* Alerta de Error Local */}
@@ -315,7 +300,7 @@ function TwoFactorLoginForm({
       </button>
 
       {/* Botón Cancelar y Volver al Login */}
-      <div style={{ marginTop: '1.2rem' }}>
+      <div style={{ marginTop: '0.85rem' }}>
         <button type="button" onClick={onCancel} className="twofa-cancel-btn">
           <IconArrowLeft size={15} />
           <span>Cancelar y volver al inicio de sesión</span>
