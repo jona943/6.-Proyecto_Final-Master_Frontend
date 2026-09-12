@@ -1,5 +1,13 @@
 import { Router } from 'express'
+import bcrypt from 'bcryptjs'
 import User from '../models/User.js'
+import {
+  generateSecret,
+  generateOtpAuthUri,
+  generateQrCodeDataUrl,
+  verifyTotp,
+  generateBackupCodes
+} from '../utils/totp.js'
 
 const router = Router()
 
@@ -126,6 +134,172 @@ router.put('/profile', async (req, res) => {
   } catch (error) {
     console.error('Error actualizando perfil:', error)
     res.status(500).json({ success: false, message: 'Error interno al actualizar perfil' })
+  }
+})
+
+/**
+ * GET /api/user/2fa/status?username=xxx
+ * Consulta si el usuario tiene el doble factor activado
+ */
+router.get('/2fa/status', async (req, res) => {
+  try {
+    const rawUser = req.query.username || ''
+    const cleanUsername = rawUser.replace(/^@/, '').trim().toLowerCase()
+
+    if (!cleanUsername) {
+      return res.status(400).json({ success: false, message: 'username requerido' })
+    }
+
+    const user = await User.findOne({ username: cleanUsername })
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' })
+    }
+
+    return res.status(200).json({
+      success: true,
+      twoFactorEnabled: Boolean(user.twoFactorEnabled),
+      backupCodesCount: user.twoFactorBackupCodes?.length || 0
+    })
+  } catch (error) {
+    console.error('Error en /2fa/status:', error.message)
+    res.status(500).json({ success: false, message: 'Error al consultar estado 2FA' })
+  }
+})
+
+/**
+ * POST /api/user/2fa/setup
+ * Inicia la configuración de 2FA generando semilla Base32 y código QR
+ */
+router.post('/2fa/setup', async (req, res) => {
+  try {
+    const { username } = req.body || {}
+    const cleanUsername = (username || '').replace(/^@/, '').trim().toLowerCase()
+
+    if (!cleanUsername) {
+      return res.status(400).json({ success: false, message: 'username es requerido' })
+    }
+
+    const user = await User.findOne({ username: cleanUsername })
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' })
+    }
+
+    // 1. Generar nuevo secreto Base32
+    const secret = generateSecret(20)
+
+    // 2. Generar URI otpauth compatible con Google Authenticator, Aegis, Authy, etc.
+    const otpAuthUri = generateOtpAuthUri(user.username, secret, 'Nexu')
+
+    // 3. Generar código QR en Base64 DataURL
+    const qrCodeDataUrl = await generateQrCodeDataUrl(otpAuthUri)
+
+    return res.status(200).json({
+      success: true,
+      secret,
+      otpAuthUri,
+      qrCodeDataUrl,
+      username: user.username
+    })
+  } catch (error) {
+    console.error('Error en /2fa/setup:', error.message)
+    res.status(500).json({ success: false, message: 'Error al iniciar configuración 2FA' })
+  }
+})
+
+/**
+ * POST /api/user/2fa/enable
+ * Confirma y activa 2FA verificando el primer código TOTP generado por la app del usuario
+ */
+router.post('/2fa/enable', async (req, res) => {
+  try {
+    const { username, secret, code } = req.body || {}
+    const cleanUsername = (username || '').replace(/^@/, '').trim().toLowerCase()
+
+    if (!cleanUsername || !secret || !code) {
+      return res.status(400).json({
+        success: false,
+        message: 'username, secret y code son requeridos.'
+      })
+    }
+
+    const user = await User.findOne({ username: cleanUsername })
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' })
+    }
+
+    // 1. Validar el código TOTP
+    const isValid = verifyTotp(code.toString().trim(), secret)
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Código de verificación incorrecto. Revisa tu aplicación Authenticator y que la hora de tu teléfono esté sincronizada.'
+      })
+    }
+
+    // 2. Generar 5 códigos de respaldo de un solo uso
+    const backupCodes = generateBackupCodes(5)
+
+    // 3. Guardar en base de datos
+    user.twoFactorEnabled = true
+    user.twoFactorSecret = secret
+    user.twoFactorBackupCodes = backupCodes
+    await user.save()
+
+    return res.status(200).json({
+      success: true,
+      message: 'Autenticación en Dos Pasos activada exitosamente.',
+      twoFactorEnabled: true,
+      backupCodes
+    })
+  } catch (error) {
+    console.error('Error en /2fa/enable:', error.message)
+    res.status(500).json({ success: false, message: 'Error al activar 2FA' })
+  }
+})
+
+/**
+ * POST /api/user/2fa/disable
+ * Desactiva 2FA previa validación de contraseña de seguridad
+ */
+router.post('/2fa/disable', async (req, res) => {
+  try {
+    const { username, password } = req.body || {}
+    const cleanUsername = (username || '').replace(/^@/, '').trim().toLowerCase()
+
+    if (!cleanUsername || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'username y password son requeridos para desactivar 2FA.'
+      })
+    }
+
+    const user = await User.findOne({ username: cleanUsername })
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' })
+    }
+
+    // Validar contraseña
+    const isMatch = await bcrypt.compare(password, user.password)
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Contraseña incorrecta. No se pudo desactivar 2FA.'
+      })
+    }
+
+    user.twoFactorEnabled = false
+    user.twoFactorSecret = ''
+    user.twoFactorBackupCodes = []
+    await user.save()
+
+    return res.status(200).json({
+      success: true,
+      message: 'Autenticación en Dos Pasos desactivada.',
+      twoFactorEnabled: false
+    })
+  } catch (error) {
+    console.error('Error en /2fa/disable:', error.message)
+    res.status(500).json({ success: false, message: 'Error al desactivar 2FA' })
   }
 })
 

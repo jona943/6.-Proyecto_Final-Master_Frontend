@@ -25,6 +25,7 @@ export function useAuthForm({ initialTab = 'login', onLoginSuccess } = {}) {
   const [loginPassword, setLoginPassword] = useState('')
   const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
+  const [twoFactorChallenge, setTwoFactorChallenge] = useState(null)
 
   // Estados de Registro con lectura de alias pre-llenado desde Landing
   const [regUsername, setRegUsername] = useState(() => {
@@ -95,7 +96,14 @@ export function useAuthForm({ initialTab = 'login', onLoginSuccess } = {}) {
     setAlertInfo(null)
 
     try {
-      await login(loginUsername, loginPassword)
+      const res = await login(loginUsername, loginPassword)
+      if (res?.requires2FA) {
+        setTwoFactorChallenge({
+          tempToken: res.tempToken,
+          username: res.username
+        })
+        return
+      }
       if (onLoginSuccess) {
         onLoginSuccess()
       }
@@ -107,6 +115,33 @@ export function useAuthForm({ initialTab = 'login', onLoginSuccess } = {}) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // 1.1 Envío del segundo factor (TOTP / Backup Code)
+  const handle2FASubmit = async (code) => {
+    if (!twoFactorChallenge) return
+    setIsLoading(true)
+    setAlertInfo(null)
+
+    try {
+      const { login2FA } = useAuthStore.getState()
+      await login2FA(twoFactorChallenge.tempToken, code)
+      if (onLoginSuccess) {
+        onLoginSuccess()
+      }
+    } catch (err) {
+      setAlertInfo({
+        type: 'error',
+        text: err.message || 'Código de autenticación incorrecto.'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const cancel2FA = () => {
+    setTwoFactorChallenge(null)
+    setAlertInfo(null)
   }
 
   // 2. Envío de Registro con Zod
@@ -206,6 +241,9 @@ export function useAuthForm({ initialTab = 'login', onLoginSuccess } = {}) {
     setRememberMe,
     handleLoginSubmit,
     loadDemoUser,
+    twoFactorChallenge,
+    handle2FASubmit,
+    cancel2FA,
     // Register
     regUsername,
     setRegUsername,

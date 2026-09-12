@@ -1,10 +1,18 @@
+import { useState, useEffect } from 'react'
 import {
   IconSmartphone,
-  IconLaptop
+  IconLaptop,
+  IconShield,
+  IconCheckCircle,
+  IconAlertCircle
 } from '../../../../components/icons/Icons'
+import { authService } from '../../../../services/authService'
+import TwoFactorModal from './TwoFactorModal'
 import './PrivacySecurityTab.css'
 
 function PrivacySecurityTab({
+  username,
+  showToast,
   privacy,
   onPrivacyToggle,
   passwords,
@@ -13,6 +21,21 @@ function PrivacySecurityTab({
   sessions,
   onCloseSession
 }) {
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
+  const [isTwoFactorModalOpen, setIsTwoFactorModalOpen] = useState(false)
+  const [loading2FA, setLoading2FA] = useState(true)
+
+  useEffect(() => {
+    if (username) {
+      authService
+        .get2FAStatus(username)
+        .then((data) => {
+          setTwoFactorEnabled(Boolean(data?.twoFactorEnabled))
+        })
+        .catch(() => {})
+        .finally(() => setLoading2FA(false))
+    }
+  }, [username])
   return (
     <div className="tab-content-area">
       {/* 1. Privacidad de Lectura y Conexión */}
@@ -129,7 +152,62 @@ function PrivacySecurityTab({
         </form>
       </section>
 
-      {/* 3. Sesiones Activas */}
+      {/* 3. Autenticación en Dos Pasos (2FA TOTP) */}
+      <section className="settings-section-card" style={{ border: twoFactorEnabled ? '1px solid rgba(212, 255, 0, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <div className="section-card-header">
+          <div className="section-title-group">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.2rem' }}>
+              <span style={{ color: twoFactorEnabled ? 'var(--accent-acid, #d4ff00)' : 'var(--text-muted, #94a3b8)', display: 'flex' }}>
+                <IconShield size={18} />
+              </span>
+              <h3 style={{ margin: 0 }}>Autenticación en Dos Pasos (2FA TOTP)</h3>
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: '12px',
+                  background: twoFactorEnabled ? 'rgba(212, 255, 0, 0.15)' : 'rgba(255, 255, 255, 0.08)',
+                  color: twoFactorEnabled ? 'var(--accent-acid, #d4ff00)' : 'var(--text-muted, #94a3b8)',
+                  border: `1px solid ${twoFactorEnabled ? 'rgba(212, 255, 0, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`
+                }}
+              >
+                {twoFactorEnabled ? '● Activado' : '○ Desactivado'}
+              </span>
+            </div>
+            <p>
+              Protección criptográfica adicional compatible con Google Authenticator, Aegis, Ente o 1Password. <strong>Cero uso de número telefónico o correo electrónico</strong> para garantizar tu privacidad total.
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem' }}>
+          <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary, #94a3b8)', maxWidth: '480px', lineHeight: 1.45 }}>
+            {twoFactorEnabled
+              ? 'Tu cuenta requiere un código dinámico de 6 dígitos cada vez que inicias sesión en un nuevo equipo.'
+              : 'Al activar 2FA, un atacante no podrá ingresar a tu cuenta incluso si conoce tu contraseña.'}
+          </div>
+
+          <button
+            type="button"
+            className={twoFactorEnabled ? 'btn-danger-outline' : 'btn-primary'}
+            onClick={() => setIsTwoFactorModalOpen(true)}
+            style={{
+              padding: '0.55rem 1.25rem',
+              fontSize: '0.84rem',
+              fontWeight: 600,
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            {twoFactorEnabled ? 'Desactivar 2FA' : 'Configurar 2FA con Authenticator'}
+          </button>
+        </div>
+      </section>
+
+      {/* 4. Sesiones Activas */}
       <section className="settings-section-card">
         <div className="section-card-header">
           <div className="section-title-group">
@@ -175,6 +253,15 @@ function PrivacySecurityTab({
           ))}
         </div>
       </section>
+
+      <TwoFactorModal
+        isOpen={isTwoFactorModalOpen}
+        onClose={() => setIsTwoFactorModalOpen(false)}
+        username={username}
+        isEnabled={twoFactorEnabled}
+        onStatusChange={(newStatus) => setTwoFactorEnabled(newStatus)}
+        showToast={showToast}
+      />
     </div>
   )
 }

@@ -234,6 +234,8 @@ function ProfileSettings() {
 
         {activeTab === 'privacy' && (
           <PrivacySecurityTab
+            username={activeHandle}
+            showToast={showToast}
             privacy={privacy}
             onPrivacyToggle={(key, val) => setPrivacy({ ...privacy, [key]: val })}
             passwords={passwords}

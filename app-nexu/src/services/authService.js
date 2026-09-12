@@ -208,6 +208,14 @@ export const authService = {
       })
 
       if (response.success) {
+        if (response.data?.requires2FA) {
+          return {
+            requires2FA: true,
+            tempToken: response.data.tempToken,
+            username: response.data.username
+          }
+        }
+
         const payload = response.data?.data
         const userData = payload?.user || payload || {}
 
@@ -521,5 +529,71 @@ export const authService = {
     const updated = current.filter((s) => s.id !== sessionId)
     storage.set(STORAGE_KEYS.sessionsKey(clean), updated)
     return updated
+  },
+
+  /**
+   * Verificar segundo factor TOTP o código de respaldo en inicio de sesión
+   */
+  async login2FA(tempToken, code) {
+    const response = await api.post('/auth/login-2fa', { tempToken, code })
+    if (!response.success) {
+      throw new Error(response.error || 'Código incorrecto.')
+    }
+    const payload = response.data?.data
+    const sessionData = {
+      id: payload?.id || `usr_${Date.now()}`,
+      username: payload?.username,
+      displayName: payload?.displayName || `@${payload?.username}`,
+      role: payload?.role || 'Usuario Nexu',
+      email: `${payload?.username}@nexu.app`,
+      avatarUrl: payload?.avatarUrl || null,
+      token: payload?.token
+    }
+
+    storage.set(STORAGE_KEYS.ACTIVE_USER, {
+      id: sessionData.id,
+      username: sessionData.username,
+      token: sessionData.token
+    })
+    return sessionData
+  },
+
+  /**
+   * Consultar si el usuario tiene 2FA activado
+   */
+  async get2FAStatus(username) {
+    const clean = (username || '').replace(/^@/, '').trim().toLowerCase()
+    const res = await api.get(`/user/2fa/status?username=${encodeURIComponent(clean)}`)
+    return res.data || { twoFactorEnabled: false }
+  },
+
+  /**
+   * Iniciar configuración de 2FA (Genera QR y secreto)
+   */
+  async setup2FA(username) {
+    const clean = (username || '').replace(/^@/, '').trim().toLowerCase()
+    const res = await api.post('/user/2fa/setup', { username: clean })
+    if (!res.success) throw new Error(res.error || 'Error al iniciar 2FA')
+    return res.data
+  },
+
+  /**
+   * Confirmar y activar 2FA
+   */
+  async enable2FA(username, secret, code) {
+    const clean = (username || '').replace(/^@/, '').trim().toLowerCase()
+    const res = await api.post('/user/2fa/enable', { username: clean, secret, code })
+    if (!res.success) throw new Error(res.error || 'Código inválido.')
+    return res.data
+  },
+
+  /**
+   * Desactivar 2FA previa validación de contraseña
+   */
+  async disable2FA(username, password) {
+    const clean = (username || '').replace(/^@/, '').trim().toLowerCase()
+    const res = await api.post('/user/2fa/disable', { username: clean, password })
+    if (!res.success) throw new Error(res.error || 'No se pudo desactivar 2FA.')
+    return res.data
   }
 }

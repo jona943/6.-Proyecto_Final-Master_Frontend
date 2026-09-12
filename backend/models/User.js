@@ -43,6 +43,18 @@ const userSchema = new mongoose.Schema(
     lastActive: {
       type: Date,
       default: Date.now
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false
+    },
+    twoFactorSecret: {
+      type: String,
+      default: ''
+    },
+    twoFactorBackupCodes: {
+      type: [String],
+      default: []
     }
   },
   {

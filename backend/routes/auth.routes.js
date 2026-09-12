@@ -2,6 +2,7 @@ import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
+import { verifyTotp } from '../utils/totp.js'
 
 const router = Router()
 
@@ -160,7 +161,23 @@ router.post('/login', async (req, res) => {
       })
     }
 
-    // 3. Emitir Token JWT de sesión
+    // 3. Si el usuario tiene 2FA (Doble Factor) activado, emitir tempToken de verificación
+    if (user.twoFactorEnabled) {
+      const tempToken = jwt.sign(
+        { id: user._id, username: user.username, pending2FA: true },
+        process.env.JWT_SECRET || 'nexu_secret_default',
+        { expiresIn: '5m' }
+      )
+
+      return res.status(200).json({
+        success: true,
+        requires2FA: true,
+        tempToken,
+        username: user.username
+      })
+    }
+
+    // 4. Emitir Token JWT de sesión completa si no tiene 2FA
     const token = jwt.sign(
       { id: user._id, username: user.username },
       process.env.JWT_SECRET || 'nexu_secret_default',
@@ -183,6 +200,111 @@ router.post('/login', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error en el servidor al autenticar.'
+    })
+  }
+})
+
+/**
+ * POST /api/auth/login-2fa
+ * Verificación del segundo factor (código TOTP de 6 dígitos o código de respaldo)
+ */
+router.post('/login-2fa', async (req, res) => {
+  try {
+    const { tempToken, code } = req.body || {}
+
+    if (!tempToken || !code) {
+      return res.status(400).json({
+        success: false,
+        message: 'tempToken y código son requeridos.'
+      })
+    }
+
+    // 1. Verificar firma y vigencia del tempToken (5 minutos)
+    let decoded
+    try {
+      decoded = jwt.verify(tempToken, process.env.JWT_SECRET || 'nexu_secret_default')
+    } catch {
+      return res.status(401).json({
+        success: false,
+        message: 'La sesión temporal de verificación ha expirado. Inicia sesión nuevamente.'
+      })
+    }
+
+    if (!decoded || !decoded.username || !decoded.pending2FA) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token temporal no válido.'
+      })
+    }
+
+    // 2. Buscar usuario en base de datos
+    const user = await User.findOne({ username: decoded.username })
+    if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
+      return res.status(400).json({
+        success: false,
+        message: 'El usuario no tiene autenticación de dos factores configurada.'
+      })
+    }
+
+    const cleanCode = code.toString().trim()
+    let isValid = false
+    let usedBackupCode = false
+
+    // 3. Probar si es un código dinámico TOTP de 6 dígitos
+    if (/^\d{6}$/.test(cleanCode)) {
+      isValid = verifyTotp(cleanCode, user.twoFactorSecret)
+    }
+
+    // 4. Si no fue válido como TOTP, verificar si coincide con un Código de Respaldo de Emergencia
+    if (!isValid && user.twoFactorBackupCodes && Array.isArray(user.twoFactorBackupCodes)) {
+      const normalizedInput = cleanCode.toUpperCase()
+      const codeIndex = user.twoFactorBackupCodes.findIndex(
+        (c) => c.toUpperCase() === normalizedInput
+      )
+
+      if (codeIndex !== -1) {
+        isValid = true
+        usedBackupCode = true
+        // Consumir el código de respaldo (son de un solo uso)
+        user.twoFactorBackupCodes.splice(codeIndex, 1)
+        await user.save()
+      }
+    }
+
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Código de autenticación o de respaldo incorrecto.'
+      })
+    }
+
+    // 5. Emitir Token JWT final de sesión (7 días)
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET || 'nexu_secret_default',
+      { expiresIn: '7d' }
+    )
+
+    return res.status(200).json({
+      success: true,
+      message: usedBackupCode
+        ? 'Acceso concedido mediante código de respaldo de emergencia.'
+        : 'Autenticación en dos pasos exitosa.',
+      usedBackupCode,
+      remainingBackupCodes: user.twoFactorBackupCodes?.length || 0,
+      data: {
+        username: user.username,
+        displayName: user.displayName || user.username,
+        role: user.role || 'user',
+        avatarUrl: user.avatarUrl || null,
+        token
+      }
+    })
+  } catch (error) {
+    console.error('Error en /login-2fa:', error.message)
+    res.status(500).json({
+      success: false,
+      message: 'Error en el servidor al verificar segundo factor.'
     })
   }
 })

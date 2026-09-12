@@ -23,7 +23,21 @@ export const useAuthStore = create((set, get) => ({
   login: async (username, password) => {
     set({ isLoading: true })
     try {
-      const loggedUser = await authService.login(username, password)
+      const res = await authService.login(username, password)
+      if (res?.requires2FA) {
+        return res
+      }
+      set({ user: res, isAuthenticated: true })
+      return res
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  login2FA: async (tempToken, code) => {
+    set({ isLoading: true })
+    try {
+      const loggedUser = await authService.login2FA(tempToken, code)
       set({ user: loggedUser, isAuthenticated: true })
       return loggedUser
     } finally {

@@ -12,6 +12,7 @@ import {
 import LoginForm from './components/LoginForm'
 import RegisterForm from './components/RegisterForm'
 import ForgotPasswordForm from './components/ForgotPasswordForm'
+import TwoFactorLoginForm from './components/TwoFactorLoginForm'
 
 // ============================================================================
 // COMPONENTE PRINCIPAL: LOGIN & AUTENTICACIÓN (USANDO CUSTOM HOOK useAuthForm)
@@ -31,6 +32,9 @@ function Login({ initialTab = 'login' }) {
     setRememberMe,
     handleLoginSubmit,
     loadDemoUser,
+    twoFactorChallenge,
+    handle2FASubmit,
+    cancel2FA,
     regUsername,
     setRegUsername,
     regPassword,
@@ -71,7 +75,7 @@ function Login({ initialTab = 'login' }) {
       <main className="auth-main-wrapper">
         <div className="auth-card">
           {/* Tabs */}
-          {activeTab !== 'forgot' && (
+          {activeTab !== 'forgot' && !twoFactorChallenge && (
             <div className="auth-tabs">
               <button
                 type="button"
@@ -105,65 +109,77 @@ function Login({ initialTab = 'login' }) {
             </div>
           )}
 
-          {/* Form Login */}
-          {activeTab === 'login' && (
-            <LoginForm
-              loginUsername={loginUsername}
-              onUsernameChange={(val) => handleUsernameInput(val, setLoginUsername, 'loginUsername')}
-              loginPassword={loginPassword}
-              onPasswordChange={(val) => {
-                setLoginPassword(val)
-                if (formErrors.loginPassword) setFormErrors({ ...formErrors, loginPassword: null })
-              }}
-              showLoginPassword={showLoginPassword}
-              onToggleShowPassword={() => setShowLoginPassword(!showLoginPassword)}
-              rememberMe={rememberMe}
-              onRememberMeChange={setRememberMe}
-              formErrors={formErrors}
+          {/* Reto 2FA */}
+          {twoFactorChallenge ? (
+            <TwoFactorLoginForm
+              username={twoFactorChallenge.username}
               isLoading={isLoading}
-              onSubmit={handleLoginSubmit}
-              onForgotPasswordClick={() => switchTab('forgot')}
-              onLoadDemoUser={loadDemoUser}
+              onSubmit2FA={handle2FASubmit}
+              onCancel={cancel2FA}
             />
-          )}
+          ) : (
+            <>
+              {/* Form Login */}
+              {activeTab === 'login' && (
+                <LoginForm
+                  loginUsername={loginUsername}
+                  onUsernameChange={(val) => handleUsernameInput(val, setLoginUsername, 'loginUsername')}
+                  loginPassword={loginPassword}
+                  onPasswordChange={(val) => {
+                    setLoginPassword(val)
+                    if (formErrors.loginPassword) setFormErrors({ ...formErrors, loginPassword: null })
+                  }}
+                  showLoginPassword={showLoginPassword}
+                  onToggleShowPassword={() => setShowLoginPassword(!showLoginPassword)}
+                  rememberMe={rememberMe}
+                  onRememberMeChange={setRememberMe}
+                  formErrors={formErrors}
+                  isLoading={isLoading}
+                  onSubmit={handleLoginSubmit}
+                  onForgotPasswordClick={() => switchTab('forgot')}
+                  onLoadDemoUser={loadDemoUser}
+                />
+              )}
 
-          {/* Form Registro */}
-          {activeTab === 'register' && (
-            <RegisterForm
-              regUsername={regUsername}
-              onUsernameChange={(val) => handleUsernameInput(val, setRegUsername, 'regUsername')}
-              regPassword={regPassword}
-              onPasswordChange={(val) => {
-                setRegPassword(val)
-                if (formErrors.regPassword) setFormErrors({ ...formErrors, regPassword: null })
-              }}
-              regConfirmPassword={regConfirmPassword}
-              onConfirmPasswordChange={(val) => {
-                setRegConfirmPassword(val)
-                if (formErrors.regConfirmPassword) setFormErrors({ ...formErrors, regConfirmPassword: null })
-              }}
-              showRegPassword={showRegPassword}
-              onToggleShowPassword={() => setShowRegPassword(!showRegPassword)}
-              passwordStrength={passwordStrength}
-              formErrors={formErrors}
-              isLoading={isLoading}
-              onSubmit={handleRegisterSubmit}
-            />
-          )}
+              {/* Form Registro */}
+              {activeTab === 'register' && (
+                <RegisterForm
+                  regUsername={regUsername}
+                  onUsernameChange={(val) => handleUsernameInput(val, setRegUsername, 'regUsername')}
+                  regPassword={regPassword}
+                  onPasswordChange={(val) => {
+                    setRegPassword(val)
+                    if (formErrors.regPassword) setFormErrors({ ...formErrors, regPassword: null })
+                  }}
+                  regConfirmPassword={regConfirmPassword}
+                  onConfirmPasswordChange={(val) => {
+                    setRegConfirmPassword(val)
+                    if (formErrors.regConfirmPassword) setFormErrors({ ...formErrors, regConfirmPassword: null })
+                  }}
+                  showRegPassword={showRegPassword}
+                  onToggleShowPassword={() => setShowRegPassword(!showRegPassword)}
+                  passwordStrength={passwordStrength}
+                  formErrors={formErrors}
+                  isLoading={isLoading}
+                  onSubmit={handleRegisterSubmit}
+                />
+              )}
 
-          {/* Form Recuperar */}
-          {activeTab === 'forgot' && (
-            <ForgotPasswordForm
-              forgotUsername={forgotUsername}
-              onUsernameChange={(val) => {
-                setForgotUsername(val)
-                if (formErrors.forgotUsername) setFormErrors({ ...formErrors, forgotUsername: null })
-              }}
-              formErrors={formErrors}
-              isLoading={isLoading}
-              onSubmit={handleForgotSubmit}
-              onBackToLogin={() => switchTab('login')}
-            />
+              {/* Form Recuperar */}
+              {activeTab === 'forgot' && (
+                <ForgotPasswordForm
+                  forgotUsername={forgotUsername}
+                  onUsernameChange={(val) => {
+                    setForgotUsername(val)
+                    if (formErrors.forgotUsername) setFormErrors({ ...formErrors, forgotUsername: null })
+                  }}
+                  formErrors={formErrors}
+                  isLoading={isLoading}
+                  onSubmit={handleForgotSubmit}
+                  onBackToLogin={() => switchTab('login')}
+                />
+              )}
+            </>
           )}
         </div>
       </main>
