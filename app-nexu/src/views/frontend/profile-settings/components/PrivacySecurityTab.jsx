@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react'
 import {
   IconSmartphone,
   IconLaptop,
-  IconShield,
-  IconCheckCircle,
-  IconAlertCircle
+  IconShield
 } from '../../../../components/icons/Icons'
 import { authService } from '../../../../services/authService'
 import TwoFactorModal from './TwoFactorModal'
@@ -23,7 +21,6 @@ function PrivacySecurityTab({
 }) {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
   const [isTwoFactorModalOpen, setIsTwoFactorModalOpen] = useState(false)
-  const [loading2FA, setLoading2FA] = useState(true)
 
   useEffect(() => {
     if (username) {
@@ -33,7 +30,6 @@ function PrivacySecurityTab({
           setTwoFactorEnabled(Boolean(data?.twoFactorEnabled))
         })
         .catch(() => {})
-        .finally(() => setLoading2FA(false))
     }
   }, [username])
   return (

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { chatService } from '../services/chatService'
 import { soundService } from '../services/soundService'
 import { useChatUIStore } from '../store/useChatUIStore'
@@ -52,7 +52,7 @@ const decryptData = (encodedData) => {
       decrypted += String.fromCharCode(decoded.charCodeAt(i) ^ ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length));
     }
     return JSON.parse(decrypted);
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -191,7 +191,7 @@ export function useChats(currentUsername) {
       }
       queryClient.setQueryData(['requests', cleanUsername], requestsSync)
 
-      const { incomingRequests: serverReqs, acceptedUsers, messages: serverMsgs } = syncData
+      const { acceptedUsers, messages: serverMsgs } = syncData
 
       // Sincronización delegada a requestsSync
 

@@ -2,9 +2,6 @@ import React, { useRef } from 'react'
 import {
   IconCamera,
   IconCheck,
-  AvatarNeutral,
-  AvatarFemale,
-  AvatarMale,
   renderAvatarBadge
 } from '../../../../components/icons/Icons'
 import './GeneralProfileTab.css'
@@ -12,12 +9,9 @@ import './GeneralProfileTab.css'
 function GeneralProfileTab({
   profile,
   userInitials,
-  isRosi,
-  onOpenAvatarModal,
   onGenderChange,
   onPresenceChange,
   onProfileChange,
-  onUsernameChange,
   onSaveProfile
 }) {
   const fileInputRef = useRef(null)

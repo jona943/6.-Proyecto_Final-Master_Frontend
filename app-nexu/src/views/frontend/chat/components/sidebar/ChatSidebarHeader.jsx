@@ -1,13 +1,10 @@
 import React, { memo } from 'react'
-import { IconUserPlus, IconMenu, IconInfo, AvatarFemale, AvatarMale, AvatarNeutral } from '../../../../../components/icons/Icons'
+import { IconUserPlus, IconMenu, AvatarFemale, AvatarMale, AvatarNeutral } from '../../../../../components/icons/Icons'
 
 const ChatSidebarHeader = ({
   currentUser,
-  presenceStatus,
   onOpenConnectModal,
-  onOpenSettings,
-  onToggleDetailsPanel,
-  showDetailsPanel
+  onOpenSettings
 }) => {
   return (
     <header className="chat-user-header">

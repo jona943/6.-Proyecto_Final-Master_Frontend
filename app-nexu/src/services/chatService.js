@@ -303,13 +303,13 @@ export const chatService = {
     return { updatedRecipientChats, updatedReqs: [], newChatId: newChatForRecipient.id }
   },
 
-  async rejectConnectionRequest(reqId, recipientUsername) {
+  async rejectConnectionRequest(reqId) {
     try {
       await api.post('/chats/reject', { reqId })
     } catch {
       // Backend inaccesible
     }
-    return [] // Retornar vacío obliga al contexto a limpiar o actualizar en base a la RAM
+    return [] // Retornar vacio obliga al contexto a limpiar o actualizar en base a la RAM
   },
 
   async cancelConnectionRequest(reqId, currentUsername, targetUsername) {

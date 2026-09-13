@@ -32,14 +32,12 @@ function ChatHome() {
     sendRequest,
     cancelRequest,
     isTyping,
-    presenceStatus,
     incomingRequests,
     outgoingRequests,
     acceptRequest,
     rejectRequest,
     blockUser,
     deleteConversation,
-    clearCurrentChat,
     clearChatById,
     toggleFavorite,
     toggleRead
@@ -51,7 +49,6 @@ function ChatHome() {
   const [showDetailsPanel, setShowDetailsPanel] = useState(false)
   const [mobileView, setMobileView] = useState('list') // 'list' | 'chat'
   const [toastMessage, setToastMessage] = useState('')
-  const [customPresence, setCustomPresence] = useState(presenceStatus || 'online')
 
   // Estado para el modal de conectar con nuevo usuario
   const [showConnectModal, setShowConnectModal] = useState(false)
@@ -123,17 +120,6 @@ function ChatHome() {
 
     sendMessage(inputText, attachment)
     setInputText('')
-  }
-
-  // Cambiar presencia de forma interactiva
-  const handleSelectPresence = (newStatus) => {
-    setCustomPresence(newStatus)
-    const labels = {
-      online: 'En línea',
-      away: 'Ausente',
-      dnd: 'No molestar'
-    }
-    triggerToast(`Estado actualizado: ${labels[newStatus] || newStatus}`)
   }
 
   // Copiar enlace de invitación con formateador
@@ -317,12 +303,8 @@ function ChatHome() {
           avatarType: user?.avatarType || 'neutral',
           avatarUrl: user?.avatarUrl || null
         }}
-        presenceStatus={customPresence || presenceStatus}
-        onSelectPresence={handleSelectPresence}
         onOpenSettings={() => navigate('/settings')}
         onOpenConnectModal={() => setShowConnectModal(true)}
-        onToggleDetailsPanel={() => setShowDetailsPanel(!showDetailsPanel)}
-        showDetailsPanel={showDetailsPanel}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         activeFilter={activeFilter}

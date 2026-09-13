@@ -1,4 +1,4 @@
-import { IconVolume2, IconVolumeX } from '../../../../components/icons/Icons'
+import { IconVolume2 } from '../../../../components/icons/Icons'
 import './SoundPermissionPrompt.css'
 
 function SoundPermissionPrompt({ onEnable, onMute }) {

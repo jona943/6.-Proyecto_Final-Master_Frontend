@@ -4,7 +4,6 @@ import './ProfileSettings.css'
 import { useAuthStore } from '../../../store/useAuthStore'
 import { authService } from '../../../services/authService'
 import { cleanHandle, getInitials } from '../../../utils/formatters'
-import { sanitizeAlias } from '../../../utils/validators'
 import { playNotificationChime } from '../../../utils/audio'
 
 import ProfileHeaderCard from './components/ProfileHeaderCard'
@@ -22,7 +21,6 @@ function ProfileSettings() {
   const navigate = useNavigate()
   const { user, updateProfile, changePassword, logout } = useAuthStore()
   const activeHandle = cleanHandle(user?.username || 'adminUser')
-  const isRosi = activeHandle === 'rosi_master'
 
   const handleLogout = async () => {
     await logout()
@@ -125,11 +123,6 @@ function ProfileSettings() {
     setProfile((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleUsernameChange = (e) => {
-    const clean = sanitizeAlias(e.target.value)
-    setProfile((prev) => ({ ...prev, username: clean }))
-  }
-
   const handleGenderChange = (newGender) => {
     setProfile((prev) => {
       let suggestedAvatar = prev.avatarType
@@ -202,12 +195,9 @@ function ProfileSettings() {
           <GeneralProfileTab
             profile={profile}
             userInitials={userInitials}
-            isRosi={isRosi}
-            onOpenAvatarModal={() => setIsAvatarModalOpen(true)}
             onGenderChange={handleGenderChange}
             onPresenceChange={(presence) => setProfile({ ...profile, presence })}
             onProfileChange={handleProfileChange}
-            onUsernameChange={handleUsernameChange}
             onSaveProfile={handleSaveProfile}
           />
         )}

@@ -15,7 +15,6 @@ const ChatSidebar = ({
   searchQuery,
   activeFilter,
   activeChatId,
-  presenceStatus,
   incomingRequests,
   outgoingRequests,
   onCancelRequest,
@@ -28,8 +27,6 @@ const ChatSidebar = ({
   onAcceptRequest,
   onRejectRequest,
   onBlockUser,
-  onToggleDetailsPanel,
-  showDetailsPanel,
   onToggleFavorite,
   onToggleRead,
   onClearMessages,
@@ -40,11 +37,8 @@ const ChatSidebar = ({
       {/* 1. Cabecera y Perfil */}
       <ChatSidebarHeader 
         currentUser={currentUser}
-        presenceStatus={presenceStatus}
         onOpenConnectModal={onOpenConnectModal}
         onOpenSettings={onOpenSettings}
-        onToggleDetailsPanel={onToggleDetailsPanel}
-        showDetailsPanel={showDetailsPanel}
       />
 
       {/* 2. Buscador y Filtros */}
