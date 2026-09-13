@@ -382,6 +382,11 @@
   display: block;
 }
 
+.msg-avatar-tiny.system-avatar {
+  background: linear-gradient(135deg, rgba(212, 255, 0, 0.15), var(--bg-surface-elevated, #16191f));
+  border-color: rgba(212, 255, 0, 0.35);
+}
+
 .message-bubble-wrapper {
   position: relative;
   display: flex;

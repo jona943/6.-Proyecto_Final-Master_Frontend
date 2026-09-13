@@ -228,6 +228,19 @@ function ActiveChatFeed({
                 data-date-label={currentDateContext.label}
                 data-is-old={currentDateContext.isOld ? 'true' : 'false'}
               >
+                {!isMe && (
+                  <div
+                    className={`msg-avatar-tiny ${activeChat?.isBot ? 'system-avatar' : ''}`}
+                    title={activeChat?.name || 'Contacto'}
+                  >
+                    {activeChat?.avatarUrl ? (
+                      <img src={activeChat.avatarUrl} alt={activeChat.name || 'Avatar'} />
+                    ) : (
+                      activeChat?.avatar || '?'
+                    )}
+                  </div>
+                )}
+
                 <div className="message-bubble-wrapper">
                   <div className="message-actions-overlay">
                     <button
