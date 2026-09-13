@@ -44,9 +44,9 @@ function ActiveChatPanel({
   if (!activeChat) return null
 
   // Calcular número de coincidencias en la conversación activa
-  const matchCount = searchQuery.trim()
+  const matchCount = searchQuery.trim() && Array.isArray(activeChat.messages)
     ? activeChat.messages.filter((m) =>
-        m.text.toLowerCase().includes(searchQuery.toLowerCase().trim())
+        m.text?.toLowerCase().includes(searchQuery.toLowerCase().trim())
       ).length
     : 0
 
