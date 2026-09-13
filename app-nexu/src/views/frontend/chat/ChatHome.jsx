@@ -342,8 +342,6 @@ function ChatHome() {
           onSendConnectionRequest={handleSendConnectionRequest}
           onAcceptRequest={handleAcceptRequest}
           onRejectRequest={handleRejectRequest}
-          soundEnabled={soundEnabled}
-          onToggleSound={handleToggleSound}
           messagesEndRef={messagesEndRef}
         />
       ) : (
@@ -360,6 +358,8 @@ function ChatHome() {
           onClose={() => setShowDetailsPanel(false)}
           onClearChat={() => handleRequestClearChat(activeChat)}
           onDeleteConversation={(chatId) => handleRequestDeleteContact(chatId)}
+          soundEnabled={soundEnabled}
+          onToggleSound={handleToggleSound}
         />
       )}
 

@@ -1,4 +1,4 @@
-import { IconArrowLeft, IconSearch, IconInfo, IconX, IconVolume2, IconVolumeX, IconBot } from '../../../../components/icons/Icons'
+import { IconArrowLeft, IconSearch, IconInfo, IconX, IconBot } from '../../../../components/icons/Icons'
 
 function ActiveChatHeader({
   activeChat,
@@ -11,9 +11,7 @@ function ActiveChatHeader({
   matchCount,
   searchInputRef,
   onBackToList,
-  onToggleDetails,
-  soundEnabled,
-  onToggleSound
+  onToggleDetails
 }) {
   return (
     <>
@@ -73,17 +71,7 @@ function ActiveChatHeader({
             title="Buscar mensajes en esta conversación"
             type="button"
           >
-            <IconSearch size={16} />
-          </button>
-
-          {/* Botón Silenciar / Activar Sonidos */}
-          <button
-            className={`btn-chat-action ${soundEnabled ? 'active' : ''}`}
-            onClick={onToggleSound}
-            title={soundEnabled ? 'Silenciar sonidos de mensajes' : 'Activar sonidos de mensajes'}
-            type="button"
-          >
-            {soundEnabled ? <IconVolume2 size={16} /> : <IconVolumeX size={16} />}
+            <IconSearch size={19} />
           </button>
 
           {/* Botón Detalles del Contacto */}
@@ -93,7 +81,7 @@ function ActiveChatHeader({
             title="Ver detalles del contacto"
             type="button"
           >
-            <IconInfo size={16} />
+            <IconInfo size={19} />
           </button>
         </div>
       </header>
@@ -102,28 +90,22 @@ function ActiveChatHeader({
       {isSearchOpen && (
         <div className="in-chat-search-bar">
           <div className="in-chat-search-input-wrapper">
-            <IconSearch size={14} />
+            <IconSearch size={16} />
             <input
               ref={searchInputRef}
               type="text"
               placeholder="Buscar en esta conversación..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                  setIsSearchOpen(false)
-                  setSearchQuery('')
-                }
-              }}
+              autoFocus
             />
             {searchQuery && (
               <button
-                type="button"
-                className="btn-clear-search-inchat"
+                className="btn-clear-in-search"
                 onClick={() => setSearchQuery('')}
-                title="Limpiar término"
+                type="button"
               >
-                <IconX size={12} />
+                <IconX size={16} />
               </button>
             )}
           </div>
