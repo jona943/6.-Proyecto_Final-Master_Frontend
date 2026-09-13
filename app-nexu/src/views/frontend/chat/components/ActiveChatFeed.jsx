@@ -72,6 +72,45 @@ function ActiveChatFeed({
       if (lower.includes('ayer')) return 'Ayer'
       return msg.date
     }
+
+    const rawDate = msg.createdAt || msg.timestamp
+    let msgDate = null
+
+    if (rawDate) {
+      msgDate = new Date(rawDate)
+    } else if (msg.id && typeof msg.id === 'string' && (msg.id.startsWith('msg_') || msg.id.startsWith('reply_'))) {
+      const parts = msg.id.split('_')
+      const num = parseInt(parts[parts.length - 1], 10)
+      if (!isNaN(num) && num > 1000000000000) {
+        msgDate = new Date(num)
+      }
+    }
+
+    if (msgDate && !isNaN(msgDate.getTime())) {
+      const today = new Date()
+      const isToday =
+        msgDate.getDate() === today.getDate() &&
+        msgDate.getMonth() === today.getMonth() &&
+        msgDate.getFullYear() === today.getFullYear()
+
+      if (isToday) return 'Hoy'
+
+      const yesterday = new Date(today)
+      yesterday.setDate(yesterday.getDate() - 1)
+      const isYesterday =
+        msgDate.getDate() === yesterday.getDate() &&
+        msgDate.getMonth() === yesterday.getMonth() &&
+        msgDate.getFullYear() === yesterday.getFullYear()
+
+      if (isYesterday) return 'Ayer'
+
+      return msgDate.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'short',
+        year: msgDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+      })
+    }
+
     return 'Hoy'
   }
 
