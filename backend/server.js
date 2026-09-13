@@ -71,6 +71,17 @@ app.use((req, res) => {
   })
 })
 
+// Manejador Global de Errores No Controlados (500)
+app.use((err, req, res, next) => {
+  console.error('[Nexu Server Error]:', err.stack || err.message)
+  const statusCode = err.statusCode || err.status || 500
+  res.status(statusCode).json({
+    success: false,
+    message: err.message || 'Ocurrió un error interno en el servidor Nexu.',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  })
+})
+
 // Iniciar Servidor en todas las interfaces de red (0.0.0.0)
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`=======================================================`)
