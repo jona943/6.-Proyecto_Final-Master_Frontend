@@ -1,4 +1,5 @@
-import { IconCheck, IconCheckCheck, IconSearch, IconCopy } from '../../../../components/icons/Icons'
+import { useState, useRef, useEffect } from 'react'
+import { IconCheck, IconCheckCheck, IconSearch, IconCopy, IconCalendar } from '../../../../components/icons/Icons'
 import ActiveChatAttachment from './ActiveChatAttachment'
 
 function ActiveChatFeed({
@@ -9,6 +10,61 @@ function ActiveChatFeed({
   messagesEndRef,
   onCopyMessage
 }) {
+  const containerRef = useRef(null)
+  const scrollTimeoutRef = useRef(null)
+  const [stickyDate, setStickyDate] = useState(null)
+  const [isScrolling, setIsScrolling] = useState(false)
+
+  // Limpiar indicador al cambiar de conversación activa
+  useEffect(() => {
+    setStickyDate(null)
+    setIsScrolling(false)
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current)
+    }
+  }, [activeChat?.id])
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const handleScroll = () => {
+    const container = containerRef.current
+    if (!container) return
+
+    setIsScrolling(true)
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current)
+    }
+
+    // Detectar el mensaje visible en la parte superior del contenedor
+    const containerRect = container.getBoundingClientRect()
+    const containerTopThreshold = containerRect.top + 45
+    const messageRows = container.querySelectorAll('.message-row')
+
+    let topDate = null
+    for (const row of messageRows) {
+      const rect = row.getBoundingClientRect()
+      if (rect.bottom >= containerTopThreshold) {
+        const isOld = row.getAttribute('data-is-old') === 'true'
+        const label = row.getAttribute('data-date-label')
+        if (isOld && label) {
+          topDate = label
+        }
+        break
+      }
+    }
+
+    setStickyDate(topDate)
+
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false)
+    }, 1600)
+  }
   const renderStatusIcon = (status) => {
     if (status === 'read') {
       return <span className="msg-status-icon read" title="Leído"><IconCheckCheck size={15} /></span>
@@ -65,12 +121,12 @@ function ActiveChatFeed({
     return elements.length > 0 ? elements : text
   }
 
-  const getMessageDateLabel = (msg) => {
+  const getMessageDateContext = (msg) => {
     if (msg.date) {
       const lower = msg.date.toLowerCase()
-      if (lower.includes('hoy')) return 'Hoy'
-      if (lower.includes('ayer')) return 'Ayer'
-      return msg.date
+      if (lower.includes('hoy')) return { label: 'Hoy', isToday: true, isOld: false }
+      if (lower.includes('ayer')) return { label: 'Ayer', isToday: false, isOld: true }
+      return { label: msg.date, isToday: false, isOld: true }
     }
 
     const rawDate = msg.createdAt || msg.timestamp
@@ -87,35 +143,51 @@ function ActiveChatFeed({
     }
 
     if (msgDate && !isNaN(msgDate.getTime())) {
-      const today = new Date()
-      const isToday =
-        msgDate.getDate() === today.getDate() &&
-        msgDate.getMonth() === today.getMonth() &&
-        msgDate.getFullYear() === today.getFullYear()
+      const now = new Date()
+      // Comparar por día calendario (sin horas)
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+      const msgMidnight = new Date(msgDate.getFullYear(), msgDate.getMonth(), msgDate.getDate()).getTime()
+      const diffDays = Math.round((todayMidnight - msgMidnight) / (1000 * 60 * 60 * 24))
 
-      if (isToday) return 'Hoy'
+      if (diffDays === 0) {
+        return { label: 'Hoy', isToday: true, isOld: false }
+      }
+      if (diffDays === 1) {
+        return { label: 'Ayer', isToday: false, isOld: true }
+      }
+      if (diffDays > 1 && diffDays < 7) {
+        // Día de la semana (Lunes, Martes, Miércoles...)
+        const weekday = msgDate.toLocaleDateString('es-ES', { weekday: 'long' })
+        const capitalized = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+        return { label: capitalized, isToday: false, isOld: true }
+      }
 
-      const yesterday = new Date(today)
-      yesterday.setDate(yesterday.getDate() - 1)
-      const isYesterday =
-        msgDate.getDate() === yesterday.getDate() &&
-        msgDate.getMonth() === yesterday.getMonth() &&
-        msgDate.getFullYear() === yesterday.getFullYear()
-
-      if (isYesterday) return 'Ayer'
-
-      return msgDate.toLocaleDateString('es-ES', {
+      // Más de una semana: fecha completa (ej. 15 sep, 12 may 2025)
+      const isSameYear = msgDate.getFullYear() === now.getFullYear()
+      const fullDate = msgDate.toLocaleDateString('es-ES', {
         day: 'numeric',
         month: 'short',
-        year: msgDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+        year: isSameYear ? undefined : 'numeric'
       })
+      const capitalized = fullDate.charAt(0).toUpperCase() + fullDate.slice(1)
+      return { label: capitalized, isToday: false, isOld: true }
     }
 
-    return 'Hoy'
+    return { label: 'Hoy', isToday: true, isOld: false }
   }
 
   return (
-    <div className="messages-container">
+    <div className="messages-container" ref={containerRef} onScroll={handleScroll}>
+      {/* Indicador flotante dinámico de fecha al desplazarse en mensajes antiguos */}
+      {stickyDate && (
+        <div className={`sticky-date-indicator ${isScrolling ? 'visible' : ''}`}>
+          <span>
+            <IconCalendar size={13} />
+            {stickyDate}
+          </span>
+        </div>
+      )}
+
       {searchQuery.trim() && matchCount === 0 && (
         <div className="in-chat-no-results-banner">
           <IconSearch size={18} />
@@ -136,16 +208,16 @@ function ActiveChatFeed({
             searchQuery.trim() &&
             msg.text && msg.text.toLowerCase().includes(searchQuery.toLowerCase().trim())
 
-          const currentDateLabel = getMessageDateLabel(msg)
+          const currentDateContext = getMessageDateContext(msg)
           const prevMessage = activeChat.messages[index - 1]
-          const prevDateLabel = prevMessage ? getMessageDateLabel(prevMessage) : null
-          const showDateDivider = currentDateLabel !== prevDateLabel
+          const prevDateContext = prevMessage ? getMessageDateContext(prevMessage) : null
+          const showDateDivider = currentDateContext.label !== prevDateContext?.label
 
           return (
             <div key={msg.id || `msg-${index}`} style={{ display: 'contents' }}>
               {showDateDivider && (
                 <div className="date-divider">
-                  <span>{currentDateLabel}</span>
+                  <span>{currentDateContext.label}</span>
                 </div>
               )}
 
@@ -153,6 +225,8 @@ function ActiveChatFeed({
                 className={`message-row ${isMe ? 'me outgoing' : 'them incoming'} ${
                   isMatching ? 'search-highlight-row' : ''
                 }`}
+                data-date-label={currentDateContext.label}
+                data-is-old={currentDateContext.isOld ? 'true' : 'false'}
               >
                 <div className="message-bubble-wrapper">
                   <div className="message-actions-overlay">
