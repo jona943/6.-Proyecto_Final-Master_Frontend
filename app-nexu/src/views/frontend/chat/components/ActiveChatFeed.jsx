@@ -103,15 +103,15 @@ function ActiveChatFeed({
           const showDateDivider = currentDateLabel !== prevDateLabel
 
           return (
-            <div key={msg.id || `msg-${index}`}>
+            <div key={msg.id || `msg-${index}`} style={{ display: 'contents' }}>
               {showDateDivider && (
-                <div className="chat-date-divider">
+                <div className="date-divider">
                   <span>{currentDateLabel}</span>
                 </div>
               )}
 
               <div
-                className={`message-row ${isMe ? 'outgoing' : 'incoming'} ${
+                className={`message-row ${isMe ? 'me outgoing' : 'them incoming'} ${
                   isMatching ? 'search-highlight-row' : ''
                 }`}
               >

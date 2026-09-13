@@ -31,6 +31,7 @@
   align-items: center;
   gap: 0.85rem;
   min-width: 0;
+  flex: 1;
 }
 
 .btn-mobile-back {
@@ -39,7 +40,16 @@
   border: none;
   color: var(--text-primary, #f4f5f7);
   cursor: pointer;
-  padding: 0.2rem;
+  padding: 0.4rem;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-mobile-back:hover {
+  background-color: var(--bg-surface-hover, #1e222a);
+  color: var(--accent-acid, #d4ff00);
 }
 
 .chat-header-title-box {
@@ -73,27 +83,7 @@
   font-weight: 600;
 }
 
-.status-dot-sm {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #27c93f;
-  display: inline-block;
-  flex-shrink: 0;
-}
 
-.status-dot-sm.away {
-  background-color: #ffbd2e;
-}
-
-.status-dot-sm.offline {
-  background-color: #555b68;
-}
-
-.status-dot-sm.dnd {
-  background-color: #ff5555;
-  box-shadow: 0 0 6px rgba(255, 85, 85, 0.7);
-}
 
 .chat-header-actions {
   display: flex;
@@ -281,23 +271,6 @@
   gap: 1rem;
 }
 
-/* Scrollbar Minimalista para el Chat */
-.messages-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.messages-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
-.messages-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 255, 0, 0.35);
-}
 
 .date-divider {
   display: flex;
@@ -331,10 +304,12 @@
 
 .message-row.them {
   align-self: flex-start;
+  margin-right: auto;
 }
 
 .message-row.me {
   align-self: flex-end;
+  margin-left: auto;
   flex-direction: row-reverse;
 }
 
@@ -473,23 +448,6 @@
   display: flex;
 }
 
-.btn-mobile-back {
-  display: flex;
-  background: transparent;
-  border: none;
-  color: var(--text-primary, #f4f5f7);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 8px;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.btn-mobile-back:hover {
-  background-color: var(--bg-surface-hover, #1e222a);
-  color: var(--accent-acid, #d4ff00);
-}
 
 .btn-msg-hover {
   background: transparent;

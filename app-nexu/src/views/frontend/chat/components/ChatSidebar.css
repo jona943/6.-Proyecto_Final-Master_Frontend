@@ -61,34 +61,6 @@
   border-color: rgba(212, 255, 0, 0.3);
 }
 
-.user-status-dot {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  border: 2px solid var(--bg-surface);
-}
-
-.user-status-dot.online {
-  background-color: var(--status-online);
-  box-shadow: 0 0 6px var(--status-online-glow);
-}
-
-.user-status-dot.away {
-  background-color: var(--status-away);
-  box-shadow: 0 0 6px var(--status-away-glow);
-}
-
-.user-status-dot.offline {
-  background-color: var(--status-offline);
-}
-
-.user-status-dot.dnd {
-  background-color: #ff5555;
-  box-shadow: 0 0 6px rgba(255, 85, 85, 0.7);
-}
 
 .user-header-left-box {
   display: flex;

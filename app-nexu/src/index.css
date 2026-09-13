@@ -181,30 +181,42 @@ body::-webkit-scrollbar {
   height: 0;
 }
 
-/* Scrollbars internos para componentes secundarios (Chat, Listas) */
-.custom-scroll::-webkit-scrollbar {
+/* Scrollbars internos para componentes secundarios (Chat, Listas, Paneles) */
+.custom-scroll::-webkit-scrollbar,
+.messages-container::-webkit-scrollbar,
+.chat-details-panel::-webkit-scrollbar,
+.chat-feed-scroll::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
-.custom-scroll::-webkit-scrollbar-track {
+.custom-scroll::-webkit-scrollbar-track,
+.messages-container::-webkit-scrollbar-track,
+.chat-details-panel::-webkit-scrollbar-track,
+.chat-feed-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.custom-scroll::-webkit-scrollbar-thumb {
-  background: var(--border-subtle);
+.custom-scroll::-webkit-scrollbar-thumb,
+.messages-container::-webkit-scrollbar-thumb,
+.chat-details-panel::-webkit-scrollbar-thumb,
+.chat-feed-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-full);
 }
 
-.custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--border-active);
+.custom-scroll::-webkit-scrollbar-thumb:hover,
+.messages-container::-webkit-scrollbar-thumb:hover,
+.chat-details-panel::-webkit-scrollbar-thumb:hover,
+.chat-feed-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 255, 0, 0.35);
 }
 
 /* ============================================================================
    PRIMITIVAS GLOBALES COMPARTIDAS
    ============================================================================ */
 
-/* Puntos de Estado de Presencia */
+/* Puntos de Estado de Presencia (Tokens Estandarizados) */
 .status-dot {
   width: 8px;
   height: 8px;
@@ -230,6 +242,118 @@ body::-webkit-scrollbar {
 
 .status-dot.offline {
   background-color: var(--status-offline);
+}
+
+/* Puntos de presencia pequeños (cabecera de chat) */
+.status-dot-sm {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--status-online);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot-sm.away { background-color: var(--status-away); }
+.status-dot-sm.offline { background-color: var(--status-offline); }
+.status-dot-sm.dnd { background-color: var(--status-dnd); box-shadow: 0 0 6px var(--status-dnd-glow); }
+
+/* Puntos de presencia sobre avatar (sidebar) */
+.user-status-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-surface);
+}
+
+.user-status-dot.online { background-color: var(--status-online); box-shadow: 0 0 6px var(--status-online-glow); }
+.user-status-dot.away { background-color: var(--status-away); box-shadow: 0 0 6px var(--status-away-glow); }
+.user-status-dot.offline { background-color: var(--status-offline); }
+.user-status-dot.dnd { background-color: var(--status-dnd); box-shadow: 0 0 6px var(--status-dnd-glow); }
+
+/* Modales Unificados (Backdrop & Diálogo) */
+.modal-backdrop-global,
+.confirm-modal-overlay,
+.connect-modal-backdrop,
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(5, 6, 8, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-box-global,
+.confirm-modal-box,
+.connect-modal-box,
+.modal-dialog-box {
+  background-color: var(--bg-surface-elevated, #16191f);
+  border: 1px solid var(--border-subtle, #1c2028);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 460px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  animation: modalScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Botón de Cierre 'X' Global */
+.btn-modal-close-global,
+.btn-modal-close,
+.btn-close-modal,
+.btn-close-inchat-search {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary, #7e8796);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-close-global:hover,
+.btn-modal-close:hover,
+.btn-close-modal:hover,
+.btn-close-inchat-search:hover {
+  background-color: var(--bg-surface-hover, #1e222a);
+  color: var(--text-primary, #f4f5f7);
+  border-color: var(--border-active, #2a303d);
+}
+
+/* Superficies de Input con Foco Neón Unificado */
+.input-surface,
+.search-input-wrapper,
+.in-chat-search-input-wrapper,
+.connect-input-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-canvas, #08090b);
+  border: 1px solid var(--border-subtle, #1c2028);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.input-surface:focus-within,
+.search-input-wrapper:focus-within,
+.in-chat-search-input-wrapper:focus-within,
+.connect-input-box:focus-within {
+  border-color: var(--accent-acid, #d4ff00);
+  box-shadow: 0 0 0 1px rgba(212, 255, 0, 0.2);
 }
 
 /* Badges de Avatar Neón Estandarizados */

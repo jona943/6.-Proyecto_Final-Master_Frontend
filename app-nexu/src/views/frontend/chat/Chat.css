@@ -76,23 +76,99 @@
   }
 
   .btn-mobile-back {
-    display: flex;
+    display: flex !important;
   }
 
+  /* Cabecera optimizada para pantallas táctiles */
+  .active-chat-header {
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .chat-header-actions {
+    gap: 0.25rem;
+  }
+
+  .btn-chat-action {
+    padding: 0.35rem 0.55rem;
+  }
+
+  /* Buscador interno dentro del chat */
+  .in-chat-search-bar {
+    padding: 0.5rem 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .in-chat-search-hint {
+    display: none;
+  }
+
+  /* Mensajes y Feed */
   .messages-container {
-    padding: 1rem;
+    padding: 0.85rem 1rem;
+    gap: 0.75rem;
   }
 
   .message-row {
     max-width: 88%;
   }
 
+  /* Barra de entrada y teclado táctil */
   .chat-input-footer {
-    padding: 0.85rem 1rem;
+    padding: 0.75rem 1rem;
+    gap: 0.45rem;
+  }
+
+  .toolbar-hint {
+    display: none;
+  }
+
+  .chat-toolbar {
+    margin-bottom: 0.15rem;
   }
 
   .chat-details-panel {
     width: 100%;
+    z-index: 30;
+  }
+
+  .chat-user-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .chat-search-bar-box {
+    padding: 0.75rem 1rem 0.35rem;
+  }
+}
+
+/* Pantallas estrechas / teléfonos compactos */
+@media (max-width: 480px) {
+  .message-row {
+    max-width: 92%;
+  }
+
+  .active-chat-header {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .chat-header-title {
+    font-size: 0.88rem;
+  }
+
+  .chat-header-status {
+    font-size: 0.72rem;
+  }
+
+  .messages-container {
+    padding: 0.6rem 0.65rem;
+  }
+
+  .chat-input-footer {
+    padding: 0.65rem 0.65rem;
+  }
+
+  .input-controls-row {
+    padding: 0.35rem 0.5rem 0.35rem 0.75rem;
   }
 }
 
