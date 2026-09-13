@@ -4,13 +4,23 @@
 // ============================================================================
 
 const getApiBaseUrl = () => {
+  // En desarrollo web (navegador de escritorio o movil en red local LAN),
+  // se utiliza la ruta relativa '/api' canalizada por el proxy de Vite.
+  if (import.meta.env.DEV) {
+    const isNativeApk =
+      typeof window !== 'undefined' &&
+      (window.Capacitor?.isNativePlatform?.() ||
+        window.Capacitor?.platform === 'android')
+
+    if (!isNativeApk) {
+      return '/api'
+    }
+  }
+
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL
   }
-  if (import.meta.env.DEV) {
-    const host = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost'
-    return `http://${host}:5000/api`
-  }
+
   return 'https://nexu-backend-api.onrender.com/api'
 }
 

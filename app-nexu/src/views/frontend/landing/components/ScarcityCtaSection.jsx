@@ -64,7 +64,7 @@ function ScarcityCtaSection({ onScrollToManifiesto }) {
       {/* Micro-Footer Integrado en la Base de la Carta 3 */}
       <div className="scarcity-footer-bar">
         <div className="scarcity-footer-brand">
-          <span className="logo-tiny">N</span>
+          <img src="/nexu-icon2.png" alt="Nexu" className="logo-tiny" />
           <span>NexuHub</span>
           <span className="footer-pill">nexuhub.me</span>
         </div>

@@ -8,7 +8,9 @@ function LandingNavbar({ onScrollToManifiesto }) {
     <header className="landing-navbar">
       <div className="navbar-container">
         <div className="navbar-brand">
-          <div className="brand-logo-box">N</div>
+          <div className="brand-logo-box">
+            <img src="/nexu-icon2.png" alt="Nexu" className="brand-logo-img" />
+          </div>
           <span className="brand-title">NexuHub</span>
           <span className="brand-badge-pill">nexuhub.me</span>
         </div>

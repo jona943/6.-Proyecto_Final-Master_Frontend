@@ -65,7 +65,9 @@ function Login({ initialTab = 'login' }) {
           style={{ cursor: 'pointer' }}
           title="Volver a la página principal"
         >
-          <div className="auth-logo-box">N</div>
+          <div className="auth-logo-box">
+            <img src="/nexu-icon2.png" alt="Nexu" className="auth-logo-img" />
+          </div>
           <span className="auth-brand-name">NexuHub</span>
           <span className="auth-badge-pill">nexuhub.me</span>
         </div>

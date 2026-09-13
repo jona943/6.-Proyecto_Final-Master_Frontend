@@ -6,7 +6,7 @@ function LandingFooter({ onScrollToManifiesto }) {
       <div className="footer-content">
         <div className="footer-brand-row">
           <div className="footer-logo">
-            <div className="logo-tiny">N</div>
+            <img src="/nexu-icon2.png" alt="Nexu" className="logo-tiny" />
             <span>NexuHub</span>
           </div>
           <span className="footer-pill">nexuhub.me</span>

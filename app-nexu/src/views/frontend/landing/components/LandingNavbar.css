@@ -36,16 +36,20 @@
 .brand-logo-box {
   width: 32px;
   height: 32px;
-  background-color: var(--accent-acid);
-  color: var(--accent-acid-contrast);
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  box-shadow: 0 0 16px rgba(212, 255, 0, 0.35);
+  overflow: hidden;
+  background-color: transparent;
+  box-shadow: 0 0 16px rgba(212, 255, 0, 0.25);
+}
+
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .brand-title {
