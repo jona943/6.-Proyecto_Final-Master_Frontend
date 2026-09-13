@@ -289,7 +289,8 @@ export const chatService = {
       messages: [
         {
           id: `msg_accepted_${Date.now()}`,
-          sender: 'them',
+          sender: 'system',
+          isSystem: true,
           text: `¡Aceptaste la solicitud de conexión de @${senderClean}! Ya pueden enviarse mensajes privados.`,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           status: 'read'

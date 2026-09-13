@@ -304,6 +304,78 @@
   box-shadow: 0 0 12px rgba(212, 255, 0, 0.15);
 }
 
+/* Notificacion de Sistema en la parte superior del chat */
+.system-notification-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0.5rem 0 1.25rem;
+}
+
+.system-notification-card {
+  max-width: 90%;
+  background: rgba(16, 18, 22, 0.85);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  border-radius: 12px;
+  padding: 0.75rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 14px rgba(212, 255, 0, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: systemNotificationFadeIn 0.3s ease-out;
+}
+
+@keyframes systemNotificationFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.system-notification-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(212, 255, 0, 0.1);
+  border: 1px solid rgba(212, 255, 0, 0.3);
+  color: var(--accent-acid, #d4ff00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.system-notification-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.system-notification-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-acid, #d4ff00);
+}
+
+.system-notification-text {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.35;
+  color: var(--text-primary, #f4f5f7);
+  font-weight: 500;
+}
+
 
 /* Indicador Flotante Dinámico de Fecha durante Desplazamiento */
 .sticky-date-indicator {

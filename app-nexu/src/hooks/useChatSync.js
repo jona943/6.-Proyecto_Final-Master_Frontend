@@ -165,8 +165,9 @@ export function useChatSync({ cleanUsername, queryClient, selectedChatId, incomi
                     ...chatCopy.messages,
                     {
                       id: `msg_accepted_sync_${Date.now()}`,
-                      sender: 'them',
-                      text: `@${target} acepto tu solicitud de conexion. Ya pueden chatear.`,
+                      sender: 'system',
+                      isSystem: true,
+                      text: `¡Aceptaste la solicitud de conexión de @${target}! Ya pueden enviarse mensajes privados.`,
                       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                       status: 'read'
                     }

@@ -1,8 +1,18 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react'
-import { IconCheck, IconCheckCheck, IconSearch, IconCopy, IconCalendar } from '../../../../components/icons/Icons'
+import { IconCheck, IconCheckCheck, IconSearch, IconCopy, IconCalendar, IconShield } from '../../../../components/icons/Icons'
 import ActiveChatAttachment from './ActiveChatAttachment'
 
 const MESSAGES_PAGE_SIZE = 30
+
+const isSystemMessage = (m) =>
+  m.sender === 'system' ||
+  m.isSystem === true ||
+  (typeof m.id === 'string' && m.id.includes('accepted')) ||
+  (typeof m.text === 'string' && (
+    m.text.includes('solicitud de conexión') ||
+    m.text.includes('solicitud de conexion') ||
+    m.text.includes('solicitud de conexi')
+  ))
 
 function ActiveChatFeed({
   activeChat,
@@ -22,11 +32,14 @@ function ActiveChatFeed({
   const [visibleCount, setVisibleCount] = useState(MESSAGES_PAGE_SIZE)
 
   const allMessages = Array.isArray(activeChat?.messages) ? activeChat.messages : []
-  const totalCount = allMessages.length
+  const systemMessages = allMessages.filter(isSystemMessage)
+  const userMessages = allMessages.filter((m) => !isSystemMessage(m))
+
+  const totalUserCount = userMessages.length
   const isSearching = Boolean(searchQuery && searchQuery.trim().length > 0)
-  const hasOlderMessages = !isSearching && totalCount > visibleCount
-  const olderCount = totalCount - visibleCount
-  const messagesToRender = isSearching ? allMessages : allMessages.slice(-visibleCount)
+  const hasOlderMessages = !isSearching && totalUserCount > visibleCount
+  const olderCount = totalUserCount - visibleCount
+  const messagesToRender = isSearching ? userMessages : userMessages.slice(-visibleCount)
 
   // 1. Al cambiar de conversacion activa: resetear ventana y salto instantaneo a la base
   useLayoutEffect(() => {
@@ -87,7 +100,7 @@ function ActiveChatFeed({
     const prevScrollTop = container.scrollTop
 
     setVisibleCount((prev) => {
-      const nextCount = Math.min(prev + MESSAGES_PAGE_SIZE, totalCount)
+      const nextCount = Math.min(prev + MESSAGES_PAGE_SIZE, totalUserCount)
       requestAnimationFrame(() => {
         if (containerRef.current) {
           const heightDiff = containerRef.current.scrollHeight - prevScrollHeight
@@ -277,6 +290,25 @@ function ActiveChatFeed({
           >
             Cargar mensajes anteriores ({olderCount})
           </button>
+        </div>
+      )}
+
+      {/* Notificación de Sistema en la parte superior de la conversación */}
+      {systemMessages.length > 0 && (
+        <div className="system-notification-container">
+          {systemMessages.map((sysMsg) => (
+            <div key={sysMsg.id || 'sys_notice'} className="system-notification-card">
+              <div className="system-notification-icon-box">
+                <IconShield size={16} />
+              </div>
+              <div className="system-notification-body">
+                <span className="system-notification-badge">Notificación del sistema</span>
+                <p className="system-notification-text">
+                  {renderHighlightedText(sysMsg.text, searchQuery)}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
