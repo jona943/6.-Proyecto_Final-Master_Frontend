@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import { IconCheck, IconCheckCheck, IconSearch, IconCopy, IconCalendar } from '../../../../components/icons/Icons'
 import ActiveChatAttachment from './ActiveChatAttachment'
+
+const MESSAGES_PAGE_SIZE = 30
 
 function ActiveChatFeed({
   activeChat,
@@ -12,17 +14,62 @@ function ActiveChatFeed({
 }) {
   const containerRef = useRef(null)
   const scrollTimeoutRef = useRef(null)
+  const prevChatIdRef = useRef(activeChat?.id)
+  const prevMessagesCountRef = useRef(activeChat?.messages?.length || 0)
+
   const [stickyDate, setStickyDate] = useState(null)
   const [isScrolling, setIsScrolling] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(MESSAGES_PAGE_SIZE)
 
-  // Limpiar indicador al cambiar de conversación activa
-  useEffect(() => {
-    setStickyDate(null)
-    setIsScrolling(false)
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current)
+  const allMessages = Array.isArray(activeChat?.messages) ? activeChat.messages : []
+  const totalCount = allMessages.length
+  const isSearching = Boolean(searchQuery && searchQuery.trim().length > 0)
+  const hasOlderMessages = !isSearching && totalCount > visibleCount
+  const olderCount = totalCount - visibleCount
+  const messagesToRender = isSearching ? allMessages : allMessages.slice(-visibleCount)
+
+  // 1. Al cambiar de conversacion activa: resetear ventana y salto instantaneo a la base
+  useLayoutEffect(() => {
+    if (activeChat?.id !== prevChatIdRef.current) {
+      prevChatIdRef.current = activeChat?.id
+      prevMessagesCountRef.current = totalCount
+      setVisibleCount(MESSAGES_PAGE_SIZE)
+      setStickyDate(null)
+      setIsScrolling(false)
+
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+
+      // Salto instantaneo al final sin animacion de barrido
+      if (containerRef.current) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChat?.id])
+
+  // 2. Desplazamiento suave solo al recibir o enviar un nuevo mensaje en el mismo chat activo
+  useEffect(() => {
+    const currentCount = activeChat?.messages?.length || 0
+    if (activeChat?.id === prevChatIdRef.current) {
+      if (currentCount > prevMessagesCountRef.current) {
+        messagesEndRef?.current?.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+    prevMessagesCountRef.current = currentCount
+  }, [activeChat?.messages?.length, activeChat?.id, messagesEndRef])
+
+  // 3. Desplazamiento suave al activarse el indicador de escritura si se esta cerca del final
+  useEffect(() => {
+    if (isTyping && containerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 150
+      if (isNearBottom) {
+        messagesEndRef?.current?.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  }, [isTyping, messagesEndRef])
 
   useEffect(() => {
     return () => {
@@ -32,6 +79,25 @@ function ActiveChatFeed({
     }
   }, [])
 
+  const handleLoadOlderMessages = () => {
+    const container = containerRef.current
+    if (!container) return
+
+    const prevScrollHeight = container.scrollHeight
+    const prevScrollTop = container.scrollTop
+
+    setVisibleCount((prev) => {
+      const nextCount = Math.min(prev + MESSAGES_PAGE_SIZE, totalCount)
+      requestAnimationFrame(() => {
+        if (containerRef.current) {
+          const heightDiff = containerRef.current.scrollHeight - prevScrollHeight
+          containerRef.current.scrollTop = prevScrollTop + heightDiff
+        }
+      })
+      return nextCount
+    })
+  }
+
   const handleScroll = () => {
     const container = containerRef.current
     if (!container) return
@@ -39,6 +105,11 @@ function ActiveChatFeed({
     setIsScrolling(true)
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current)
+    }
+
+    // Carga progresiva automatica al acercarse al extremo superior
+    if (container.scrollTop < 60 && hasOlderMessages) {
+      handleLoadOlderMessages()
     }
 
     // Detectar el mensaje visible en la parte superior del contenedor
@@ -197,19 +268,31 @@ function ActiveChatFeed({
         </div>
       )}
 
-      {activeChat.messages.length === 0 ? (
+      {hasOlderMessages && (
+        <div className="load-older-messages-wrapper">
+          <button
+            type="button"
+            className="btn-load-older-messages"
+            onClick={handleLoadOlderMessages}
+          >
+            Cargar mensajes anteriores ({olderCount})
+          </button>
+        </div>
+      )}
+
+      {messagesToRender.length === 0 ? (
         <div className="empty-search-msg">
           <p>No hay mensajes en esta conversación. Envía el primer mensaje.</p>
         </div>
       ) : (
-        activeChat.messages.map((msg, index) => {
+        messagesToRender.map((msg, index) => {
           const isMe = msg.sender === 'me'
           const isMatching =
             searchQuery.trim() &&
             msg.text && msg.text.toLowerCase().includes(searchQuery.toLowerCase().trim())
 
           const currentDateContext = getMessageDateContext(msg)
-          const prevMessage = activeChat.messages[index - 1]
+          const prevMessage = messagesToRender[index - 1]
           const prevDateContext = prevMessage ? getMessageDateContext(prevMessage) : null
           const showDateDivider = currentDateContext.label !== prevDateContext?.label
 

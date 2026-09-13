@@ -271,6 +271,39 @@
   gap: 1rem;
 }
 
+/* Boton e indicador de carga de mensajes anteriores */
+.load-older-messages-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0 0.85rem;
+  width: 100%;
+}
+
+.btn-load-older-messages {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  color: var(--text-secondary, #9da4b0);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.42rem 1.15rem;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-load-older-messages:hover {
+  background: rgba(212, 255, 0, 0.08);
+  border-color: rgba(212, 255, 0, 0.3);
+  color: var(--accent-acid, #d4ff00);
+  box-shadow: 0 0 12px rgba(212, 255, 0, 0.15);
+}
+
 
 /* Indicador Flotante Dinámico de Fecha durante Desplazamiento */
 .sticky-date-indicator {

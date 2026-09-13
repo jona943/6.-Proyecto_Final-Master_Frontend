@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useState, useRef, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Chat.css'
 import { useAuthStore } from '../../../store/useAuthStore'
@@ -71,11 +71,6 @@ function ChatHome() {
   const [soundEnabled, setSoundEnabled] = useState(() => soundService.isSoundEnabled())
 
   const messagesEndRef = useRef(null)
-
-  // Auto-scroll al final del contenedor de mensajes
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [activeChat?.messages, isTyping])
 
   // Toast temporal
   const triggerToast = useCallback((text) => {
