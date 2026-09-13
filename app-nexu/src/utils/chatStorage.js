@@ -83,28 +83,65 @@ export const saveManualUnread = (username, unreadIds) => {
   }
 }
 
+export const loadCachedChats = (username) => {
+  if (!username) return null
+  try {
+    const clean = username.trim().toLowerCase()
+    const raw = localStorage.getItem(`nexu_cached_chats_${clean}`)
+    if (!raw) return null
+    const decrypted = decryptData(raw)
+    if (decrypted && Array.isArray(decrypted) && decrypted.length > 0) {
+      return decrypted
+    }
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+export const saveCachedChats = (username, chats) => {
+  if (!username || !Array.isArray(chats) || chats.length === 0) return
+  try {
+    const clean = username.trim().toLowerCase()
+    localStorage.setItem(`nexu_cached_chats_${clean}`, encryptData(chats))
+  } catch (e) {
+    console.error('[Error al persistir lista de chats]:', e)
+  }
+}
+
 export const getInitialChats = (username) => {
   if (!username) return INITIAL_CHATS_DEFAULT
   const clean = username.trim().toLowerCase()
-  const chatsCopy = JSON.parse(JSON.stringify(INITIAL_CHATS_DEFAULT))
+
   try {
+    const cachedChats = loadCachedChats(clean)
+    const chatsToUse = cachedChats || JSON.parse(JSON.stringify(INITIAL_CHATS_DEFAULT))
+
     const savedBotHistory = localStorage.getItem(`nexu_bot_history_${clean}`)
     if (savedBotHistory) {
       const decrypted = decryptData(savedBotHistory)
-      if (decrypted) chatsCopy[0].messages = decrypted
+      const botIndex = chatsToUse.findIndex((c) => c.id === 'chat_bot')
+      if (decrypted && botIndex !== -1) {
+        chatsToUse[botIndex].messages = decrypted
+      }
     }
+
     const favs = loadFavorites(clean)
     const manualUnread = loadManualUnread(clean)
-    chatsCopy.forEach((c) => {
+
+    chatsToUse.forEach((c) => {
       c.isFavorite = isChatFavorite(favs, c.id)
       if (isChatManualUnread(manualUnread, c.id)) {
         c.unreadCount = Math.max(c.unreadCount || 0, 1)
       }
     })
+
+    return chatsToUse
   } catch (e) {
-    console.error('[Error al leer historial del bot o favoritos]:', e)
+    console.error('[Error al inicializar chats]:', e)
+    return INITIAL_CHATS_DEFAULT
   }
-  return chatsCopy
 }
 
 export const saveBotHistory = (username, chats) => {

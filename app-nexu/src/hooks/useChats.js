@@ -13,7 +13,8 @@ import {
   loadManualUnread,
   saveManualUnread,
   isChatManualUnread,
-  saveBotHistory
+  saveBotHistory,
+  saveCachedChats
 } from '../utils/chatStorage'
 
 /**
@@ -25,30 +26,40 @@ export function useChats(currentUsername) {
   const queryClient = useQueryClient()
   const enabled = !!cleanUsername
 
-  // 1. Estado UI global de Zustand
-  const {
-    selectedChatId,
-    setSelectedChatId,
-    isTyping,
-    setIsTyping,
-    presenceStatus,
-    setPresenceStatus
-  } = useChatUIStore()
+  // 1. Estado UI global de Zustand con selectores atomicos
+  const selectedChatId = useChatUIStore((s) => s.selectedChatId)
+  const setSelectedChatId = useChatUIStore((s) => s.setSelectedChatId)
+  const isTyping = useChatUIStore((s) => s.isTyping)
+  const setIsTyping = useChatUIStore((s) => s.setIsTyping)
+  const setPresenceStatus = useChatUIStore((s) => s.setPresenceStatus)
 
   // 2. Monitoreo de presencia de red y visibilidad de ventana
   usePresenceMonitor(setPresenceStatus)
 
-  // 3. Queries base para chats y solicitudes de conexion
+  // 3. Queries base para chats y solicitudes de conexion protegidas
   const { data: chats = getInitialChats(cleanUsername) } = useQuery({
     queryKey: ['chats', cleanUsername],
-    queryFn: () => getInitialChats(cleanUsername),
+    queryFn: () => {
+      const current = queryClient.getQueryData(['chats', cleanUsername])
+      if (current && Array.isArray(current) && current.length > 0) {
+        return current
+      }
+      return getInitialChats(cleanUsername)
+    },
+    initialData: () => getInitialChats(cleanUsername),
     staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     enabled
   })
 
   const { data: requestsData = { incoming: [], outgoing: [] } } = useQuery({
     queryKey: ['requests', cleanUsername],
     queryFn: () => chatService.getRequests(cleanUsername),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     enabled
   })
   const incomingRequests = requestsData.incoming || []
@@ -121,6 +132,7 @@ export function useChats(currentUsername) {
       attachment
     )
     queryClient.setQueryData(['chats', cleanUsername], updatedChats)
+    saveCachedChats(cleanUsername, updatedChats)
 
     if (activeChat.isBot) {
       saveBotHistory(cleanUsername, updatedChats)
@@ -315,7 +327,9 @@ export function useChats(currentUsername) {
     sendRequest,
     cancelRequest,
     isTyping,
-    presenceStatus,
+    get presenceStatus() {
+      return useChatUIStore.getState().presenceStatus
+    },
     incomingRequests,
     outgoingRequests,
     acceptRequest,

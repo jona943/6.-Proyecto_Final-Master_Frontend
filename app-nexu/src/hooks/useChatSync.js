@@ -6,7 +6,8 @@ import {
   loadFavorites,
   loadManualUnread,
   isChatFavorite,
-  isChatManualUnread
+  isChatManualUnread,
+  saveCachedChats
 } from '../utils/chatStorage'
 
 /**
@@ -256,6 +257,7 @@ export function useChatSync({ cleanUsername, queryClient, selectedChatId, incomi
           return bTime - aTime
         })
         queryClient.setQueryData(['chats', cleanUsername], nextChats)
+        saveCachedChats(cleanUsername, nextChats)
       }
 
       return syncData
