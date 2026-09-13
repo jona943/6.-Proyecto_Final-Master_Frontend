@@ -31,9 +31,24 @@ const API_BASE_URL = getApiBaseUrl()
  */
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`
+
+  let authHeader = {}
+  try {
+    const rawActive = typeof localStorage !== 'undefined' ? localStorage.getItem('nexu_active_user') : null
+    if (rawActive) {
+      const parsed = JSON.parse(rawActive)
+      if (parsed?.token) {
+        authHeader = { Authorization: `Bearer ${parsed.token}` }
+      }
+    }
+  } catch {
+    // Si falla la lectura local de sesión, continuar sin encabezado Authorization
+  }
+
   const config = {
     headers: {
       'Content-Type': 'application/json',
+      ...authHeader,
       ...options.headers
     },
     ...options

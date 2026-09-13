@@ -1,6 +1,7 @@
 import ConnectionRequest from '../models/ConnectionRequest.js'
 import ChatMessage from '../models/ChatMessage.js'
 import User from '../models/User.js'
+import jwt from 'jsonwebtoken'
 
 let lastEphemeralCleanup = 0
 const EPHEMERAL_CLEANUP_INTERVAL_MS = 5 * 60 * 1000 // Throttle a 5 minutos
@@ -23,8 +24,25 @@ export const syncSession = async (req, res) => {
     res.set('Pragma', 'no-cache')
     res.set('Expires', '0')
 
-    // Actualizar última conexión (Punto Verde)
-    await User.findOneAndUpdate({ username: clean }, { lastActive: new Date() })
+    // Actualizar última conexión (Punto Verde y Sesión del Dispositivo)
+    const authHeader = req.headers.authorization || ''
+    const currentToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+    let activeSessionId = null
+    if (currentToken) {
+      try {
+        const decoded = jwt.verify(currentToken, process.env.JWT_SECRET || 'nexu_secret_default')
+        activeSessionId = decoded?.sessionId
+      } catch {}
+    }
+
+    if (activeSessionId) {
+      await User.updateOne(
+        { username: clean, 'sessions.id': activeSessionId },
+        { $set: { lastActive: new Date(), 'sessions.$.lastActive': new Date() } }
+      ).catch(() => {})
+    } else {
+      await User.findOneAndUpdate({ username: clean }, { lastActive: new Date() }).catch(() => {})
+    }
 
     // Limpiar payloads efímeros expirados (>24h) con throttle (máximo una vez cada 5 min en vez de en cada ciclo de 2.5s)
     const now = Date.now()

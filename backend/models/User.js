@@ -55,7 +55,22 @@ const userSchema = new mongoose.Schema(
     twoFactorBackupCodes: {
       type: [String],
       default: []
-    }
+    },
+    sessions: [
+      {
+        id: { type: String, required: true },
+        token: { type: String, required: true },
+        deviceName: { type: String, default: 'Dispositivo Desconocido' },
+        browser: { type: String, default: 'Navegador Web' },
+        platform: { type: String, default: 'Desktop' },
+        ip: { type: String, default: 'Oculta (Privado)' },
+        lastLoginDate: { type: String, default: 'Hoy' },
+        lastLoginFormattedDate: { type: String, default: '' },
+        lastLoginTime: { type: String, default: '' },
+        lastActive: { type: Date, default: Date.now },
+        userAgent: { type: String, default: '' }
+      }
+    ]
   },
   {
     timestamps: true

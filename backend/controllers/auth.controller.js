@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import { verifyTotp } from '../utils/totp.js'
+import { parseDeviceInfo, formatRelativeActive } from '../utils/deviceParser.js'
 
 /**
  * Usuarios por defecto de la demo
@@ -74,20 +75,39 @@ export const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    // 6. Guardar en MongoDB Atlas
+    // 6. Registrar sesion de dispositivo y generar Token JWT
+    const device = parseDeviceInfo(req)
+    const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+
     const newUser = new User({
       username: cleanUsername,
       displayName: raw,
       password: hashedPassword
     })
-    await newUser.save()
 
-    // 7. Generar Token JWT de sesion
     const token = jwt.sign(
-      { id: newUser._id, username: newUser.username },
+      { id: newUser._id, username: newUser.username, sessionId },
       process.env.JWT_SECRET || 'nexu_secret_default',
       { expiresIn: '7d' }
     )
+
+    newUser.sessions = [
+      {
+        id: sessionId,
+        token,
+        deviceName: device.deviceName,
+        browser: device.browser,
+        platform: device.platform,
+        ip: device.ip,
+        lastLoginDate: device.lastLoginDate,
+        lastLoginFormattedDate: device.lastLoginFormattedDate,
+        lastLoginTime: device.lastLoginTime,
+        lastActive: device.lastActive,
+        userAgent: device.userAgent
+      }
+    ]
+
+    await newUser.save()
 
     res.status(201).json({
       success: true,
@@ -174,12 +194,48 @@ export const loginUser = async (req, res) => {
       })
     }
 
-    // 4. Emitir Token JWT de sesion completa si no tiene 2FA
+    // 4. Registrar sesion de dispositivo y emitir Token JWT de sesion completa
+    const device = parseDeviceInfo(req)
+    const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+
     const token = jwt.sign(
-      { id: user._id, username: user.username },
+      { id: user._id, username: user.username, sessionId },
       process.env.JWT_SECRET || 'nexu_secret_default',
       { expiresIn: '7d' }
     )
+
+    if (!Array.isArray(user.sessions)) {
+      user.sessions = []
+    }
+
+    const existingIndex = user.sessions.findIndex(
+      (s) => s.browser === device.browser && s.deviceName === device.deviceName && s.ip === device.ip
+    )
+
+    const sessionRecord = {
+      id: sessionId,
+      token,
+      deviceName: device.deviceName,
+      browser: device.browser,
+      platform: device.platform,
+      ip: device.ip,
+      lastLoginDate: device.lastLoginDate,
+      lastLoginFormattedDate: device.lastLoginFormattedDate,
+      lastLoginTime: device.lastLoginTime,
+      lastActive: device.lastActive,
+      userAgent: device.userAgent
+    }
+
+    if (existingIndex !== -1) {
+      user.sessions[existingIndex] = sessionRecord
+    } else {
+      user.sessions.unshift(sessionRecord)
+      if (user.sessions.length > 10) {
+        user.sessions = user.sessions.slice(0, 10)
+      }
+    }
+
+    await user.save()
 
     res.status(200).json({
       success: true,
@@ -275,12 +331,48 @@ export const verify2FALogin = async (req, res) => {
       })
     }
 
-    // 5. Emitir Token JWT final de sesion (7 dias)
+    // 5. Registrar sesion de dispositivo y emitir Token JWT final de sesion (7 dias)
+    const device = parseDeviceInfo(req)
+    const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+
     const token = jwt.sign(
-      { id: user._id, username: user.username },
+      { id: user._id, username: user.username, sessionId },
       process.env.JWT_SECRET || 'nexu_secret_default',
       { expiresIn: '7d' }
     )
+
+    if (!Array.isArray(user.sessions)) {
+      user.sessions = []
+    }
+
+    const existingIndex = user.sessions.findIndex(
+      (s) => s.browser === device.browser && s.deviceName === device.deviceName && s.ip === device.ip
+    )
+
+    const sessionRecord = {
+      id: sessionId,
+      token,
+      deviceName: device.deviceName,
+      browser: device.browser,
+      platform: device.platform,
+      ip: device.ip,
+      lastLoginDate: device.lastLoginDate,
+      lastLoginFormattedDate: device.lastLoginFormattedDate,
+      lastLoginTime: device.lastLoginTime,
+      lastActive: device.lastActive,
+      userAgent: device.userAgent
+    }
+
+    if (existingIndex !== -1) {
+      user.sessions[existingIndex] = sessionRecord
+    } else {
+      user.sessions.unshift(sessionRecord)
+      if (user.sessions.length > 10) {
+        user.sessions = user.sessions.slice(0, 10)
+      }
+    }
+
+    await user.save()
 
     return res.status(200).json({
       success: true,
@@ -305,3 +397,175 @@ export const verify2FALogin = async (req, res) => {
     })
   }
 }
+
+/**
+ * GET /api/auth/sessions?username=xxx
+ * Listar dispositivos y sesiones activas del usuario
+ */
+export const getSessions = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || ''
+    const currentToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+
+    let tokenPayload = null
+    if (currentToken) {
+      try {
+        tokenPayload = jwt.verify(currentToken, process.env.JWT_SECRET || 'nexu_secret_default')
+      } catch {}
+    }
+
+    const usernameParam = req.query.username || tokenPayload?.username || ''
+    const clean = (usernameParam || '').trim().replace(/^@/, '').toLowerCase()
+
+    if (!clean) {
+      return res.status(400).json({
+        success: false,
+        message: 'Usuario requerido para consultar sesiones.'
+      })
+    }
+
+    const user = await User.findOne({ username: clean })
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado.'
+      })
+    }
+
+    // Si no tiene sesiones registradas en DB, crear la sesión actual en vivo
+    if (!user.sessions || user.sessions.length === 0) {
+      const device = parseDeviceInfo(req)
+      const autoSession = {
+        id: tokenPayload?.sessionId || `sess_${Date.now()}`,
+        token: currentToken || 'sess_curr_token',
+        deviceName: device.deviceName,
+        browser: device.browser,
+        platform: device.platform,
+        ip: device.ip,
+        lastLoginDate: device.lastLoginDate,
+        lastLoginFormattedDate: device.lastLoginFormattedDate,
+        lastLoginTime: device.lastLoginTime,
+        lastActive: new Date(),
+        userAgent: device.userAgent
+      }
+      user.sessions = [autoSession]
+      await user.save()
+    }
+
+    const currentSessionId = tokenPayload?.sessionId
+
+    // Formatear sesiones para el cliente
+    const formattedSessions = user.sessions.map((s) => {
+      const isCurrent = Boolean(
+        (currentSessionId && s.id === currentSessionId) ||
+        (currentToken && s.token === currentToken) ||
+        (!currentSessionId && !currentToken && s.id === user.sessions[0].id)
+      )
+
+      return {
+        id: s.id,
+        deviceName: s.deviceName,
+        browser: s.browser,
+        platform: s.platform,
+        ip: s.ip,
+        lastLoginDate: s.lastLoginDate || 'Hoy',
+        lastLoginFormattedDate: s.lastLoginFormattedDate,
+        lastLoginTime: s.lastLoginTime,
+        lastActive: isCurrent ? 'Activo ahora' : formatRelativeActive(s.lastActive),
+        isCurrent
+      }
+    })
+
+    // Asegurar que la sesión actual aparezca primera en la lista
+    formattedSessions.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0))
+
+    res.status(200).json({
+      success: true,
+      sessions: formattedSessions
+    })
+  } catch (error) {
+    console.error('[Error en getSessions]:', error.message)
+    res.status(500).json({
+      success: false,
+      message: 'Error al consultar sesiones del usuario.'
+    })
+  }
+}
+
+/**
+ * DELETE /api/auth/sessions/:sessionId?username=xxx
+ * Cerrar sesión en un dispositivo específico
+ */
+export const closeSession = async (req, res) => {
+  try {
+    const { sessionId } = req.params
+    const authHeader = req.headers.authorization || ''
+    const currentToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+
+    let tokenPayload = null
+    if (currentToken) {
+      try {
+        tokenPayload = jwt.verify(currentToken, process.env.JWT_SECRET || 'nexu_secret_default')
+      } catch {}
+    }
+
+    const usernameParam = req.query.username || tokenPayload?.username || ''
+    const clean = (usernameParam || '').trim().replace(/^@/, '').toLowerCase()
+
+    if (!clean) {
+      return res.status(400).json({
+        success: false,
+        message: 'Usuario requerido.'
+      })
+    }
+
+    const user = await User.findOne({ username: clean })
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado.'
+      })
+    }
+
+    // Eliminar la sesión solicitada
+    user.sessions = (user.sessions || []).filter((s) => s.id !== sessionId)
+    await user.save()
+
+    const currentSessionId = tokenPayload?.sessionId
+
+    const formattedSessions = user.sessions.map((s) => {
+      const isCurrent = Boolean(
+        (currentSessionId && s.id === currentSessionId) ||
+        (currentToken && s.token === currentToken)
+      )
+
+      return {
+        id: s.id,
+        deviceName: s.deviceName,
+        browser: s.browser,
+        platform: s.platform,
+        ip: s.ip,
+        lastLoginDate: s.lastLoginDate || 'Hoy',
+        lastLoginFormattedDate: s.lastLoginFormattedDate,
+        lastLoginTime: s.lastLoginTime,
+        lastActive: isCurrent ? 'Activo ahora' : formatRelativeActive(s.lastActive),
+        isCurrent
+      }
+    })
+
+    formattedSessions.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0))
+
+    res.status(200).json({
+      success: true,
+      message: 'Sesión cerrada exitosamente en el dispositivo.',
+      sessions: formattedSessions
+    })
+  } catch (error) {
+    console.error('[Error en closeSession]:', error.message)
+    res.status(500).json({
+      success: false,
+      message: 'Error al cerrar la sesión remota.'
+    })
+  }
+}
+

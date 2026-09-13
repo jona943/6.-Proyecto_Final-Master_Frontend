@@ -513,10 +513,21 @@ export const authService = {
   },
 
   /**
-   * Obtener sesiones de dispositivos
+   * Obtener sesiones de dispositivos desde el backend o almacenamiento local
    */
   async getSessions(username) {
     const clean = (username || '').replace(/^@/, '').toLowerCase()
+
+    try {
+      const res = await api.get(`/auth/sessions?username=${encodeURIComponent(clean)}`)
+      if (res.success && Array.isArray(res.data?.sessions)) {
+        storage.set(STORAGE_KEYS.sessionsKey(clean), res.data.sessions)
+        return res.data.sessions
+      }
+    } catch {
+      // Fallback a almacenamiento local si el backend no responde
+    }
+
     return storage.get(STORAGE_KEYS.sessionsKey(clean), DEFAULT_SESSIONS)
   },
 
@@ -525,6 +536,17 @@ export const authService = {
    */
   async closeSession(username, sessionId) {
     const clean = (username || '').replace(/^@/, '').toLowerCase()
+
+    try {
+      const res = await api.delete(`/auth/sessions/${encodeURIComponent(sessionId)}?username=${encodeURIComponent(clean)}`)
+      if (res.success && Array.isArray(res.data?.sessions)) {
+        storage.set(STORAGE_KEYS.sessionsKey(clean), res.data.sessions)
+        return res.data.sessions
+      }
+    } catch {
+      // Fallback a almacenamiento local si el backend no responde
+    }
+
     const current = await this.getSessions(clean)
     const updated = current.filter((s) => s.id !== sessionId)
     storage.set(STORAGE_KEYS.sessionsKey(clean), updated)

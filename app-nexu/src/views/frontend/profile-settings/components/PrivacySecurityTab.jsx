@@ -213,40 +213,46 @@ function PrivacySecurityTab({
         </div>
 
         <div className="security-session-list">
-          {sessions.map((sess) => (
-            <div key={sess.id} className="session-card">
-              <div className="session-device-meta">
-                <div className="device-icon-box">
-                  {sess.platform === 'Mobile' || sess.platform === 'Tablet' ? (
-                    <IconSmartphone />
-                  ) : (
-                    <IconLaptop />
-                  )}
-                </div>
-                <div className="device-text">
-                  <span className="device-name">
-                    {sess.browser} en {sess.deviceName}
-                    {sess.isCurrent && (
-                      <span className="badge-current-session">Sesión Actual</span>
-                    )}
-                  </span>
-                  <span className="device-location">
-                    {sess.ip} · Último acceso: {sess.lastLoginDate} ({sess.lastLoginTime}) · {sess.lastActive}
-                  </span>
-                </div>
-              </div>
-
-              {!sess.isCurrent && (
-                <button
-                  type="button"
-                  className="btn-danger-outline"
-                  onClick={() => onCloseSession(sess.id)}
-                >
-                  Cerrar Sesión
-                </button>
-              )}
+          {sessions.length === 0 ? (
+            <div className="empty-sessions-notice">
+              <span>No hay sesiones activas registradas.</span>
             </div>
-          ))}
+          ) : (
+            sessions.map((sess) => (
+              <div key={sess.id} className="session-card">
+                <div className="session-device-meta">
+                  <div className="device-icon-box">
+                    {sess.platform === 'Mobile' || sess.platform === 'Tablet' ? (
+                      <IconSmartphone />
+                    ) : (
+                      <IconLaptop />
+                    )}
+                  </div>
+                  <div className="device-text">
+                    <span className="device-name">
+                      {sess.browser} en {sess.deviceName}
+                      {sess.isCurrent && (
+                        <span className="badge-current-session">Sesión Actual</span>
+                      )}
+                    </span>
+                    <span className="device-location">
+                      {sess.ip} · Último acceso: {sess.lastLoginDate === 'Hoy' ? 'Hoy' : (sess.lastLoginFormattedDate || sess.lastLoginDate)} ({sess.lastLoginTime}) · {sess.lastActive}
+                    </span>
+                  </div>
+                </div>
+
+                {!sess.isCurrent && (
+                  <button
+                    type="button"
+                    className="btn-danger-outline"
+                    onClick={() => onCloseSession(sess.id)}
+                  >
+                    Cerrar Sesión
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </section>
 
