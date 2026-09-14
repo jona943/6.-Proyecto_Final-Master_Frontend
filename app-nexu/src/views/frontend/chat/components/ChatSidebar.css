@@ -205,7 +205,10 @@
 /* Lista de Conversaciones */
 .conversations-feed {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;

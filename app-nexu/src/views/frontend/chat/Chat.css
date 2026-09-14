@@ -14,9 +14,6 @@
   font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
   overflow: hidden;
   position: relative;
-  touch-action: pan-y;
-  overscroll-behavior: none;
-  overscroll-behavior-x: none;
 }
 
 /* Responsividad de Disposición Global (Móviles y Tablets) */

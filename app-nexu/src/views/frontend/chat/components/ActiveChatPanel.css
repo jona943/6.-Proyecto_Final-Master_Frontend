@@ -263,7 +263,11 @@
 /* Área de Mensajes (Feed) */
 .messages-container {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
   padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
@@ -818,6 +822,9 @@
   .messages-container {
     padding: 0.65rem 0.85rem;
     gap: 0.65rem;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
   .message-row {
