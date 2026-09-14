@@ -389,6 +389,9 @@
     z-index: 999;
     border-left: none;
     background-color: var(--bg-canvas, #08090b);
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    touch-action: pan-y;
   }
 
   .details-header {
