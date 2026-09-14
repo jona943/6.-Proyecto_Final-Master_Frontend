@@ -414,8 +414,24 @@ export const getSessions = async (req, res) => {
       } catch {}
     }
 
-    const usernameParam = req.query.username || tokenPayload?.username || ''
-    const clean = (usernameParam || '').trim().replace(/^@/, '').toLowerCase()
+    let clean = ''
+    if (tokenPayload?.username) {
+      clean = tokenPayload.username.toLowerCase()
+      if (req.query.username && req.query.username.trim().toLowerCase() !== clean) {
+        const requestingUser = await User.findOne({ username: clean })
+        if (requestingUser?.role === 'admin') {
+          clean = req.query.username.trim().replace(/^@/, '').toLowerCase()
+        } else {
+          return res.status(403).json({
+            success: false,
+            message: 'No tienes permiso para consultar las sesiones de otro usuario.'
+          })
+        }
+      }
+    } else {
+      const usernameParam = req.query.username || ''
+      clean = (usernameParam || '').trim().replace(/^@/, '').toLowerCase()
+    }
 
     if (!clean) {
       return res.status(400).json({
@@ -509,8 +525,24 @@ export const closeSession = async (req, res) => {
       } catch {}
     }
 
-    const usernameParam = req.query.username || tokenPayload?.username || ''
-    const clean = (usernameParam || '').trim().replace(/^@/, '').toLowerCase()
+    let clean = ''
+    if (tokenPayload?.username) {
+      clean = tokenPayload.username.toLowerCase()
+      if (req.query.username && req.query.username.trim().toLowerCase() !== clean) {
+        const requestingUser = await User.findOne({ username: clean })
+        if (requestingUser?.role === 'admin') {
+          clean = req.query.username.trim().replace(/^@/, '').toLowerCase()
+        } else {
+          return res.status(403).json({
+            success: false,
+            message: 'No tienes permiso para cerrar las sesiones de otro usuario.'
+          })
+        }
+      }
+    } else {
+      const usernameParam = req.query.username || ''
+      clean = (usernameParam || '').trim().replace(/^@/, '').toLowerCase()
+    }
 
     if (!clean) {
       return res.status(400).json({

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import './ContactDetailsPanel.css'
 import {
   IconX,
@@ -19,14 +19,21 @@ function ContactDetailsPanel({
   onToggleSound
 }) {
   const [isClosing, setIsClosing] = useState(false)
+  const closeTimerRef = useRef(null)
 
   const handleClose = useCallback(() => {
     if (isClosing) return
     setIsClosing(true)
-    setTimeout(() => {
+    closeTimerRef.current = setTimeout(() => {
       onClose()
     }, 220)
   }, [isClosing, onClose])
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     const handleKeyDown = (e) => {
