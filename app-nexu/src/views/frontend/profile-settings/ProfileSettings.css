@@ -7,6 +7,7 @@
 .profile-settings-wrapper {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: transparent;
@@ -16,6 +17,8 @@
   box-sizing: border-box;
   animation: profileFadeIn 0.35s ease-out;
   position: relative;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes profileFadeIn {
@@ -80,6 +83,6 @@
 
 @media (max-width: 768px) {
   .profile-settings-wrapper {
-    padding: 1.5rem 1rem 3rem 1rem;
+    padding: 1.25rem 1rem calc(4.5rem + var(--safe-bottom, 20px)) 1rem;
   }
 }

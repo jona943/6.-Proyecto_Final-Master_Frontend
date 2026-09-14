@@ -7,11 +7,16 @@ import {
 import './SettingsNavTabs.css'
 
 function SettingsNavTabs({ activeTab, onSelectTab, blockedCount }) {
+  const handleTabClick = (e, tab) => {
+    onSelectTab(tab)
+    e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+  }
+
   return (
     <nav className="profile-nav-tabs">
       <button
         className={`nav-tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
-        onClick={() => onSelectTab('profile')}
+        onClick={(e) => handleTabClick(e, 'profile')}
         type="button"
       >
         <IconUser />
@@ -20,7 +25,7 @@ function SettingsNavTabs({ activeTab, onSelectTab, blockedCount }) {
 
       <button
         className={`nav-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
-        onClick={() => onSelectTab('settings')}
+        onClick={(e) => handleTabClick(e, 'settings')}
         type="button"
       >
         <IconSliders />
@@ -29,7 +34,7 @@ function SettingsNavTabs({ activeTab, onSelectTab, blockedCount }) {
 
       <button
         className={`nav-tab-btn ${activeTab === 'privacy' ? 'active' : ''}`}
-        onClick={() => onSelectTab('privacy')}
+        onClick={(e) => handleTabClick(e, 'privacy')}
         type="button"
       >
         <IconShield />
@@ -38,7 +43,7 @@ function SettingsNavTabs({ activeTab, onSelectTab, blockedCount }) {
 
       <button
         className={`nav-tab-btn ${activeTab === 'blocked' ? 'active' : ''}`}
-        onClick={() => onSelectTab('blocked')}
+        onClick={(e) => handleTabClick(e, 'blocked')}
         type="button"
       >
         <IconUserX />
