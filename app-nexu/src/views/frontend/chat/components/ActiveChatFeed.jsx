@@ -45,7 +45,7 @@ function ActiveChatFeed({
   useLayoutEffect(() => {
     if (activeChat?.id !== prevChatIdRef.current) {
       prevChatIdRef.current = activeChat?.id
-      prevMessagesCountRef.current = totalCount
+      prevMessagesCountRef.current = allMessages.length
       setVisibleCount(MESSAGES_PAGE_SIZE)
       setStickyDate(null)
       setIsScrolling(false)

@@ -182,7 +182,7 @@ function ChatHome() {
     setSearchAlias('')
     setSearchedUser(null)
     setUserSuggestions([])
-    setMobileView('chat')
+    setMobileView('list')
   }
 
   // Cancelar solicitud enviada
@@ -193,8 +193,8 @@ function ChatHome() {
   }
 
   // Aceptar solicitud
-  const handleAcceptRequest = (req) => {
-    acceptRequest(req)
+  const handleAcceptRequest = async (req) => {
+    await acceptRequest(req)
     setMobileView('chat')
     triggerToast(`Conexión establecida con ${req.fromUser.handle}`)
   }
@@ -244,6 +244,7 @@ function ChatHome() {
       onConfirm: async () => {
         await deleteConversation(target.id)
         setShowDetailsPanel(false)
+        setMobileView('list')
         triggerToast('Contacto eliminado')
         setConfirmModal((prev) => ({ ...prev, isOpen: false }))
       }
